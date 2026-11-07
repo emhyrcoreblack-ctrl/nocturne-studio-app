@@ -189,6 +189,7 @@ function resolveSnap(event,raw){
  return best||raw;
 }
 function beginSketch(event){
+ if(activeTool!=='select'){const raw=pointOnGround(event);if(raw){const p=resolveSnap(event,raw);if(cursorMarker){cursorMarker.position.copy(p);cursorMarker.visible=true;}}}
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
