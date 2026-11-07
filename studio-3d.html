@@ -184,7 +184,7 @@ function beginSketch(event){
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
  const p=pointOnGround(event);if(!p)return;
- if(cursorMarker){cursorMarker.position.set(p.x,0,p.z);cursorMarker.visible=activeTool!=='select';}
+ if(cursorMarker){cursorMarker.position.copy(p);cursorMarker.visible=activeTool!=='select';}
  if(activeTool==='line'&&linePoints.length){updateContinuousLine(p);return;}
  if(!drawStart||!previewObject)return;
  scene.remove(previewObject);disposePreview(previewObject);previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
