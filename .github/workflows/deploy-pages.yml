@@ -34,3 +34,5 @@ jobs:
       - name: Publish app
         id: deployment
         uses: actions/deploy-pages@v4
+
+# Re-trigger deployment after synchronizing the CAD snap feedback files.
