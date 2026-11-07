@@ -174,7 +174,7 @@ function beginSketch(event){
  if(activeTool==='select'||(event.pointerType!=='touch'&&event.button!==0))return;
  const p=pointOnGround(event);if(!p)return;
  event.preventDefault();
- if(activeTool==='line'){if(!linePoints.length){linePoints=[p.clone()];lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);}else linePoints.push(p.clone());updateContinuousLine(p);saveViewportProject();recordDrawingHistory();return;}
+ if(activeTool==='line'){if(!linePoints.length){linePoints=[p.clone()];lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);updateContinuousLine(p);}else{const previous=linePoints[linePoints.length-1].clone();linePoints.push(p.clone());updateContinuousLine(p,previous);}saveViewportProject();recordDrawingHistory();return;}
  renderer.domElement.setPointerCapture(event.pointerId);drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
 }
 function moveSketch(event){
@@ -205,7 +205,7 @@ function updateMeasureAt(value,hint,point){measureValue=value;measureHint=hint||
 function positionMeasure(){const el=document.getElementById('measureLabel');if(!el||!measureAnchor||!camera)return;const q=measureAnchor.clone().project(camera);if(q.z>1||q.z< -1){el.style.display='none';return;}el.replaceChildren();const main=document.createElement('span');main.textContent=measureValue;el.appendChild(main);if(measureHint){const sub=document.createElement('small');sub.textContent=measureHint;el.appendChild(sub);}el.style.left=(host.offsetLeft+(q.x+1)*.5*host.clientWidth)+'px';el.style.top=(host.offsetTop+(1-q.y)*.5*host.clientHeight)+'px';el.style.display='block';}
 function hideMeasure(){measureAnchor=null;const el=document.getElementById('measureLabel');if(el)el.style.display='none';}
 function shapeMeasure(type,p){if(type==='rect')return fmt(Math.abs(p.x-drawStart.x))+' × '+fmt(Math.abs(p.z-drawStart.z))+' cm';if(type==='circle')return 'Ø '+fmt(Math.hypot(p.x-drawStart.x,p.z-drawStart.z)*2)+' cm';return '—';}
-function updateContinuousLine(cursor){if(!lineObject||!linePoints.length)return;const pts=linePoints.concat(cursor?[cursor.clone()]:[]);lineObject.geometry.dispose();lineObject.geometry=new THREE.BufferGeometry().setFromPoints(pts);const last=linePoints[linePoints.length-1],d=cursor?last.distanceTo(cursor):0;updateMeasureAt('Tramo: '+fmt(d)+' cm','Línea continua · '+linePoints.length+' punto(s)',cursor||last);}
+function updateContinuousLine(cursor,fromPoint){if(!lineObject||!linePoints.length)return;const pts=linePoints.concat(cursor?[cursor.clone()]:[]);lineObject.geometry.setFromPoints(pts);lineObject.geometry.computeBoundingSphere();const last=fromPoint||linePoints[linePoints.length-1],d=cursor?last.distanceTo(cursor):0;updateMeasureAt('Tramo: '+fmt(d)+' cm','Línea continua · '+linePoints.length+' punto(s)',cursor||last);}
 function finishContinuousLine(){if(lineObject&&linePoints.length>1){lineObject.geometry.dispose();lineObject.geometry=new THREE.BufferGeometry().setFromPoints(linePoints);drawnObjects.push(lineObject);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function makeShape(type,a,b,preview){
  const points=[];
