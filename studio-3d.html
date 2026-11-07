@@ -204,49 +204,70 @@ function updateLineStartGuide(event){
  if(lineGuideEl){const r=host.getBoundingClientRect();lineGuideEl.style.left=(x-r.left)+'px';lineGuideEl.style.top=(y-r.top)+'px';lineGuideEl.style.display='block';}
 }
 function resolveSnap(event,raw){
- if(!raw||activeTool==='select')return raw;
- const rect=renderer.domElement.getBoundingClientRect(),limit=19;
- let best=null,bestPx=limit,bestType=null,bestScreen=null,bestSegment=null;
+ if(!raw||activeTool==='select'||!renderer||!camera)return raw;
+ const rect=renderer.domElement.getBoundingClientRect(),limit=19,vertexLimit=13;
+ let nearestVertex=null,nearestVertexPx=vertexLimit,nearestEdge=null,nearestEdgePx=limit;
  const project=(v)=>{const q=v.clone().project(camera);return {x:rect.left+(q.x+1)*rect.width/2,y:rect.top+(1-q.y)*rect.height/2};};
- const test=(candidate,type,screen,segment=null)=>{
-  const d=Math.hypot(screen.x-event.clientX,screen.y-event.clientY);
-  if(d<bestPx||(Math.abs(d-bestPx)<.5&&type==='vertex')){bestPx=d;best=candidate.clone();bestType=type;bestScreen=screen;bestSegment=segment;}
- };
+ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
  for(const obj of drawnObjects){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
   if(pts.length<2)continue;
+  obj.updateMatrixWorld(true);
   const world=pts.map(p=>obj.localToWorld(p.clone()));
-  for(let i=0;i<world.length;i++)test(world[i],'vertex',project(world[i]));
-  const segmentCount=obj.userData.closed?world.length:world.length-1;
-  for(let i=0;i<segmentCount;i++){
+  for(let i=0;i<world.length;i++){
+   const screen=project(world[i]),d=distance(screen,event);
+   if(d<nearestVertexPx){nearestVertexPx=d;nearestVertex={point:world[i].clone(),screen};}
+  }
+  const count=obj.userData.closed?world.length:world.length-1;
+  for(let i=0;i<count;i++){
    const a=world[i],b=world[(i+1)%world.length],sa=project(a),sb=project(b);
-   const dx=sb.x-sa.x,dy=sb.y-sa.y,l2=dx*dx+dy*dy;if(l2<1)continue;
+   const dx=sb.x-sa.x,dy=sb.y-sa.y,l2=dx*dx+dy*dy;
+   if(l2<1)continue;
    const t=THREE.MathUtils.clamp(((event.clientX-sa.x)*dx+(event.clientY-sa.y)*dy)/l2,0,1);
-   const screen={x:sa.x+dx*t,y:sa.y+dy*t};
-   test(a.clone().lerp(b,t),'edge',screen,[sa,sb]);
+   const screen={x:sa.x+dx*t,y:sa.y+dy*t},d=distance(screen,event);
+   if(d<nearestEdgePx){nearestEdgePx=d;nearestEdge={point:a.clone().lerp(b,t),screen,start:sa,end:sb};}
   }
  }
- if(best){
-  snapKind=bestType;
-  if(bestType==='vertex'){
-   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-   if(snapMarkerEl){snapMarkerEl.style.width='9px';snapMarkerEl.style.height='9px';snapMarkerEl.style.borderWidth='1.5px';placeFeedback(snapMarkerEl,{clientX:bestScreen.x,clientY:bestScreen.y},'#39e6b0');}
-  }else{
-   if(snapMarkerEl)snapMarkerEl.style.display='none';
-   if(edgeHighlightEl&&bestSegment){const hostRect=host.getBoundingClientRect(),dx=bestSegment[1].x-bestSegment[0].x,dy=bestSegment[1].y-bestSegment[0].y;edgeHighlightEl.style.left=(bestSegment[0].x-hostRect.left)+'px';edgeHighlightEl.style.top=(bestSegment[0].y-hostRect.top)+'px';edgeHighlightEl.style.width=Math.hypot(dx,dy)+'px';edgeHighlightEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';edgeHighlightEl.style.display='block';}
+ // Los vértices tienen prioridad cerca de una esquina; evita que la arista capture el punto final.
+ if(nearestVertex){
+  snapKind='vertex';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(snapMarkerEl){
+   snapMarkerEl.style.width='9px';snapMarkerEl.style.height='9px';snapMarkerEl.style.borderWidth='1.5px';
+   placeFeedback(snapMarkerEl,{clientX:nearestVertex.screen.x,clientY:nearestVertex.screen.y},'#39e6b0');
   }
   if(levelHintEl)levelHintEl.style.display='none';
-  return best;
+  return nearestVertex.point;
  }
- if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';
- // Guía de nivel: al aproximarse a la misma altura del primer punto en el plano, alinea el trazo.
+ if(nearestEdge){
+  snapKind='edge';
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl){
+   const r=host.getBoundingClientRect(),dx=nearestEdge.end.x-nearestEdge.start.x,dy=nearestEdge.end.y-nearestEdge.start.y;
+   edgeHighlightEl.style.left=(nearestEdge.start.x-r.left)+'px';
+   edgeHighlightEl.style.top=(nearestEdge.start.y-r.top)+'px';
+   edgeHighlightEl.style.width=Math.hypot(dx,dy)+'px';
+   edgeHighlightEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';
+   edgeHighlightEl.style.display='block';
+  }
+  if(levelHintEl)levelHintEl.style.display='none';
+  return nearestEdge.point;
+ }
+ if(snapMarkerEl)snapMarkerEl.style.display='none';
+ if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+ // Guía de nivel paralela al eje del plano de trabajo.
  if(activeTool==='line'&&linePoints.length){
   const origin=planeCoords(linePoints[linePoints.length-1]),current=planeCoords(raw);
   const aligned=planePoint(current.u,origin.v);
-  const a=project(planePoint(origin.u,origin.v)),b=project(aligned),cursor=project(raw),dist=Math.hypot(cursor.x-b.x,cursor.y-b.y);
+  const a=project(planePoint(origin.u,origin.v)),b=project(aligned),cursor=project(raw),dist=distance(cursor,b);
   if(dist<13){
-   if(levelHintEl){const hostRect=host.getBoundingClientRect(),dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);levelHintEl.style.left=(a.x-hostRect.left)+'px';levelHintEl.style.top=(a.y-hostRect.top)+'px';levelHintEl.style.width=Math.max(2,len)+'px';levelHintEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';levelHintEl.style.display=len>2?'block':'none';}
-   return aligned;
+   if(levelHintEl){
+    const r=host.getBoundingClientRect(),dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
+    levelHintEl.style.left=(a.x-r.left)+'px';levelHintEl.style.top=(a.y-r.top)+'px';
+    levelHintEl.style.width=Math.max(2,len)+'px';levelHintEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';
+    levelHintEl.style.display=len>2?'block':'none';
+   }
+   snapKind='level';return aligned;
   }
  }
  if(levelHintEl)levelHintEl.style.display='none';
