@@ -185,8 +185,7 @@ function beginSketch(event){
    return;
   }
   if(pinchGesture)return;
-  if(activeTool==='line'){touchPendingEvent=event;return;}
-  touchPendingEvent=event;
+  touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
   if(touchStartTimer)clearTimeout(touchStartTimer);
   touchStartTimer=setTimeout(()=>{touchStartTimer=null;if(activeTouchPointers.size===1&&!pinchGesture&&touchPendingEvent){const pending=touchPendingEvent;touchPendingEvent=null;beginSketchNow(pending);}},180);
   return;
@@ -197,11 +196,12 @@ function beginSketchNow(event){
  if(activeTool==='select'||(event.pointerType!=='touch'&&event.button!==0))return;
  const p=pointOnGround(event);if(!p)return;
  event.preventDefault();
- if(activeTool==='line'){if(!linePoints.length){linePoints=[p.clone()];lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);updateContinuousLine(p);}else{const previous=linePoints[linePoints.length-1].clone();linePoints.push(p.clone());updateContinuousLine(p,previous);}saveViewportProject();recordDrawingHistory();return;}
+ if(activeTool==='line'){try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}if(!linePoints.length){linePoints=[p.clone()];lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);updateContinuousLine(p);}else{const previous=linePoints[linePoints.length-1].clone();linePoints.push(p.clone());updateContinuousLine(p,previous);}saveViewportProject();recordDrawingHistory();return;}
  renderer.domElement.setPointerCapture(event.pointerId);drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
 }
 function moveSketch(event){
- if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2||touchPendingEvent))return;
+ if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+  if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
  const p=pointOnGround(event);if(!p)return;
  if(cursorMarker){cursorMarker.position.copy(p);cursorMarker.visible=activeTool!=='select';}
  if(activeTool==='line'&&linePoints.length){updateContinuousLine(p);return;}
