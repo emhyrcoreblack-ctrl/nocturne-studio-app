@@ -38,3 +38,5 @@ jobs:
 # Re-trigger deployment after synchronizing the CAD snap feedback files.
 
 # Redeploy corrected snap priority and alignment handling.
+
+# Redeploy continuous line drag and pointer release fixes.
