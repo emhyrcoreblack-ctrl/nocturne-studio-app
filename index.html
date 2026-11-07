@@ -107,7 +107,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ',snapIndicator=null,snapActive=false,snapTarget=null;
+let workPlanes=null,activePlane='XZ';
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
@@ -130,7 +130,6 @@ async function startViewport(){
   document.getElementById('planeButton').addEventListener('click',cycleWorkPlane);
   setWorkPlane('XZ',false);
   const canvas=renderer.domElement;
-  snapIndicator=null;
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
   canvas.addEventListener('pointermove',moveSketch);
@@ -181,9 +180,8 @@ function resolveSnap(event,raw){
  if(!raw||activeTool==='select')return raw;
  const rect=renderer.domElement.getBoundingClientRect(),limit=15;let best=null,bestPx=limit;
  const test=(candidate)=>{const q=candidate.clone().project(camera);const sx=rect.left+(q.x+1)*rect.width/2,sy=rect.top+(1-q.y)*rect.height/2;const d=Math.hypot(sx-event.clientX,sy-event.clientY);if(d<bestPx){bestPx=d;best=candidate.clone();}};
- const objects=drawnObjects.concat(lineObject?[lineObject]:[]);
+ const objects=drawnObjects;
  for(const obj of objects){const attr=obj&&obj.geometry&&obj.geometry.attributes&&obj.geometry.attributes.position;if(!attr)continue;const pts=[];for(let i=0;i<attr.count;i++){const v=new THREE.Vector3().fromBufferAttribute(attr,i);obj.localToWorld(v);pts.push(v);test(v);}for(let i=0;i<pts.length-1;i++){const ab=pts[i+1].clone().sub(pts[i]),len=ab.lengthSq();if(len<1e-8)continue;const t=THREE.MathUtils.clamp(raw.clone().sub(pts[i]).dot(ab)/len,0,1);test(pts[i].clone().addScaledVector(ab,t));}}
- snapActive=!!best;snapTarget=best;
  if(cursorMarker){const color=best?0x55efad:0x8ebaff;cursorMarker.children[0].material.color.setHex(color);cursorMarker.children[1].material.color.setHex(color);cursorMarker.children[2].material.color.setHex(color);cursorMarker.children[3].material.color.setHex(color);}
  return best||raw;
 }
