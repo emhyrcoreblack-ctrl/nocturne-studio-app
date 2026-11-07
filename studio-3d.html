@@ -106,12 +106,12 @@
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
-let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;\nconst workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};let activePlane='XZ';
+let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;\nlet workPlanes=null,activePlane='XZ';
 const activeTouchPointers=new Set();let pinchGesture=false;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
  try{
-  THREE=await import('three');
+  THREE=await import('three');workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};
   const mod=await import('three/addons/controls/OrbitControls.js');
   scene=new THREE.Scene();scene.background=new THREE.Color(0x131a25);
   camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
@@ -163,7 +163,7 @@ function setTool(tool){
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
 }
 function cycleWorkPlane(){const order=['XZ','XY','YZ'];setWorkPlane(order[(order.indexOf(activePlane)+1)%order.length],true);}
-function setWorkPlane(name,orientCamera=true){const config=workPlanes[name];if(!config||!groundPlane)return;activePlane=name;groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));if(cursorMarker){cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);cursorMarker.children[0].position.set(0,.8,0);cursorMarker.children[1].rotation.set(0,0,0);}const button=document.getElementById('planeButton');if(button)button.textContent='Plano '+name;if(orientCamera&&camera&&controls){const target=controls.target.clone();camera.up.copy(config.v);camera.position.copy(target).addScaledVector(config.normal,150);controls.update();}}
+function setWorkPlane(name,orientCamera=true){const config=workPlanes[name];if(!config||!groundPlane)return;activePlane=name;groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));if(cursorMarker){cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);cursorMarker.children[0].position.set(0,.8,0);cursorMarker.children[1].rotation.set(-Math.PI/2,0,0);}const button=document.getElementById('planeButton');if(button)button.textContent='Plano '+name;if(orientCamera&&camera&&controls){const target=controls.target.clone();camera.up.copy(config.v);camera.position.copy(target).addScaledVector(config.normal,150);controls.update();}}
 function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
 function planePoint(u,v,offset=0){const config=workPlanes[activePlane];return config.u.clone().multiplyScalar(u).addScaledVector(config.v,v).addScaledVector(config.normal,offset);}
 function pointOnGround(event){
