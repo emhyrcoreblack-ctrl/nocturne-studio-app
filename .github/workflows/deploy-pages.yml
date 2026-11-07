@@ -36,3 +36,5 @@ jobs:
         uses: actions/deploy-pages@v4
 
 # Re-trigger deployment after synchronizing the CAD snap feedback files.
+
+# Redeploy corrected snap priority and alignment handling.
