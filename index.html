@@ -107,7 +107,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;\nlet workPlanes=null,activePlane='XZ';
-const activeTouchPointers=new Set();let pinchGesture=false;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
+const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
  try{
@@ -174,7 +174,23 @@ function pointOnGround(event){
  return raycaster.ray.intersectPlane(groundPlane,p)?p:null;
 }
 function beginSketch(event){
- if(event.pointerType==='touch'){activeTouchPointers.add(event.pointerId);if(activeTouchPointers.size>=2){pinchGesture=true;drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}return;}if(pinchGesture)return;}
+ if(event.pointerType==='touch'){
+  activeTouchPointers.add(event.pointerId);
+  if(activeTouchPointers.size>=2){
+   pinchGesture=true;touchPendingEvent=null;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+   drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+   return;
+  }
+  if(pinchGesture)return;
+  if(activeTool==='line'){touchPendingEvent=event;return;}
+  touchPendingEvent=event;
+  if(touchStartTimer)clearTimeout(touchStartTimer);
+  touchStartTimer=setTimeout(()=>{touchStartTimer=null;if(activeTouchPointers.size===1&&!pinchGesture&&touchPendingEvent){const pending=touchPendingEvent;touchPendingEvent=null;beginSketchNow(pending);}},180);
+  return;
+ }
+ beginSketchNow(event);
+}
+function beginSketchNow(event){
  if(activeTool==='select'||(event.pointerType!=='touch'&&event.button!==0))return;
  const p=pointOnGround(event);if(!p)return;
  event.preventDefault();
@@ -182,7 +198,7 @@ function beginSketch(event){
  renderer.domElement.setPointerCapture(event.pointerId);drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
 }
 function moveSketch(event){
- if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2||touchPendingEvent))return;
  const p=pointOnGround(event);if(!p)return;
  if(cursorMarker){cursorMarker.position.copy(p);cursorMarker.visible=activeTool!=='select';}
  if(activeTool==='line'&&linePoints.length){updateContinuousLine(p);return;}
@@ -193,9 +209,15 @@ function moveSketch(event){
  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
 }
-function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0)pinchGesture=false;}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
+function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0){if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;touchPendingEvent=null;pinchGesture=false;}}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
 function finishSketch(event){
- if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(pinchGesture){if(activeTouchPointers.size===0)pinchGesture=false;return;}if(activeTouchPointers.size>0)return;}
+ if(event.pointerType==='touch'){
+  activeTouchPointers.delete(event.pointerId);
+  if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;touchPendingEvent=null;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;}return;}
+  if(activeTouchPointers.size>0)return;
+  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+  if(touchPendingEvent){touchPendingEvent=null;if(activeTool==='line')beginSketchNow(event);return;}
+ }
  if(activeTool==='line'||!drawStart)return;
  const p=pointOnGround(event)||drawStart;
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);}
