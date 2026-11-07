@@ -107,7 +107,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ';
+let workPlanes=null,activePlane='XZ',snapMarkerEl=null,levelHintEl=null,snapKind=null;
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -122,7 +122,7 @@ async function startViewport(){
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
   controls=new mod.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.075;controls.rotateSpeed=.72;controls.zoomSpeed=1;controls.panSpeed=.8;controls.minDistance=5;controls.maxDistance=650;controls.target.set(0,0,0);controls.update();
-  raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);cursorMarker=new THREE.Group();const crossMat=new THREE.LineBasicMaterial({color:0x8ebaff,depthTest:false});const crossH=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-2.1,.09,0),new THREE.Vector3(2.1,.09,0)]),crossMat);const crossV=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,.09,-2.1),new THREE.Vector3(0,.09,2.1)]),crossMat);cursorMarker.add(crossH,crossV);cursorMarker.visible=false;scene.add(cursorMarker);
+  raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);snapMarkerEl=document.createElement('div');snapMarkerEl.style.cssText='position:absolute;display:none;width:10px;height:10px;border:2px solid #39e6b0;background:#39e6b044;box-shadow:0 0 0 2px #0c1725,0 0 10px #39e6b0;transform:translate(-50%,-50%);pointer-events:none;z-index:8;border-radius:2px';host.appendChild(snapMarkerEl);levelHintEl=document.createElement('div');levelHintEl.style.cssText='position:absolute;display:none;padding:3px 7px;border-radius:5px;background:#163d35;color:#8fffd7;border:1px solid #39e6b0;font:600 10px system-ui;letter-spacing:.06em;pointer-events:none;z-index:8;transform:translate(9px,-22px)';levelHintEl.textContent='NIVEL';host.appendChild(levelHintEl);cursorMarker=new THREE.Group();const crossMat=new THREE.LineBasicMaterial({color:0x8ebaff,depthTest:false});const crossH=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-2.1,.09,0),new THREE.Vector3(2.1,.09,0)]),crossMat);const crossV=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,.09,-2.1),new THREE.Vector3(0,.09,2.1)]),crossMat);cursorMarker.add(crossH,crossV);cursorMarker.visible=false;scene.add(cursorMarker);
   scene.add(new THREE.HemisphereLight(0xdceaff,0x202938,2));
   const key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(90,140,100);scene.add(key);
   const fill=new THREE.DirectionalLight(0x719bd0,.65);fill.position.set(-100,50,-80);scene.add(fill);
@@ -182,6 +182,11 @@ function pointOnGroundAt(clientX,clientY){
  return raycaster.ray.intersectPlane(groundPlane,p)?p:null;
 }
 function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
+function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';snapKind=null;}
+function placeFeedback(el,event,color){
+ if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
+ if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
+}
 function updateLineStartGuide(event){
  const x=event.clientX,y=event.clientY-lineGuideOffsetPx,guideEvent={clientX:x,clientY:y};
  const raw=pointOnGroundAt(x,y);if(!raw)return;
@@ -190,11 +195,42 @@ function updateLineStartGuide(event){
 }
 function resolveSnap(event,raw){
  if(!raw||activeTool==='select')return raw;
- const rect=renderer.domElement.getBoundingClientRect(),limit=15;let best=null,bestPx=limit;
- const test=(candidate)=>{const q=candidate.clone().project(camera);const sx=rect.left+(q.x+1)*rect.width/2,sy=rect.top+(1-q.y)*rect.height/2;const d=Math.hypot(sx-event.clientX,sy-event.clientY);if(d<bestPx){bestPx=d;best=candidate.clone();}};
- const objects=drawnObjects;
- for(const obj of objects){const attr=obj&&obj.geometry&&obj.geometry.attributes&&obj.geometry.attributes.position;if(!attr)continue;const pts=[];for(let i=0;i<attr.count;i++){const v=new THREE.Vector3().fromBufferAttribute(attr,i);obj.localToWorld(v);pts.push(v);test(v);}for(let i=0;i<pts.length-1;i++){const ab=pts[i+1].clone().sub(pts[i]),len=ab.lengthSq();if(len<1e-8)continue;const t=THREE.MathUtils.clamp(raw.clone().sub(pts[i]).dot(ab)/len,0,1);test(pts[i].clone().addScaledVector(ab,t));}}
- return best||raw;
+ const rect=renderer.domElement.getBoundingClientRect(),limit=19;
+ let best=null,bestPx=limit,bestType=null,bestScreen=null;
+ const project=(v)=>{const q=v.clone().project(camera);return {x:rect.left+(q.x+1)*rect.width/2,y:rect.top+(1-q.y)*rect.height/2};};
+ const test=(candidate,type,screen)=>{
+  const d=Math.hypot(screen.x-event.clientX,screen.y-event.clientY);
+  if(d<bestPx||(Math.abs(d-bestPx)<.5&&type==='vertex')){bestPx=d;best=candidate.clone();bestType=type;bestScreen=screen;}
+ };
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(pts.length<2)continue;
+  const world=pts.map(p=>obj.localToWorld(p.clone()));
+  for(let i=0;i<world.length;i++)test(world[i],'vertex',project(world[i]));
+  const segmentCount=obj.userData.closed?world.length:world.length-1;
+  for(let i=0;i<segmentCount;i++){
+   const a=world[i],b=world[(i+1)%world.length],sa=project(a),sb=project(b);
+   const dx=sb.x-sa.x,dy=sb.y-sa.y,l2=dx*dx+dy*dy;if(l2<1)continue;
+   const t=THREE.MathUtils.clamp(((event.clientX-sa.x)*dx+(event.clientY-sa.y)*dy)/l2,0,1);
+   const screen={x:sa.x+dx*t,y:sa.y+dy*t};
+   test(a.clone().lerp(b,t),'edge',screen);
+  }
+ }
+ if(best){
+  snapKind=bestType;placeFeedback(snapMarkerEl,{clientX:bestScreen.x,clientY:bestScreen.y},bestType==='vertex'?'#39e6b0':'#62b8ff');
+  if(levelHintEl)levelHintEl.style.display='none';
+  return best;
+ }
+ if(snapMarkerEl)snapMarkerEl.style.display='none';
+ // Guía de nivel: al aproximarse a la misma altura del primer punto en el plano, alinea el trazo.
+ if(activeTool==='line'&&linePoints.length){
+  const origin=planeCoords(linePoints[linePoints.length-1]),current=planeCoords(raw);
+  const aligned=planePoint(current.u,origin.v);
+  const a=project(raw),b=project(aligned),dist=Math.hypot(a.x-b.x,a.y-b.y);
+  if(dist<13){if(levelHintEl)placeFeedback(levelHintEl,event,'#39e6b0');return aligned;}
+ }
+ if(levelHintEl)levelHintEl.style.display='none';
+ snapKind=null;return raw;
 }
 function beginSketch(event){
  if(activeTool!=='select'&&!(event.pointerType==='touch'&&activeTool==='line'&&!linePoints.length)){const raw=pointOnGround(event);if(raw)resolveSnap(event,raw);}
@@ -239,9 +275,9 @@ function moveSketch(event){
  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
 }
-function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0){if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;touchPendingEvent=null;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;if(touchLinePointAdded&&!pinchGesture&&linePoints.length){linePoints.pop();if(linePoints.length&&lineObject){updateFatStroke(lineObject,linePoints);}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;pinchGesture=false;}}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
+function cancelSketch(event){hideSnapFeedback();if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0){if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;touchPendingEvent=null;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;if(touchLinePointAdded&&!pinchGesture&&linePoints.length){linePoints.pop();if(linePoints.length&&lineObject){updateFatStroke(lineObject,linePoints);}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;pinchGesture=false;}}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
 function finishSketch(event){
- if(event.pointerType==='touch'){
+ hideSnapFeedback();if(event.pointerType==='touch'){
   activeTouchPointers.delete(event.pointerId);
   if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;}return;}
   if(activeTouchPointers.size>0)return;
