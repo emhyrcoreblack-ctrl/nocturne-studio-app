@@ -17,6 +17,7 @@
 .projectgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:16px}
 .projectcard{padding:0;overflow:hidden;text-align:left;background:#171f2b;border:1px solid #344155;border-radius:15px;min-height:210px;display:flex;flex-direction:column;transition:transform .16s,border-color .16s}.projectcard:hover{transform:translateY(-2px);border-color:#7097c4}
 .thumb{height:132px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,#344c69,#1a2636 72%);display:grid;place-items:center}
+.project-delete{position:absolute;right:10px;top:10px;z-index:3;width:34px;height:34px;padding:0;display:grid;place-items:center;border:1px solid #ffffff35;border-radius:10px;background:#101925c9;color:#dce7f5;font-size:18px;backdrop-filter:blur(8px);opacity:.92;transition:background .15s,border-color .15s,color .15s}.project-delete:hover{background:#6b2832;border-color:#e58a96;color:#fff}.delete-modal{border-color:#69434b}.delete-modal .danger{background:#a83e4d;border-color:#a83e4d;color:white;font-weight:750}.delete-modal .danger:hover{background:#c64d5d}
 .thumb:before{content:"";position:absolute;width:190%;height:1px;background:#5c7696;transform:rotate(-25deg);opacity:.35;box-shadow:0 30px #5c7696,0 60px #5c7696,0 -30px #5c7696,0 -60px #5c7696}
 .thumb:after{content:"";position:absolute;width:1px;height:190%;background:#5c7696;transform:rotate(25deg);opacity:.28;box-shadow:30px 0 #5c7696,60px 0 #5c7696,-30px 0 #5c7696,-60px 0 #5c7696}
 .thumb svg{position:relative;z-index:1;width:105px;height:85px;filter:drop-shadow(0 12px 16px #0008)}
@@ -45,6 +46,7 @@
 <button class="projectcard newcard" id="newProjectCard"><span class="plus">＋</span><strong>Crear nuevo proyecto</strong><small>Comienza con un espacio 3D vacío y construye desde cero.</small></button>
 </div>
 </div>
+<div class="modalback" id="deleteProjectModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle"><div class="modal delete-modal" tabindex="-1"><h2 id="deleteModalTitle">¿Eliminar proyecto?</h2><p id="deleteProjectMessage">Esta acción eliminará el proyecto y todo su contenido guardado. No se puede deshacer.</p><div class="modalactions"><button type="button" id="cancelDelete">Cancelar</button><button type="button" class="danger" id="confirmDelete">Eliminar proyecto</button></div></div></div>
 </section>
 <div class="modalback" id="newProjectModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <form class="modal" id="projectForm">
@@ -82,10 +84,16 @@
 
  function save(){try{localStorage.setItem(KEY,JSON.stringify(projects));}catch(e){}}
  function safeDate(v){try{return new Intl.DateTimeFormat('es',{day:'numeric',month:'short',year:'numeric'}).format(new Date(v));}catch(e){return 'Reciente';}}
- function card(p){const b=document.createElement('button');b.className='projectcard';b.type='button';b.innerHTML='<div class="thumb"><div class="emptythumb-grid"></div><span class="emptythumb-label">ESPACIO VACÍO</span></div><div class="cardinfo"><div><strong></strong><small></small></div><span class="cardarrow">›</span></div>';b.querySelector('strong').textContent=p.name;b.querySelector('small').textContent='Modificado · '+safeDate(p.updated);b.addEventListener('click',()=>enter(p.id));return b;}
+ function card(p){const b=document.createElement('button');b.className='projectcard';b.type='button';b.innerHTML='<div class="thumb"><div class="emptythumb-grid"></div><span class="emptythumb-label">ESPACIO 3D</span><button class="project-delete" type="button" aria-label="Eliminar proyecto" title="Eliminar proyecto">⋯</button></div><div class="cardinfo"><div><strong></strong><small></small></div><span class="cardarrow">›</span></div>';b.querySelector('strong').textContent=p.name;b.querySelector('small').textContent='Modificado · '+safeDate(p.updated);const remove=b.querySelector('.project-delete');remove.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openDelete(p.id);});b.addEventListener('click',()=>enter(p.id));return b;}
  function render(){grid.replaceChildren();projects.slice().sort((a,b)=>new Date(b.updated)-new Date(a.updated)).forEach(p=>grid.appendChild(card(p)));if(!projects.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='Todavía no tienes proyectos. Crea uno nuevo para comenzar a diseñar.';grid.appendChild(empty);}const n=document.createElement('button');n.className='projectcard newcard';n.type='button';n.innerHTML='<span class="plus">＋</span><strong>Crear nuevo proyecto</strong><small>Comienza con un espacio 3D vacío y construye desde cero.</small>';n.addEventListener('click',openModal);grid.appendChild(n);document.getElementById('projectCount').textContent=projects.length+' '+(projects.length===1?'proyecto':'proyectos');}
  function openModal(){modal.classList.add('show');input.value='';setTimeout(()=>input.focus(),40);}
  function closeModal(){modal.classList.remove('show');}
+ const deleteModal=document.getElementById('deleteProjectModal');let pendingDeleteId=null;
+ function openDelete(id){const p=projects.find(x=>x.id===id);if(!p)return;pendingDeleteId=id;document.getElementById('deleteProjectMessage').textContent='Se eliminará “'+p.name+'” junto con todo su contenido guardado. Esta acción no se puede deshacer.';deleteModal.classList.add('show');document.getElementById('cancelDelete').focus();}
+ function closeDelete(){deleteModal.classList.remove('show');pendingDeleteId=null;}
+ document.getElementById('cancelDelete').addEventListener('click',closeDelete);deleteModal.addEventListener('click',e=>{if(e.target===deleteModal)closeDelete();});
+ document.getElementById('confirmDelete').addEventListener('click',()=>{if(!pendingDeleteId)return;projects=projects.filter(p=>p.id!==pendingDeleteId);save();closeDelete();render();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&deleteModal.classList.contains('show'))closeDelete();});
  function enter(id){const p=projects.find(x=>x.id===id);if(!p)return;currentId=id;p.updated=new Date().toISOString();save();render();document.getElementById('activeProjectName').textContent=p.name.toUpperCase();document.getElementById('documentTitle').textContent=p.name;screen.style.display='none';workspace.style.display='block';if(window.startViewport)window.startViewport().then(()=>{if(window.loadViewportProject)window.loadViewportProject(id);});else window.dispatchEvent(new Event('nocturne-start-3d'));}
  let currentId=null;
  window.nocturneProjectData={get:id=>{const p=projects.find(x=>x.id===id);return p&&p.scene?p.scene:null;},set:(id,data)=>{const p=projects.find(x=>x.id===id);if(p){p.scene=data;p.updated=new Date().toISOString();save();render();}}};
