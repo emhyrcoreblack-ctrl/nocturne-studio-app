@@ -199,7 +199,7 @@ function beginSketch(event){
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
-   pinchGesture=true;touchLineGuideActive=false;touchPendingEvent=null;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+   pinchGesture=true;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;touchPendingEvent=null;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
    if(touchLinePointAdded&&linePoints.length){touchLinePointAdded=false;linePoints.pop();if(linePoints.length){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
    touchLineStart=null;touchLineMoved=false;drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
    return;
@@ -237,7 +237,7 @@ function moveSketch(event){
  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
 }
-function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0){if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;touchPendingEvent=null;touchLineGuideActive=false;if(touchLinePointAdded&&!pinchGesture&&linePoints.length){linePoints.pop();if(linePoints.length&&lineObject){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;pinchGesture=false;}}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
+function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0){if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;touchPendingEvent=null;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;if(touchLinePointAdded&&!pinchGesture&&linePoints.length){linePoints.pop();if(linePoints.length&&lineObject){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;pinchGesture=false;}}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
 function finishSketch(event){
  if(event.pointerType==='touch'){
   activeTouchPointers.delete(event.pointerId);
