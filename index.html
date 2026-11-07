@@ -130,7 +130,7 @@ async function startViewport(){
   document.getElementById('planeButton').addEventListener('click',cycleWorkPlane);
   setWorkPlane('XZ',false);
   const canvas=renderer.domElement;
-  snapIndicator=document.createElement('div');snapIndicator.textContent='🧲';snapIndicator.style.cssText='position:fixed;display:none;z-index:10000;pointer-events:none;font:18px/1 system-ui;background:#142235;border:1px solid #62e6ad;border-radius:14px;padding:4px 6px;box-shadow:0 2px 12px #0008;transform:translate(13px,-22px)';document.body.appendChild(snapIndicator);
+  snapIndicator=null;
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
   canvas.addEventListener('pointermove',moveSketch);
@@ -185,7 +185,6 @@ function resolveSnap(event,raw){
  for(const obj of objects){const attr=obj&&obj.geometry&&obj.geometry.attributes&&obj.geometry.attributes.position;if(!attr)continue;const pts=[];for(let i=0;i<attr.count;i++){const v=new THREE.Vector3().fromBufferAttribute(attr,i);obj.localToWorld(v);pts.push(v);test(v);}for(let i=0;i<pts.length-1;i++){const ab=pts[i+1].clone().sub(pts[i]),len=ab.lengthSq();if(len<1e-8)continue;const t=THREE.MathUtils.clamp(raw.clone().sub(pts[i]).dot(ab)/len,0,1);test(pts[i].clone().addScaledVector(ab,t));}}
  snapActive=!!best;snapTarget=best;
  if(cursorMarker){const color=best?0x55efad:0x8ebaff;cursorMarker.children[0].material.color.setHex(color);cursorMarker.children[1].material.color.setHex(color);cursorMarker.children[2].material.color.setHex(color);cursorMarker.children[3].material.color.setHex(color);}
- if(snapIndicator){if(best){const q=best.clone().project(camera);snapIndicator.style.display='block';snapIndicator.style.left=(rect.left+(q.x+1)*rect.width/2)+'px';snapIndicator.style.top=(rect.top+(1-q.y)*rect.height/2)+'px';}else snapIndicator.style.display='none';}
  return best||raw;
 }
 function beginSketch(event){
