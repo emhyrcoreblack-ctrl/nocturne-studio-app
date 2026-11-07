@@ -115,6 +115,8 @@ async function startViewport(){
  try{
   THREE=await import('three');workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};
   const mod=await import('three/addons/controls/OrbitControls.js');
+  const [line2mod,lineGeomMod,lineMatMod]=await Promise.all([import('three/addons/lines/Line2.js'),import('three/addons/lines/LineGeometry.js'),import('three/addons/lines/LineMaterial.js')]);
+  window.nocturneFatLine={Line2:line2mod.Line2,LineGeometry:lineGeomMod.LineGeometry,LineMaterial:lineMatMod.LineMaterial};
   scene=new THREE.Scene();scene.background=new THREE.Color(0x131a25);
   camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -200,7 +202,7 @@ function beginSketch(event){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
    pinchGesture=true;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;touchPendingEvent=null;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-   if(touchLinePointAdded&&linePoints.length){touchLinePointAdded=false;linePoints.pop();if(linePoints.length){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
+   if(touchLinePointAdded&&linePoints.length){touchLinePointAdded=false;linePoints.pop();if(linePoints.length){updateFatStroke(lineObject,linePoints);}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
    touchLineStart=null;touchLineMoved=false;drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
    return;
   }
@@ -220,7 +222,7 @@ function beginSketchNow(event,deferCommit=false){
  if(activeTool==='select'||(event.pointerType!=='touch'&&event.button!==0))return;
  const raw=pointOnGround(event);if(!raw)return;const p=resolveSnap(event,raw);
  event.preventDefault();
- if(activeTool==='line'){try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}if(!linePoints.length){linePoints=[p.clone()];lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);updateContinuousLine(p);}else{const previous=linePoints[linePoints.length-1].clone();linePoints.push(p.clone());updateContinuousLine(p,previous);}if(!deferCommit){saveViewportProject();recordDrawingHistory();}return;}
+ if(activeTool==='line'){try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}if(!linePoints.length){linePoints=[p.clone()];lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);updateContinuousLine(p);}else{const previous=linePoints[linePoints.length-1].clone();linePoints.push(p.clone());updateContinuousLine(p,previous);}if(!deferCommit){saveViewportProject();recordDrawingHistory();}return;}
  renderer.domElement.setPointerCapture(event.pointerId);drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
 }
 function moveSketch(event){
@@ -237,7 +239,7 @@ function moveSketch(event){
  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
 }
-function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0){if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;touchPendingEvent=null;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;if(touchLinePointAdded&&!pinchGesture&&linePoints.length){linePoints.pop();if(linePoints.length&&lineObject){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;pinchGesture=false;}}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
+function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0){if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;touchPendingEvent=null;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;if(touchLinePointAdded&&!pinchGesture&&linePoints.length){linePoints.pop();if(linePoints.length&&lineObject){updateFatStroke(lineObject,linePoints);}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;pinchGesture=false;}}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
 function finishSketch(event){
  if(event.pointerType==='touch'){
   activeTouchPointers.delete(event.pointerId);
@@ -249,13 +251,13 @@ function finishSketch(event){
    updateLineStartGuide(event);
    const x=event.clientX,y=event.clientY-lineGuideOffsetPx,raw=pointOnGroundAt(x,y),p=raw?resolveSnap({clientX:x,clientY:y},raw):null;
    touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;
-   if(p){linePoints=[p.clone()];lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);saveViewportProject();}
+   if(p){linePoints=[p.clone()];lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);saveViewportProject();}
    return;
   }
   if(activeTool==='line'&&touchLinePointAdded){
    const raw=pointOnGround(event);const p=raw?resolveSnap(event,raw):null;
    if(touchLineMoved&&p&&linePoints.length&&p.distanceTo(linePoints[linePoints.length-1])>.08)linePoints.push(p.clone());
-   if(lineObject){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}
+   if(lineObject){updateFatStroke(lineObject,linePoints);}
    touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;saveViewportProject();recordDrawingHistory();return;
   }
  }
@@ -273,7 +275,7 @@ function positionMeasure(){const el=document.getElementById('measureLabel');if(!
 function hideMeasure(){measureAnchor=null;const el=document.getElementById('measureLabel');if(el)el.style.display='none';}
 function shapeMeasure(type,p){if(type==='rect')return fmt(Math.abs(p.x-drawStart.x))+' × '+fmt(Math.abs(p.z-drawStart.z))+' cm';if(type==='circle')return 'Ø '+fmt(Math.hypot(p.x-drawStart.x,p.z-drawStart.z)*2)+' cm';return '—';}
 function updateContinuousLine(cursor,fromPoint){if(!lineObject||!linePoints.length)return;const pts=linePoints.concat(cursor?[cursor.clone()]:[]);lineObject.geometry.setFromPoints(pts);lineObject.geometry.computeBoundingSphere();hideMeasure();}
-function finishContinuousLine(){if(lineObject&&linePoints.length>1){lineObject.geometry.dispose();lineObject.geometry=new THREE.BufferGeometry().setFromPoints(linePoints);drawnObjects.push(lineObject);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
+function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);drawnObjects.push(lineObject);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function makeShape(type,a,b,preview){
  const points=[];
  if(type==='line'){points.push(a.clone(),b.clone());}
@@ -285,9 +287,23 @@ function makeShape(type,a,b,preview){
   if(radius<.03)return null;
   for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius,.03));}
  }
- const geometry=new THREE.BufferGeometry().setFromPoints(points);
- const material=new THREE.LineBasicMaterial({color:preview?0x8ebaff:0xe5efff,transparent:preview,opacity:preview?.65:1});
- return type==='line'?new THREE.Line(geometry,material):new THREE.LineLoop(geometry,material);
+ return makeFatStroke(points,preview?0x8ebaff:0xe5efff,preview?.65:1,type!=='line');
+}
+function makeFatStroke(points,color=0xe5efff,opacity=1,closed=false){
+ const api=window.nocturneFatLine;if(!api||!points||points.length<2)return null;
+ const coords=[];points.forEach(p=>coords.push(p.x,p.y,p.z));
+ if(closed&&points.length>2)coords.push(points[0].x,points[0].y,points[0].z);
+ const geometry=new api.LineGeometry();geometry.setPositions(coords);
+ const material=new api.LineMaterial({color,linewidth:3.2,worldUnits:false,transparent:opacity<1,opacity,depthTest:true});
+ material.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
+ const obj=new api.Line2(geometry,material);obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());obj.userData.closed=closed;return obj;
+}
+function updateFatStroke(obj,points){
+ if(!obj||!window.nocturneFatLine)return;
+ const coords=[];points.forEach(p=>coords.push(p.x,p.y,p.z));
+ if(obj.userData.closed&&points.length>2)coords.push(points[0].x,points[0].y,points[0].z);
+ obj.geometry.dispose();obj.geometry=new window.nocturneFatLine.LineGeometry();obj.geometry.setPositions(coords);
+ obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());
 }
 function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
@@ -295,7 +311,7 @@ function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001]
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.isLineLoop,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:Array.from(o.geometry.attributes.position.array)}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const geometry=new THREE.BufferGeometry().setFromPoints(pts);const material=new THREE.LineBasicMaterial({color:Number.isFinite(item.color)?item.color:0xe5efff});const obj=item.closed?new THREE.LineLoop(geometry,material):new THREE.Line(geometry,material);scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const geometry=new THREE.BufferGeometry().setFromPoints(pts);const material=new THREE.LineBasicMaterial({color:Number.isFinite(item.color)?item.color:0xe5efff});const obj=item.closed?new THREE.LineLoop(geometry,material):new THREE.Line(geometry,material);scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
 function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.isLineLoop,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:Array.from(o.geometry.attributes.position.array)})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
