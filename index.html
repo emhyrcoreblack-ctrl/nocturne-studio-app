@@ -63,7 +63,7 @@
 <nav id="editorToolbar" aria-label="Herramientas del espacio">
 <button id="undoButton" title="Deshacer">↶</button><button id="redoButton" title="Rehacer">↷</button><span class="tool-separator"></span>
 <button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><div id="drawToolsPanel" role="group" aria-label="Herramientas de dibujo"><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea">／ <small>Línea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button></div><span class="tool-separator"></span>
-<button id="gridButton" class="tool-active" title="Mostrar u ocultar cuadrícula">▦</button><button id="axesButton" class="tool-active" title="Mostrar u ocultar ejes">⌖</button><button id="fitButton" title="Restablecer vista">⟳</button><span class="tool-separator"></span><span class="save-state" id="saveState">Seleccionar</span>
+<button id="gridButton" class="tool-active" title="Mostrar u ocultar cuadrícula">▦</button><button id="axesButton" class="tool-active" title="Mostrar u ocultar ejes">⌖</button><button id="fitButton" title="Restablecer vista">⟳</button><button id="planeButton" title="Cambiar plano de dibujo">Plano XZ</button><span class="tool-separator"></span><span class="save-state" id="saveState">Seleccionar</span>
 </nav>
 <div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
 <div class="viewcube"><div class="cube" id="orientationCube">
@@ -106,7 +106,7 @@
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
-let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
+let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;\nconst workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};let activePlane='XZ';
 const activeTouchPointers=new Set();let pinchGesture=false;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
@@ -125,7 +125,7 @@ async function startViewport(){
   gridObject=new THREE.GridHelper(200,100,0x43546b,0x263346);gridObject.position.y=-.02;scene.add(gridObject);
   axesObject=new THREE.AxesHelper(65);scene.add(axesObject);defaultCameraPosition=camera.position.clone();
   
-  controls.addEventListener('change',updateCube);
+  controls.addEventListener('change',updateCube);\n  document.getElementById('planeButton').addEventListener('click',cycleWorkPlane);\n  setWorkPlane('XZ',false);
   const canvas=renderer.domElement;
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
@@ -162,6 +162,10 @@ function setTool(tool){
  if(controls){controls.enabled=true;controls.enableRotate=(tool==='select');controls.enablePan=(tool==='select');controls.enableZoom=true;if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}}
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
 }
+function cycleWorkPlane(){const order=['XZ','XY','YZ'];setWorkPlane(order[(order.indexOf(activePlane)+1)%order.length],true);}
+function setWorkPlane(name,orientCamera=true){const config=workPlanes[name];if(!config||!groundPlane)return;activePlane=name;groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));if(cursorMarker){cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);cursorMarker.children[0].position.set(0,.8,0);cursorMarker.children[1].rotation.set(0,0,0);}const button=document.getElementById('planeButton');if(button)button.textContent='Plano '+name;if(orientCamera&&camera&&controls){const target=controls.target.clone();camera.up.copy(config.v);camera.position.copy(target).addScaledVector(config.normal,150);controls.update();}}
+function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
+function planePoint(u,v,offset=0){const config=workPlanes[activePlane];return config.u.clone().multiplyScalar(u).addScaledVector(config.v,v).addScaledVector(config.normal,offset);}
 function pointOnGround(event){
  const r=renderer.domElement.getBoundingClientRect();
  ndc.set(((event.clientX-r.left)/r.width)*2-1,-((event.clientY-r.top)/r.height)*2+1);
@@ -184,10 +188,10 @@ function moveSketch(event){
  if(activeTool==='line'&&linePoints.length){updateContinuousLine(p);return;}
  if(!drawStart||!previewObject)return;
  scene.remove(previewObject);disposePreview(previewObject);previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
- const dx=Math.abs(p.x-drawStart.x),dz=Math.abs(p.z-drawStart.z),distance=Math.hypot(dx,dz);
- const anchor=new THREE.Vector3((drawStart.x+p.x)/2,.08,(drawStart.z+p.z)/2);
+ const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
+ const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
- else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',new THREE.Vector3(p.x,.08,p.z));
+ else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
 }
 function cancelSketch(event){if(event.pointerType==='touch'){activeTouchPointers.delete(event.pointerId);if(activeTouchPointers.size===0)pinchGesture=false;}if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}}
 function finishSketch(event){
@@ -197,7 +201,7 @@ function finishSketch(event){
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);}
  const obj=makeShape(activeTool,drawStart,p,false);
  if(obj){scene.add(obj);drawnObjects.push(obj);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}
- const start=drawStart;previewObject=null;drawStart=null;const dx=Math.abs(p.x-start.x),dz=Math.abs(p.z-start.z),d=Math.hypot(dx,dz),anchor=new THREE.Vector3((start.x+p.x)/2,.08,(start.z+p.z)/2);updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);saveViewportProject();recordDrawingHistory();
+ const start=drawStart;previewObject=null;drawStart=null;const a=planeCoords(start),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);saveViewportProject();recordDrawingHistory();
 }
 function disposePreview(obj){if(!obj)return;if(obj.geometry)obj.geometry.dispose();if(obj.material){if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material.dispose();}}
 function fmt(n){return (Math.round(n*10)/10).toFixed(1);}
@@ -211,11 +215,12 @@ function makeShape(type,a,b,preview){
  const points=[];
  if(type==='line'){points.push(a.clone(),b.clone());}
  else if(type==='rect'){
-  points.push(new THREE.Vector3(a.x,.03,a.z),new THREE.Vector3(b.x,.03,a.z),new THREE.Vector3(b.x,.03,b.z),new THREE.Vector3(a.x,.03,b.z));
+  const ca=planeCoords(a),cb=planeCoords(b);
+  points.push(planePoint(ca.u,ca.v,.03),planePoint(cb.u,ca.v,.03),planePoint(cb.u,cb.v,.03),planePoint(ca.u,cb.v,.03));
  }else if(type==='circle'){
-  const radius=Math.hypot(b.x-a.x,b.z-a.z);
+  const ca=planeCoords(a),cb=planeCoords(b),radius=Math.hypot(cb.u-ca.u,cb.v-ca.v);
   if(radius<.03)return null;
-  for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(new THREE.Vector3(a.x+Math.cos(t)*radius,.03,a.z+Math.sin(t)*radius));}
+  for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius,.03));}
  }
  const geometry=new THREE.BufferGeometry().setFromPoints(points);
  const material=new THREE.LineBasicMaterial({color:preview?0x8ebaff:0xe5efff,transparent:preview,opacity:preview?.65:1});
