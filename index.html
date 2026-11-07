@@ -128,7 +128,7 @@ async function startViewport(){
   axesObject=new THREE.AxesHelper(65);scene.add(axesObject);defaultCameraPosition=camera.position.clone();
   
   controls.addEventListener('change',updateCube);
-  document.getElementById('planeButton').addEventListener('click',cycleWorkPlane);
+  // El selector textual de plano fue retirado para mantener limpia la barra.
   setWorkPlane('XZ',false);
   const canvas=renderer.domElement;
   canvas.addEventListener('pointerdown',beginSketch);
