@@ -107,7 +107,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ';
+let workPlanes=null,activePlane='XZ',snapIndicator=null,snapActive=false,snapTarget=null;
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
@@ -119,7 +119,7 @@ async function startViewport(){
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
   controls=new mod.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.075;controls.rotateSpeed=.72;controls.zoomSpeed=1;controls.panSpeed=.8;controls.minDistance=5;controls.maxDistance=650;controls.target.set(0,0,0);controls.update();
-  raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);cursorMarker=new THREE.Group();const cursorDot=new THREE.Mesh(new THREE.SphereGeometry(.65,12,8),new THREE.MeshBasicMaterial({color:0x8ebaff,depthTest:false}));cursorDot.position.y=.8;cursorMarker.add(cursorDot);const cursorRing=new THREE.Mesh(new THREE.RingGeometry(1.8,2.15,32),new THREE.MeshBasicMaterial({color:0x8ebaff,side:THREE.DoubleSide,depthTest:false}));cursorRing.rotation.x=-Math.PI/2;cursorRing.position.y=.08;cursorMarker.add(cursorRing);cursorMarker.visible=false;scene.add(cursorMarker);
+  raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);cursorMarker=new THREE.Group();const cursorDot=new THREE.Mesh(new THREE.SphereGeometry(.55,12,8),new THREE.MeshBasicMaterial({color:0x8ebaff,depthTest:false}));cursorDot.position.y=.8;cursorMarker.add(cursorDot);const cursorRing=new THREE.Mesh(new THREE.RingGeometry(1.8,2.15,32),new THREE.MeshBasicMaterial({color:0x8ebaff,side:THREE.DoubleSide,depthTest:false}));cursorRing.rotation.x=-Math.PI/2;cursorRing.position.y=.08;cursorMarker.add(cursorRing);const crossMat=new THREE.LineBasicMaterial({color:0x8ebaff,depthTest:false});const crossH=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-3.2,.09,0),new THREE.Vector3(3.2,.09,0)]),crossMat);const crossV=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,.09,-3.2),new THREE.Vector3(0,.09,3.2)]),crossMat);cursorMarker.add(crossH,crossV);cursorMarker.visible=false;scene.add(cursorMarker);
   scene.add(new THREE.HemisphereLight(0xdceaff,0x202938,2));
   const key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(90,140,100);scene.add(key);
   const fill=new THREE.DirectionalLight(0x719bd0,.65);fill.position.set(-100,50,-80);scene.add(fill);
@@ -130,6 +130,7 @@ async function startViewport(){
   document.getElementById('planeButton').addEventListener('click',cycleWorkPlane);
   setWorkPlane('XZ',false);
   const canvas=renderer.domElement;
+  snapIndicator=document.createElement('div');snapIndicator.textContent='🧲';snapIndicator.style.cssText='position:fixed;display:none;z-index:10000;pointer-events:none;font:18px/1 system-ui;background:#142235;border:1px solid #62e6ad;border-radius:14px;padding:4px 6px;box-shadow:0 2px 12px #0008;transform:translate(13px,-22px)';document.body.appendChild(snapIndicator);
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
   canvas.addEventListener('pointermove',moveSketch);
@@ -176,7 +177,19 @@ function pointOnGround(event){
  const p=new THREE.Vector3();
  return raycaster.ray.intersectPlane(groundPlane,p)?p:null;
 }
+function resolveSnap(event,raw){
+ if(!raw||activeTool==='select')return raw;
+ const rect=renderer.domElement.getBoundingClientRect(),limit=15;let best=null,bestPx=limit;
+ const test=(candidate)=>{const q=candidate.clone().project(camera);const sx=rect.left+(q.x+1)*rect.width/2,sy=rect.top+(1-q.y)*rect.height/2;const d=Math.hypot(sx-event.clientX,sy-event.clientY);if(d<bestPx){bestPx=d;best=candidate.clone();}};
+ const objects=drawnObjects.concat(lineObject?[lineObject]:[]);
+ for(const obj of objects){const attr=obj&&obj.geometry&&obj.geometry.attributes&&obj.geometry.attributes.position;if(!attr)continue;const pts=[];for(let i=0;i<attr.count;i++){const v=new THREE.Vector3().fromBufferAttribute(attr,i);obj.localToWorld(v);pts.push(v);test(v);}for(let i=0;i<pts.length-1;i++){const ab=pts[i+1].clone().sub(pts[i]),len=ab.lengthSq();if(len<1e-8)continue;const t=THREE.MathUtils.clamp(raw.clone().sub(pts[i]).dot(ab)/len,0,1);test(pts[i].clone().addScaledVector(ab,t));}}
+ snapActive=!!best;snapTarget=best;
+ if(cursorMarker){const color=best?0x55efad:0x8ebaff;cursorMarker.children[0].material.color.setHex(color);cursorMarker.children[1].material.color.setHex(color);cursorMarker.children[2].material.color.setHex(color);cursorMarker.children[3].material.color.setHex(color);}
+ if(snapIndicator){if(best){const q=best.clone().project(camera);snapIndicator.style.display='block';snapIndicator.style.left=(rect.left+(q.x+1)*rect.width/2)+'px';snapIndicator.style.top=(rect.top+(1-q.y)*rect.height/2)+'px';}else snapIndicator.style.display='none';}
+ return best||raw;
+}
 function beginSketch(event){
+ if(activeTool!=='select'){const raw=pointOnGround(event);if(raw){const p=resolveSnap(event,raw);if(cursorMarker){cursorMarker.position.copy(p);cursorMarker.visible=true;}}}
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
@@ -196,15 +209,15 @@ function beginSketch(event){
 }
 function beginSketchNow(event,deferCommit=false){
  if(activeTool==='select'||(event.pointerType!=='touch'&&event.button!==0))return;
- const p=pointOnGround(event);if(!p)return;
- event.preventDefault();
+ const raw=pointOnGround(event);if(!raw)return;const p=resolveSnap(event,raw);
+ if(cursorMarker){cursorMarker.position.copy(p);cursorMarker.visible=true;}event.preventDefault();
  if(activeTool==='line'){try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}if(!linePoints.length){linePoints=[p.clone()];lineObject=new THREE.Line(new THREE.BufferGeometry().setFromPoints(linePoints),new THREE.LineBasicMaterial({color:0xe5efff}));scene.add(lineObject);updateContinuousLine(p);}else{const previous=linePoints[linePoints.length-1].clone();linePoints.push(p.clone());updateContinuousLine(p,previous);}if(!deferCommit){saveViewportProject();recordDrawingHistory();}return;}
  renderer.domElement.setPointerCapture(event.pointerId);drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
   if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
- const p=pointOnGround(event);if(!p)return;
+ const raw=pointOnGround(event);if(!raw)return;const p=resolveSnap(event,raw);
  if(cursorMarker){cursorMarker.position.copy(p);cursorMarker.visible=activeTool!=='select';}
  if(activeTool==='line'&&linePoints.length){if(event.pointerType==='touch'&&touchLineStart&&p.distanceTo(touchLineStart)>.08)touchLineMoved=true;updateContinuousLine(p);return;}
  if(!drawStart||!previewObject)return;
@@ -222,10 +235,10 @@ function finishSketch(event){
   if(activeTouchPointers.size>0)return;
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   if(touchPendingEvent){touchPendingEvent=null;}
-  if(activeTool==='line'&&touchLinePointAdded){const p=pointOnGround(event);if(touchLineMoved&&p&&linePoints.length&&p.distanceTo(linePoints[linePoints.length-1])>.08)linePoints.push(p.clone());if(lineObject){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;saveViewportProject();recordDrawingHistory();return;}
+  if(activeTool==='line'&&touchLinePointAdded){const raw=pointOnGround(event);const p=raw?resolveSnap(event,raw):null;if(touchLineMoved&&p&&linePoints.length&&p.distanceTo(linePoints[linePoints.length-1])>.08)linePoints.push(p.clone());if(lineObject){lineObject.geometry.setFromPoints(linePoints);lineObject.geometry.computeBoundingSphere();}touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;saveViewportProject();recordDrawingHistory();return;}
  }
  if(activeTool==='line'||!drawStart)return;
- const p=pointOnGround(event)||drawStart;
+ const raw=pointOnGround(event);const p=raw?resolveSnap(event,raw):(drawStart);
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);}
  const obj=makeShape(activeTool,drawStart,p,false);
  if(obj){scene.add(obj);drawnObjects.push(obj);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}
