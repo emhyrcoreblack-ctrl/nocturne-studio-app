@@ -106,7 +106,8 @@
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
-let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;\nlet workPlanes=null,activePlane='XZ';
+let activeTool='select',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
+let workPlanes=null,activePlane='XZ';
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
@@ -125,7 +126,9 @@ async function startViewport(){
   gridObject=new THREE.GridHelper(200,100,0x43546b,0x263346);gridObject.position.y=-.02;scene.add(gridObject);
   axesObject=new THREE.AxesHelper(65);scene.add(axesObject);defaultCameraPosition=camera.position.clone();
   
-  controls.addEventListener('change',updateCube);\n  document.getElementById('planeButton').addEventListener('click',cycleWorkPlane);\n  setWorkPlane('XZ',false);
+  controls.addEventListener('change',updateCube);
+  document.getElementById('planeButton').addEventListener('click',cycleWorkPlane);
+  setWorkPlane('XZ',false);
   const canvas=renderer.domElement;
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
