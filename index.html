@@ -237,7 +237,7 @@ function beginSketch(event){
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
-   pinchGesture=true;touchLineGuideActive=false;if(cursorMarker)cursorMarker.visible=false;touchPendingEvent=null;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+   pinchGesture=true;touchLineGuideActive=false;hideSnapFeedback();if(cursorMarker)cursorMarker.visible=false;touchPendingEvent=null;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
    if(touchLinePointAdded&&linePoints.length){touchLinePointAdded=false;linePoints.pop();if(linePoints.length){updateFatStroke(lineObject,linePoints);}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
    touchLineStart=null;touchLineMoved=false;drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
    return;
