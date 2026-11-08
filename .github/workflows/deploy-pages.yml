@@ -62,3 +62,5 @@ jobs:
 # Trigger deployment for the latest synchronized studio files.
 
 # Redeploy corrected CAD snap detection without live-preview self-snapping.
+
+# Publish matrix refresh and stronger on-screen CAD snap feedback.
