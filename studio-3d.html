@@ -116,7 +116,7 @@ const host=document.getElementById('viewport'),errorBox=document.getElementById(
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
 let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,lineGuideEl=null,snapKind=null;
-const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
+const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
@@ -296,6 +296,7 @@ function beginSketch(event){
     // Primer apoyo táctil: mostrar solo la cruz y seguir el dedo, sin crear geometría.
     if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
     touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
+    touchFirstAnchorStart={x:event.clientX,y:event.clientY};touchFirstAnchorMoved=false;
     touchLineGuideActive=true;
     try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
     updateLineStartGuide(event);
@@ -340,7 +341,7 @@ function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
  if(event.pointerType==='touch'&&activeTool==='line'){
   if(touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;}
-  if(touchLineGuideActive)updateLineStartGuide(event);
+  if(touchLineGuideActive){if(linePoints.length===0&&touchFirstAnchorStart&&Math.hypot(event.clientX-touchFirstAnchorStart.x,event.clientY-touchFirstAnchorStart.y)>8)touchFirstAnchorMoved=true;updateLineStartGuide(event);}
  }
  else if(event.pointerType==='touch'&&touchLineGuideActive){updateLineStartGuide(event);return;}
  else if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
@@ -377,9 +378,9 @@ function finishSketch(event){
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-   const p=pointForSketch(event)||pointForSketch(touchPendingEvent);
+   const p=touchFirstAnchorMoved?null:(pointForSketch(event)||pointForSketch(touchPendingEvent));
    if(p){linePoints=[p.clone()];saveViewportProject();recordDrawingHistory();}
-   activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
+   activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
    hideSnapFeedback();hideLineGuide();return;
   }
   activeTouchPointers.delete(event.pointerId);
@@ -452,7 +453,7 @@ function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001]
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
 function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
