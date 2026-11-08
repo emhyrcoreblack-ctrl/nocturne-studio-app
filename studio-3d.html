@@ -298,7 +298,7 @@ function resolveSnap(event,raw){
  // Inferencia dinámica desde vértices existentes: la guía aparece solo cuando
  // la cruz se alinea con su coordenada horizontal o vertical en el plano.
  const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
- let horizontal=null,vertical=null,bestAlignment=null;
+ let horizontal=null,vertical=null;
  const screenDistance=(a,b)=>{const pa=a.clone().project(camera),pb=b.clone().project(camera);return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);};
  for(const obj of drawnObjects){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
