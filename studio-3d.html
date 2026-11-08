@@ -28,7 +28,7 @@
 #workspace{display:none;position:fixed;inset:0;overflow:hidden;background:#131a25;touch-action:none}#documentHeader{height:66px;position:absolute;inset:0 0 auto 0;z-index:6;background:#1953a3;color:white;display:flex;align-items:center;padding:0 14px;gap:13px;box-shadow:0 2px 8px #0003}#backProjects{position:static;flex:none;width:42px;height:42px;background:transparent;border:0;color:white;font-size:25px;padding:0}#backProjects:hover,#documentHeader button:hover{background:#ffffff20}.document-heading{min-width:0;display:flex;flex-direction:column;line-height:1.2}.document-heading div{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(56vw,440px)}.document-heading small{font-size:12px;color:#d6e4f8;margin-top:4px}.header-actions{margin-left:auto;display:flex;gap:8px}.header-actions button{border:0;background:transparent;color:white;width:38px;height:42px;padding:0;font-size:25px;border-radius:50%}#helpButton{font-weight:800;border:2px solid #ffffffb8;width:30px;height:30px;line-height:24px;font-size:19px}#moreMenu{display:none;position:absolute;right:12px;top:58px;min-width:185px;background:#1d2939;border:1px solid #455a75;border-radius:10px;padding:6px;box-shadow:0 12px 32px #0008}#moreMenu.show{display:grid}#moreMenu button{text-align:left;background:transparent;border:0;border-radius:6px;padding:11px}#editorToolbar{position:absolute;z-index:5;top:66px;left:0;right:0;height:52px;display:flex;align-items:center;gap:5px;padding:0 12px;background:#e9edf2;color:#253448;border-bottom:1px solid #b8c4d2;box-shadow:0 2px 6px #0002}#editorToolbar button{color:#27384c;background:transparent;border:0;border-radius:7px;min-width:39px;height:40px;padding:0 10px;font-size:23px}#editorToolbar button:disabled{opacity:.35;cursor:default}#editorToolbar button{font-size:20px}#editorToolbar button.tool-active{color:#1455a5;background:#d4e4f8}#drawToolsPanel{display:none;position:absolute;top:46px;left:88px;z-index:12;min-width:190px;padding:7px;background:#f7f9fc;border:1px solid #bdc9d7;border-radius:11px;box-shadow:0 12px 28px #14223835;grid-template-columns:1fr;gap:3px}#drawToolsPanel.open{display:grid}#drawToolsPanel button{display:flex;align-items:center;gap:12px;justify-content:flex-start;width:100%;height:42px;padding:0 12px;font-size:19px}#drawToolsPanel button small{font-size:12px;font-weight:600}#drawMenuButton{font-size:23px!important}#drawMenuButton.menu-open{background:#d4e4f8;color:#1455a5}#activeToolToggle{display:inline-grid;place-items:center;width:38px!important;min-width:38px!important;height:38px!important;padding:0!important;border:1px solid #8ca8c8!important;border-radius:10px!important;background:#dce9f8!important;color:#174f91!important;font-size:23px!important;font-weight:600!important;line-height:1;transition:opacity .16s,background .16s,color .16s}#activeToolToggle[aria-pressed="false"]{opacity:.38;background:transparent!important;color:#52657d!important;border-color:#9aa8b8!important}#activeToolToggle[hidden]{display:none!important}@media(max-width:640px){#drawToolsPanel{left:48px;top:43px}.save-state{display:none}}#editorToolbar button.tool-active{color:#1455a5;background:#d4e4f8}#editorToolbar .tool-separator{height:30px;width:1px;background:#c2ccd7;margin:0 5px}.save-state{font-size:11px;color:#647386;margin-left:auto;white-space:nowrap}#viewport{position:absolute;inset:118px 0 0;touch-action:none}#viewport canvas{display:block;width:100%;height:100%;outline:none}#helpPanel{display:none;position:absolute;z-index:8;right:14px;top:75px;width:min(290px,calc(100% - 28px));background:#1c2939;border:1px solid #526985;border-radius:12px;padding:15px;box-shadow:0 12px 32px #0008}#helpPanel.show{display:block}#helpPanel p{font-size:12px;color:#b6c4d7}#helpPanel button{padding:7px 12px} .emptythumb-grid{width:100%;height:100%;background-image:linear-gradient(#6684a733 1px,transparent 1px),linear-gradient(90deg,#6684a733 1px,transparent 1px);background-size:22px 22px;transform:perspective(130px) rotateX(52deg) scale(1.3);transform-origin:center 70%}.emptythumb-label{position:absolute;bottom:10px;left:12px;color:#a8bdd7;font-size:9px;letter-spacing:.14em}
 #backProjects{position:static;flex:none;display:grid;place-items:center;width:38px;height:38px;padding:0;border-radius:11px;background:#ffffff12;border:1px solid #ffffff35;color:#fff;font-size:0;box-shadow:0 2px 8px #001a3a22}#backProjects svg{width:20px;height:20px;display:block}#backProjects:hover{background:#ffffff25}
 .viewcube{position:absolute;right:16px;top:132px;width:106px;height:106px;perspective:450px;display:grid;place-items:center;z-index:4;pointer-events:none}.cube{width:62px;height:62px;position:relative;transform-style:preserve-3d;pointer-events:auto;transition:transform .2s}.face{position:absolute;width:62px;height:62px;padding:2px;display:grid;place-items:center;background:#314761;border:1px solid #a0c4ec;color:#e8f3ff;font-size:9px;font-weight:750;border-radius:2px;opacity:.97}.face:hover{background:#5279a4}.front{transform:translateZ(31px)}.back{transform:rotateY(180deg) translateZ(31px)}.right{transform:rotateY(90deg) translateZ(31px)}.left{transform:rotateY(-90deg) translateZ(31px)}.top{transform:rotateX(90deg) translateZ(31px)}.bottom{transform:rotateX(-90deg) translateZ(31px)}
-#sceneStatus{position:absolute;left:14px;bottom:13px;z-index:3;color:#8f9db0;background:#151e2bd9;border:1px solid #354258;border-radius:9px;padding:7px 10px;font-size:10px;pointer-events:none}#selectionHandles{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}#selectionHandles .control-handle{position:absolute;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border:2px solid #8fd0ff;background:#10243b;border-radius:3px;box-shadow:0 0 0 2px #07111dcc,0 0 12px #48aaff;transform:translate(-50%,-50%)}#measureLabel{position:absolute;z-index:5;display:none;transform:translate(-50%,-120%);padding:6px 9px;border:1px solid #8ebaff;border-radius:7px;background:#14243aee;color:#f2f7ff;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none;box-shadow:0 3px 12px #0005;font-variant-numeric:tabular-nums}#measureLabel small{display:block;color:#b8cce5;font-size:10px;font-weight:500;margin-top:2px}
+#sceneStatus{position:absolute;left:14px;bottom:13px;z-index:3;color:#8f9db0;background:#151e2bd9;border:1px solid #354258;border-radius:9px;padding:7px 10px;font-size:10px;pointer-events:none}#measureLabel{position:absolute;z-index:5;display:none;transform:translate(-50%,-120%);padding:6px 9px;border:1px solid #8ebaff;border-radius:7px;background:#14243aee;color:#f2f7ff;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none;box-shadow:0 3px 12px #0005;font-variant-numeric:tabular-nums}#measureLabel small{display:block;color:#b8cce5;font-size:10px;font-weight:500;margin-top:2px}
 #sceneError{display:none;position:absolute;inset:0;z-index:8;background:#111923f2;place-items:center;padding:25px;text-align:center;color:#dce7f5}#sceneError.show{display:grid}#sceneError div{max-width:360px}#sceneError strong{display:block;font-size:18px;margin-bottom:8px}#sceneError p{color:#9eacbf;font-size:13px}
 @media(max-width:640px){.topbar{height:56px;padding:0 15px}.page{padding-top:38px}.sectionhead{margin-top:34px}.projectgrid{grid-template-columns:1fr}.projectcard{min-height:190px}.thumb{height:116px}.viewcube{right:5px;top:126px;transform:scale(.78);transform-origin:top right}#documentHeader{height:62px;padding:0 9px;gap:8px}.document-heading div{font-size:16px;max-width:58vw}#editorToolbar{top:62px;height:48px;padding:0 7px;gap:2px}#editorToolbar button{min-width:35px;height:38px;font-size:21px}#viewport{inset:110px 0 0}#sceneStatus{left:9px;bottom:9px}}
 </style>
@@ -64,10 +64,10 @@
 </header>
 <nav id="editorToolbar" aria-label="Herramientas del espacio">
 <button id="undoButton" title="Deshacer">↶</button><button id="redoButton" title="Rehacer">↷</button><span class="tool-separator"></span>
-<button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><button id="activeToolToggle" type="button" hidden aria-label="Desactivar herramienta activa"></button><button id="deleteSelectionButton" type="button" hidden title="Eliminar trazo seleccionado" aria-label="Eliminar trazo seleccionado" style="font-size:17px;color:#a12c3b">⌫</button><div id="drawToolsPanel" role="group" aria-label="Herramientas de dibujo"><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea">／ <small>Línea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button></div><span class="tool-separator"></span>
+<button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><button id="activeToolToggle" type="button" hidden aria-label="Desactivar herramienta activa"></button><div id="drawToolsPanel" role="group" aria-label="Herramientas de dibujo"><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea">／ <small>Línea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button></div><span class="tool-separator"></span>
 <button id="gridButton" class="tool-active" title="Mostrar u ocultar cuadrícula">▦</button><button id="axesButton" class="tool-active" title="Mostrar u ocultar ejes">⌖</button><button id="fitButton" title="Restablecer vista">⟳</button><span class="tool-separator"></span><span class="save-state" id="saveState">Seleccionar</span>
 </nav>
-<div id="viewport" aria-label="Espacio de trabajo tridimensional"></div><div id="selectionHandles" aria-hidden="true"></div>
+<div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
 <div class="viewcube"><div class="cube" id="orientationCube">
 <button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
 </div></div>
@@ -115,7 +115,6 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let selectedObject=null,selectionDrag=null;const selectionHandlesEl=document.getElementById('selectionHandles');
 let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null;
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
@@ -159,8 +158,6 @@ async function startViewport(){
   setTool('select');
   document.getElementById('undoButton').addEventListener('click',undoDrawing);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
-  document.getElementById('deleteSelectionButton').addEventListener('click',deleteSelected);
-  window.addEventListener('keydown',e=>{if((e.key==='Delete'||e.key==='Backspace')&&activeTool==='select'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();deleteSelected();}});
   updateHistoryButtons();
   const drawMenu=document.getElementById('drawToolsPanel'),drawMenuButton=document.getElementById('drawMenuButton');
   drawMenuButton.addEventListener('click',()=>{const open=drawMenu.classList.toggle('open');drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));});
@@ -294,7 +291,7 @@ function resolveSnap(event,raw){
    {point:planePoint(current.u,origin.v),angle:current.u-origin.u>=0?0:180},
    {point:planePoint(origin.u,current.v),angle:current.v-origin.v>=0?90:270}
   ];
-  let best=null,bestPx=7;
+  let best=null,bestPx=6;
   for(const candidate of candidates){
    const depth=candidate.point.clone().sub(ray.origin).dot(ray.direction);
    if(depth<=0)continue;
@@ -319,91 +316,7 @@ function resolveSnap(event,raw){
  if(angleHintEl)angleHintEl.style.display='none';
  snapKind=null;return raw;
 }
-function screenPoint(point){
- const q=point.clone().project(camera),r=renderer.domElement.getBoundingClientRect();
- return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2,z:q.z};
-}
-function distanceToSegment2D(p,a,b){
- const dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy;
- const t=len?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/len)):0;
- return Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy));
-}
-function clearSelection(){
- if(selectedObject&&selectedObject.userData){
-  const old=selectedObject.userData.selectionOriginalColor;
-  if(Number.isFinite(old)&&selectedObject.material&&selectedObject.material.color)selectedObject.material.color.setHex(old);
-  delete selectedObject.userData.selectionOriginalColor;
- }
- selectedObject=null;
- if(selectionHandlesEl)selectionHandlesEl.replaceChildren();
- const removeButton=document.getElementById('deleteSelectionButton');if(removeButton)removeButton.hidden=true;
-}
-function selectAt(event){
- const p={x:event.clientX,y:event.clientY};let best=null,bestDist=16,bestEndpoint=-1;
- for(const obj of drawnObjects){
-  const pts=obj.userData.controlPoints||[];
-  for(let i=0;i<pts.length;i++){
-   const q=screenPoint(pts[i]),d=Math.hypot(q.x-p.x,q.y-p.y);
-   if(q.z<1&&d<18&&d<bestDist){best=obj;bestDist=d;bestEndpoint=i;}
-  }
-  const count=pts.length<2?0:(obj.userData.closed?pts.length:pts.length-1);
-  for(let i=0;i<count;i++){
-   const a=screenPoint(pts[i]),b=screenPoint(pts[(i+1)%pts.length]),d=distanceToSegment2D(p,a,b);
-   if(a.z<1&&b.z<1&&d<bestDist){best=obj;bestDist=d;bestEndpoint=-1;}
-  }
- }
- if(best!==selectedObject){
-  clearSelection();selectedObject=best;
-  if(best&&best.material&&best.material.color){best.userData.selectionOriginalColor=best.material.color.getHex();best.material.color.setHex(0x55c8ff);}
- }
- if(!best){document.getElementById('saveState').textContent='Seleccionar';return;}
- refreshSelectionHandles();
- const removeButton=document.getElementById('deleteSelectionButton');if(removeButton)removeButton.hidden=false;
- const pts=best.userData.controlPoints||[];
- const hit=bestEndpoint>=0?bestEndpoint:-1;
- const start=pointOnGround(event);
- selectionDrag={object:best,endpoint:hit,start:start?start.clone():null,original:pts.map(v=>v.clone()),moved:false,pointerId:event.pointerId};
- controls.enabled=false;renderer.domElement.style.cursor='grabbing';
- document.getElementById('saveState').textContent=hit>=0?'Editar extremo':'Mover trazo';
- try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
- event.preventDefault();
-}
-function refreshSelectionHandles(){
- if(!selectionHandlesEl)return;selectionHandlesEl.replaceChildren();if(!selectedObject)return;
- const pts=selectedObject.userData.controlPoints||[],indices=selectedObject.userData.closed&&pts.length>8?[0,Math.floor(pts.length*.25),Math.floor(pts.length*.5),Math.floor(pts.length*.75)]:pts.map((_,i)=>i);
- indices.forEach(i=>{const h=document.createElement('span');h.className='control-handle';h.dataset.point=String(i);selectionHandlesEl.appendChild(h);});
-}
-function updateSelectionHandles(){
- if(!selectionHandlesEl||!selectedObject||!camera||!host)return;
- const rect=host.getBoundingClientRect(),pts=selectedObject.userData.controlPoints||[];
- selectionHandlesEl.querySelectorAll('.control-handle').forEach(h=>{const i=Number(h.dataset.point),p=pts[i];if(!p){h.style.display='none';return;}const q=screenPoint(p);h.style.left=(q.x-rect.left)+'px';h.style.top=(q.y-rect.top)+'px';h.style.display=q.z<1?'block':'none';});
-}
-function moveSelection(event){
- if(!selectionDrag||selectionDrag.pointerId!==event.pointerId)return;
- const p=pointOnGround(event);if(!p||!selectionDrag.start)return;
- const delta=p.clone().sub(selectionDrag.start);
- if(delta.length()<.002&&!selectionDrag.moved)return;
- selectionDrag.moved=true;
- const pts=selectionDrag.original.map(v=>v.clone());
- if(selectionDrag.endpoint>=0)pts[selectionDrag.endpoint].copy(p);
- else pts.forEach(v=>v.add(delta));
- updateFatStroke(selectionDrag.object,pts);updateSelectionHandles();
-}
-function finishSelection(event){
- if(!selectionDrag||selectionDrag.pointerId!==event.pointerId)return;
- const changed=selectionDrag.moved;
- selectionDrag=null;controls.enabled=true;renderer.domElement.style.cursor='grab';
- if(changed){saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Trazo actualizado';}
-}
-function deleteSelected(){
- if(!selectedObject)return;
- const obj=selectedObject;clearSelection();
- const i=drawnObjects.indexOf(obj);if(i>=0)drawnObjects.splice(i,1);
- scene.remove(obj);disposePreview(obj);saveViewportProject();recordDrawingHistory();
- document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
-}
 function beginSketch(event){
- if(activeTool==='select'){selectAt(event);return;}
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
@@ -468,7 +381,6 @@ function beginSketchNow(event){
  drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
 }
 function moveSketch(event){
- if(activeTool==='select'){moveSelection(event);return;}
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
  if(event.pointerType==='touch'&&activeTool==='line'){
   if(touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;}
@@ -505,7 +417,6 @@ function cancelSketch(event){
  if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}
 }
 function finishSketch(event){
- if(activeTool==='select'){finishSelection(event);return;}
  if(event.pointerType==='touch'){
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
@@ -582,10 +493,10 @@ function updateFatStroke(obj,points){
 function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
 function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);const target=controls.target.clone();camera.position.copy(target.add(new THREE.Vector3(...p)));controls.update();}
-function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();updateSelectionHandles();}};tick();}
+function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
-function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:Number.isFinite(o.userData.selectionOriginalColor)?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();activeProjectId=id;clearSelection();selectionDrag=null;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
+function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
 function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
