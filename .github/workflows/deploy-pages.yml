@@ -52,3 +52,5 @@ jobs:
 # Redeploy line preview rollback and final touch input cleanup.
 
 # Publish compact crosshair and unified line endpoint mapping.
+
+# Deploy first-touch cross-only anchor behavior.
