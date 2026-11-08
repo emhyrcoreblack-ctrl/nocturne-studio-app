@@ -129,11 +129,13 @@ async function startViewport(){
   // Feedback de snap renderizado dentro de Three.js: no depende de capas DOM
   // que puedan quedar detrás del canvas o desalinearse en pantallas táctiles.
   const snapEdgeGeometry=new window.nocturneFatLine.LineGeometry();snapEdgeGeometry.setPositions([0,0,0,1,0,0]);
-  const snapEdgeMaterial=new window.nocturneFatLine.LineMaterial({color:0x62b8ff,linewidth:4.5,worldUnits:false,transparent:true,opacity:1,depthTest:false,depthWrite:false});
+  const snapEdgeMaterial=new window.nocturneFatLine.LineMaterial({color:0xffb52e,linewidth:5.5,worldUnits:false,transparent:false,opacity:1,depthTest:false,depthWrite:false});
   snapEdgeMaterial.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
   snapEdgeObject=new window.nocturneFatLine.Line2(snapEdgeGeometry,snapEdgeMaterial);snapEdgeObject.computeLineDistances();snapEdgeObject.visible=false;snapEdgeObject.renderOrder=10000;scene.add(snapEdgeObject);
-  snapVertexObject=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0x39e6b0,side:THREE.DoubleSide,transparent:true,opacity:1,depthTest:false,depthWrite:false}));
-  snapVertexObject.visible=false;snapVertexObject.renderOrder=10001;scene.add(snapVertexObject);
+  const snapVertexGeometry=new window.nocturneFatLine.LineGeometry();snapVertexGeometry.setPositions([-0.5,-0.5,0,0.5,-0.5,0,0.5,0.5,0,-0.5,0.5,0,-0.5,-0.5,0]);
+  const snapVertexMaterial=new window.nocturneFatLine.LineMaterial({color:0xffb52e,linewidth:3.2,worldUnits:false,depthTest:false,depthWrite:false});
+  snapVertexMaterial.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
+  snapVertexObject=new window.nocturneFatLine.Line2(snapVertexGeometry,snapVertexMaterial);snapVertexObject.computeLineDistances();snapVertexObject.visible=false;snapVertexObject.renderOrder=10001;scene.add(snapVertexObject);
   camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
@@ -219,7 +221,7 @@ function resolveSnap(event,raw){
  const rect=renderer.domElement.getBoundingClientRect();
  ndc.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1);
  camera.updateMatrixWorld(true);raycaster.setFromCamera(ndc,camera);
- let nearestVertex=null,nearestVertexPx=22,nearestEdge=null,nearestEdgePx=26;
+ let nearestVertex=null,nearestVertexPx=28,nearestEdge=null,nearestEdgePx=32;
  const ray=raycaster.ray,worldPerPixelAt=(depth)=>2*Math.max(.001,depth)*Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))/Math.max(1,rect.height);
  const inspectPolyline=(world,closed=false)=>{
   if(!world.length)return;
@@ -252,10 +254,13 @@ function resolveSnap(event,raw){
   snapKind='vertex';
   if(snapEdgeObject)snapEdgeObject.visible=false;
   if(snapVertexObject){
-   const size=worldPerPixelAt(nearestVertex.depth)*13;
-   snapVertexObject.position.copy(nearestVertex.point);
-   snapVertexObject.quaternion.copy(camera.quaternion);
-   snapVertexObject.scale.set(size,size,1);
+   const size=worldPerPixelAt(nearestVertex.depth)*14;
+   const c=nearestVertex.point,half=size*.5;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[c.clone().sub(right).sub(up),c.clone().add(right).sub(up),c.clone().add(right).add(up),c.clone().sub(right).add(up),c.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();
    snapVertexObject.visible=true;
   }
   if(snapMarkerEl)snapMarkerEl.style.display='none';
@@ -475,7 +480,7 @@ function updateFatStroke(obj,points){
  obj.geometry.dispose();obj.geometry=new window.nocturneFatLine.LineGeometry();obj.geometry.setPositions(coords);
  obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());
 }
-function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
+function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
 function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);const target=controls.target.clone();camera.position.copy(target.add(new THREE.Vector3(...p)));controls.update();}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
