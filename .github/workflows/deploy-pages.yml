@@ -50,3 +50,5 @@ jobs:
 # Redeploy aligned touch cursor and stable pointer cleanup.
 
 # Redeploy line preview rollback and final touch input cleanup.
+
+# Publish compact crosshair and unified line endpoint mapping.
