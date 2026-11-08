@@ -44,3 +44,5 @@ jobs:
 # Redeploy immediate first-touch line preview behavior.
 
 # Publish unified touch and mouse drag handling.
+
+# Restore touch guide and allow continuous multi-segment line drawing.
