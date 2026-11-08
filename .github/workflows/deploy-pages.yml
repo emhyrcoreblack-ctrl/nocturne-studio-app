@@ -56,3 +56,5 @@ jobs:
 # Deploy first-touch cross-only anchor behavior.
 
 # Deploy immediate touch cross and stronger CAD snapping.
+
+# deploy-refresh 2026-11-08 first-anchor swipe guard
