@@ -115,7 +115,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,lineGuideEl=null,snapKind=null;
+let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null;
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -126,6 +126,14 @@ async function startViewport(){
   const [line2mod,lineGeomMod,lineMatMod]=await Promise.all([import('three/addons/lines/Line2.js'),import('three/addons/lines/LineGeometry.js'),import('three/addons/lines/LineMaterial.js')]);
   window.nocturneFatLine={Line2:line2mod.Line2,LineGeometry:lineGeomMod.LineGeometry,LineMaterial:lineMatMod.LineMaterial};
   scene=new THREE.Scene();scene.background=new THREE.Color(0x131a25);
+  // Feedback de snap renderizado dentro de Three.js: no depende de capas DOM
+  // que puedan quedar detrás del canvas o desalinearse en pantallas táctiles.
+  const snapEdgeGeometry=new window.nocturneFatLine.LineGeometry();snapEdgeGeometry.setPositions([0,0,0,1,0,0]);
+  const snapEdgeMaterial=new window.nocturneFatLine.LineMaterial({color:0x62b8ff,linewidth:4.5,worldUnits:false,transparent:true,opacity:1,depthTest:false,depthWrite:false});
+  snapEdgeMaterial.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
+  snapEdgeObject=new window.nocturneFatLine.Line2(snapEdgeGeometry,snapEdgeMaterial);snapEdgeObject.computeLineDistances();snapEdgeObject.visible=false;snapEdgeObject.renderOrder=10000;scene.add(snapEdgeObject);
+  snapVertexObject=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0x39e6b0,side:THREE.DoubleSide,transparent:true,opacity:1,depthTest:false,depthWrite:false}));
+  snapVertexObject.visible=false;snapVertexObject.renderOrder=10001;scene.add(snapVertexObject);
   camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
@@ -192,7 +200,7 @@ function pointOnGroundAt(clientX,clientY){
 }
 function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
-function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';snapKind=null;}
+function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;snapKind=null;}
 function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
@@ -207,84 +215,83 @@ function updateLineStartGuide(event){
  return p;
 }
 function resolveSnap(event,raw){
- if(!raw||activeTool==='select'||!renderer||!camera)return raw;
- // Actualiza explícitamente las matrices antes de proyectar: el gesto puede
- // llegar entre dos frames de OrbitControls y dejar la cámara con matrices antiguas.
- controls&&controls.update();
- camera.updateMatrixWorld(true);
- const rect=renderer.domElement.getBoundingClientRect(),limit=42,vertexLimit=34;
- let nearestVertex=null,nearestVertexPx=vertexLimit,nearestEdge=null,nearestEdgePx=limit;
- const project=(v)=>{
-  const q=v.clone().project(camera);
-  if(!Number.isFinite(q.x)||!Number.isFinite(q.y)||!Number.isFinite(q.z)||q.z< -1||q.z>1)return null;
-  return {x:rect.left+(q.x+1)*rect.width/2,y:rect.top+(1-q.y)*rect.height/2};
- };
- const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ if(!raw||activeTool==='select'||!renderer||!camera||!raycaster)return raw;
+ const rect=renderer.domElement.getBoundingClientRect();
+ ndc.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1);
+ camera.updateMatrixWorld(true);raycaster.setFromCamera(ndc,camera);
+ let nearestVertex=null,nearestVertexPx=22,nearestEdge=null,nearestEdgePx=26;
+ const ray=raycaster.ray,worldPerPixelAt=(depth)=>2*Math.max(.001,depth)*Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))/Math.max(1,rect.height);
  const inspectPolyline=(world,closed=false)=>{
   if(!world.length)return;
-  const screens=world.map(project);
   for(let i=0;i<world.length;i++){
-   const screen=screens[i];if(!screen)continue;
-   const d=distance(screen,event);
-   if(d<nearestVertexPx){nearestVertexPx=d;nearestVertex={point:world[i].clone(),screen};}
+   const point=world[i],depth=point.clone().sub(ray.origin).dot(ray.direction);
+   if(depth<=0)continue;
+   const px=ray.distanceToPoint(point)/worldPerPixelAt(depth);
+   if(px<nearestVertexPx){nearestVertexPx=px;nearestVertex={point:point.clone(),depth};}
   }
   const count=world.length<2?0:(closed?world.length:world.length-1);
   for(let i=0;i<count;i++){
-   const j=(i+1)%world.length,sa=screens[i],sb=screens[j];
-   if(!sa||!sb)continue;
-   const dx=sb.x-sa.x,dy=sb.y-sa.y,l2=dx*dx+dy*dy;
-   if(l2<1)continue;
-   const t=THREE.MathUtils.clamp(((event.clientX-sa.x)*dx+(event.clientY-sa.y)*dy)/l2,0,1);
-   const screen={x:sa.x+dx*t,y:sa.y+dy*t},d=distance(screen,event);
-   if(d<nearestEdgePx){nearestEdgePx=d;nearestEdge={point:world[i].clone().lerp(world[j],t),screen,start:sa,end:sb};}
+   const j=(i+1)%world.length,pointOnRay=new THREE.Vector3(),pointOnSegment=new THREE.Vector3();
+   const distSq=ray.distanceSqToSegment(world[i],world[j],pointOnRay,pointOnSegment);
+   const depth=pointOnSegment.clone().sub(ray.origin).dot(ray.direction);
+   if(depth<=0)continue;
+   const px=Math.sqrt(distSq)/worldPerPixelAt(depth);
+   if(px<nearestEdgePx){nearestEdgePx=px;nearestEdge={start:world[i].clone(),end:world[j].clone(),point:pointOnSegment,depth};}
   }
  };
- // Solo geometría confirmada: nunca se usa la vista previa de lineObject,
- // cuyo extremo sigue al cursor y provocaba autoajuste contra sí misma.
+ // Compara el rayo real de la cámara con los segmentos y vértices guardados.
+ // No depende de estimar la posición de la línea mediante una proyección 2D.
  for(const obj of drawnObjects){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
   if(!pts.length)continue;
   obj.updateWorldMatrix(true,false);
   inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
- // Los puntos ya fijados de la línea activa también son referencias válidas.
  if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
  if(nearestVertex){
   snapKind='vertex';
-  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-  if(snapMarkerEl){
-   snapMarkerEl.style.width='11px';snapMarkerEl.style.height='11px';snapMarkerEl.style.borderWidth='2px';
-   placeFeedback(snapMarkerEl,{clientX:nearestVertex.screen.x,clientY:nearestVertex.screen.y},'#39e6b0');
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapVertexObject){
+   const size=worldPerPixelAt(nearestVertex.depth)*13;
+   snapVertexObject.position.copy(nearestVertex.point);
+   snapVertexObject.quaternion.copy(camera.quaternion);
+   snapVertexObject.scale.set(size,size,1);
+   snapVertexObject.visible=true;
   }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   if(levelHintEl)levelHintEl.style.display='none';
   return nearestVertex.point;
  }
  if(nearestEdge){
   snapKind='edge';
-  if(snapMarkerEl)snapMarkerEl.style.display='none';
-  if(edgeHighlightEl){
-   const r=host.getBoundingClientRect(),dx=nearestEdge.end.x-nearestEdge.start.x,dy=nearestEdge.end.y-nearestEdge.start.y;
-   edgeHighlightEl.style.left=(nearestEdge.start.x-r.left)+'px';
-   edgeHighlightEl.style.top=(nearestEdge.start.y-r.top-2.5)+'px';
-   edgeHighlightEl.style.width=Math.max(2,Math.hypot(dx,dy))+'px';
-   edgeHighlightEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';
-   edgeHighlightEl.style.display='block';
+  if(snapVertexObject)snapVertexObject.visible=false;
+  if(snapEdgeObject){
+   snapEdgeObject.geometry.setPositions([nearestEdge.start.x,nearestEdge.start.y,nearestEdge.start.z,nearestEdge.end.x,nearestEdge.end.y,nearestEdge.end.z]);
+   snapEdgeObject.computeLineDistances();snapEdgeObject.visible=true;
   }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   if(levelHintEl)levelHintEl.style.display='none';
   return nearestEdge.point;
  }
+ if(snapVertexObject)snapVertexObject.visible=false;
+ if(snapEdgeObject)snapEdgeObject.visible=false;
  if(snapMarkerEl)snapMarkerEl.style.display='none';
  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
  // Guía de nivel paralela al eje del plano de trabajo.
  if(activeTool==='line'&&linePoints.length){
   const origin=planeCoords(linePoints[linePoints.length-1]),current=planeCoords(raw);
   const aligned=planePoint(current.u,origin.v);
-  const a=project(planePoint(origin.u,origin.v)),b=project(aligned),cursor=project(raw);
-  const dist=a&&b&&cursor?distance(cursor,b):Infinity;
-  if(dist<17){
+  const p0=planePoint(origin.u,origin.v),p1=planePoint(current.u,origin.v);
+  const depth=p1.clone().sub(ray.origin).dot(ray.direction),pixel=worldPerPixelAt(Math.max(.001,depth));
+  const distancePx=ray.distanceToPoint(p1)/pixel;
+  if(distancePx<17){
    if(levelHintEl){
-    const r=host.getBoundingClientRect(),dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
-    levelHintEl.style.left=(a.x-r.left)+'px';levelHintEl.style.top=(a.y-r.top)+'px';
+    const r=host.getBoundingClientRect(),v0=p0.clone().project(camera),v1=p1.clone().project(camera);
+    const x0=r.left+(v0.x+1)*r.width/2,y0=r.top+(1-v0.y)*r.height/2,x1=r.left+(v1.x+1)*r.width/2,y1=r.top+(1-v1.y)*r.height/2;
+    const dx=x1-x0,dy=y1-y0,len=Math.hypot(dx,dy);
+    levelHintEl.style.left=(x0-r.left)+'px';levelHintEl.style.top=(y0-r.top)+'px';
     levelHintEl.style.width=Math.max(2,len)+'px';levelHintEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';
     levelHintEl.style.display=len>2?'block':'none';
    }
@@ -468,7 +475,7 @@ function updateFatStroke(obj,points){
  obj.geometry.dispose();obj.geometry=new window.nocturneFatLine.LineGeometry();obj.geometry.setPositions(coords);
  obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());
 }
-function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
+function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
 function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);const target=controls.target.clone();camera.position.copy(target.add(new THREE.Vector3(...p)));controls.update();}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
