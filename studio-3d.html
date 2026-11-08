@@ -210,32 +210,41 @@ function resolveSnap(event,raw){
  if(!raw||activeTool==='select'||!renderer||!camera)return raw;
  const rect=renderer.domElement.getBoundingClientRect(),limit=30,vertexLimit=24;
  let nearestVertex=null,nearestVertexPx=vertexLimit,nearestEdge=null,nearestEdgePx=limit;
- const project=(v)=>{const q=v.clone().project(camera);return {x:rect.left+(q.x+1)*rect.width/2,y:rect.top+(1-q.y)*rect.height/2};};
+ const project=(v)=>{
+  const q=v.clone().project(camera);
+  if(!Number.isFinite(q.x)||!Number.isFinite(q.y)||!Number.isFinite(q.z)||q.z< -1||q.z>1)return null;
+  return {x:rect.left+(q.x+1)*rect.width/2,y:rect.top+(1-q.y)*rect.height/2};
+ };
  const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
- const candidates=drawnObjects.slice();
- // La línea en edición/restaurada no siempre está dentro de drawnObjects.
- if(lineObject&&!candidates.includes(lineObject))candidates.push(lineObject);
- for(const obj of candidates){
-  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
-  if(!pts.length)continue;
-  obj.updateMatrixWorld(true);
-  const world=pts.map(p=>obj.localToWorld(p.clone()));
-  // Detecta también extremos de líneas de un solo punto.
+ const inspectPolyline=(world,closed=false)=>{
+  if(!world.length)return;
+  const screens=world.map(project);
   for(let i=0;i<world.length;i++){
-   const screen=project(world[i]),d=distance(screen,event);
+   const screen=screens[i];if(!screen)continue;
+   const d=distance(screen,event);
    if(d<nearestVertexPx){nearestVertexPx=d;nearestVertex={point:world[i].clone(),screen};}
   }
-  const count=world.length<2?0:(obj.userData.closed?world.length:world.length-1);
+  const count=world.length<2?0:(closed?world.length:world.length-1);
   for(let i=0;i<count;i++){
-   const a=world[i],b=world[(i+1)%world.length],sa=project(a),sb=project(b);
+   const j=(i+1)%world.length,sa=screens[i],sb=screens[j];
+   if(!sa||!sb)continue;
    const dx=sb.x-sa.x,dy=sb.y-sa.y,l2=dx*dx+dy*dy;
    if(l2<1)continue;
    const t=THREE.MathUtils.clamp(((event.clientX-sa.x)*dx+(event.clientY-sa.y)*dy)/l2,0,1);
    const screen={x:sa.x+dx*t,y:sa.y+dy*t},d=distance(screen,event);
-   if(d<nearestEdgePx){nearestEdgePx=d;nearestEdge={point:a.clone().lerp(b,t),screen,start:sa,end:sb};}
+   if(d<nearestEdgePx){nearestEdgePx=d;nearestEdge={point:world[i].clone().lerp(world[j],t),screen,start:sa,end:sb};}
   }
+ };
+ // Solo geometría confirmada: nunca se usa la vista previa de lineObject,
+ // cuyo extremo sigue al cursor y provocaba autoajuste contra sí misma.
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(!pts.length)continue;
+  obj.updateMatrixWorld(true);
+  inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
- // Los vértices tienen prioridad cerca de una esquina; evita que la arista capture el punto final.
+ // Los puntos ya fijados de la línea activa también son referencias válidas.
+ if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
  if(nearestVertex){
   snapKind='vertex';
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
@@ -253,7 +262,7 @@ function resolveSnap(event,raw){
    const r=host.getBoundingClientRect(),dx=nearestEdge.end.x-nearestEdge.start.x,dy=nearestEdge.end.y-nearestEdge.start.y;
    edgeHighlightEl.style.left=(nearestEdge.start.x-r.left)+'px';
    edgeHighlightEl.style.top=(nearestEdge.start.y-r.top)+'px';
-   edgeHighlightEl.style.width=Math.hypot(dx,dy)+'px';
+   edgeHighlightEl.style.width=Math.max(2,Math.hypot(dx,dy))+'px';
    edgeHighlightEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';
    edgeHighlightEl.style.display='block';
   }
@@ -266,7 +275,8 @@ function resolveSnap(event,raw){
  if(activeTool==='line'&&linePoints.length){
   const origin=planeCoords(linePoints[linePoints.length-1]),current=planeCoords(raw);
   const aligned=planePoint(current.u,origin.v);
-  const a=project(planePoint(origin.u,origin.v)),b=project(aligned),cursor=project(raw),dist=distance(cursor,b);
+  const a=project(planePoint(origin.u,origin.v)),b=project(aligned),cursor=project(raw);
+  const dist=a&&b&&cursor?distance(cursor,b):Infinity;
   if(dist<17){
    if(levelHintEl){
     const r=host.getBoundingClientRect(),dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
