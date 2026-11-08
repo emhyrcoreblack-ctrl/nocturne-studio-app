@@ -212,16 +212,20 @@ function resolveSnap(event,raw){
  let nearestVertex=null,nearestVertexPx=vertexLimit,nearestEdge=null,nearestEdgePx=limit;
  const project=(v)=>{const q=v.clone().project(camera);return {x:rect.left+(q.x+1)*rect.width/2,y:rect.top+(1-q.y)*rect.height/2};};
  const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
- for(const obj of drawnObjects){
+ const candidates=drawnObjects.slice();
+ // La línea en edición/restaurada no siempre está dentro de drawnObjects.
+ if(lineObject&&!candidates.includes(lineObject))candidates.push(lineObject);
+ for(const obj of candidates){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
-  if(pts.length<2)continue;
+  if(!pts.length)continue;
   obj.updateMatrixWorld(true);
   const world=pts.map(p=>obj.localToWorld(p.clone()));
+  // Detecta también extremos de líneas de un solo punto.
   for(let i=0;i<world.length;i++){
    const screen=project(world[i]),d=distance(screen,event);
    if(d<nearestVertexPx){nearestVertexPx=d;nearestVertex={point:world[i].clone(),screen};}
   }
-  const count=obj.userData.closed?world.length:world.length-1;
+  const count=world.length<2?0:(obj.userData.closed?world.length:world.length-1);
   for(let i=0;i<count;i++){
    const a=world[i],b=world[(i+1)%world.length],sa=project(a),sb=project(b);
    const dx=sb.x-sa.x,dy=sb.y-sa.y,l2=dx*dx+dy*dy;
