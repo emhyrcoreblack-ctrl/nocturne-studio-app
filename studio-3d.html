@@ -291,7 +291,7 @@ function resolveSnap(event,raw){
    {point:planePoint(current.u,origin.v),angle:current.u-origin.u>=0?0:180},
    {point:planePoint(origin.u,current.v),angle:current.v-origin.v>=0?90:270}
   ];
-  let best=null,bestPx=6;
+  let best=null,bestPx=2.5;
   for(const candidate of candidates){
    const depth=candidate.point.clone().sub(ray.origin).dot(ray.direction);
    if(depth<=0)continue;
