@@ -40,3 +40,5 @@ jobs:
 # Redeploy corrected snap priority and alignment handling.
 
 # Redeploy continuous line drag and pointer release fixes.
+
+# Redeploy immediate first-touch line preview behavior.
