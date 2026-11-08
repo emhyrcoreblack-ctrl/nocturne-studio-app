@@ -285,8 +285,11 @@ function beginSketch(event){
   }
   if(pinchGesture)return;
   if(activeTool==='line'){
-   if(!linePoints.length){touchLineGuideActive=true;try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}updateLineStartGuide(event);event.preventDefault();return;}
-   touchLineStart=pointOnGround(event);touchLineMoved=false;touchLinePointAdded=true;beginSketchNow(event,true);return;
+   // El primer trazo táctil empieza en el punto de contacto y se previsualiza
+   // desde el primer movimiento; no se espera a soltar para fijar el origen.
+   touchLineStart=pointOnGround(event);touchLineMoved=false;touchLinePointAdded=true;
+   try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+   beginSketchNow(event,true);return;
   }
   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
   if(touchStartTimer)clearTimeout(touchStartTimer);
