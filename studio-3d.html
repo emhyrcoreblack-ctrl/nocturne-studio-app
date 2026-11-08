@@ -290,6 +290,11 @@ function resolveSnap(event,raw){
    g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
    if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
   }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  return nearestEdge.point;
+ }
  // Inferencia dinámica desde vértices existentes: la guía aparece solo cuando
  // la cruz se alinea con su coordenada horizontal o vertical en el plano.
  const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
@@ -316,11 +321,7 @@ function resolveSnap(event,raw){
   if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
   snapKind='inference';return chosen.point;
  }
-  if(snapMarkerEl)snapMarkerEl.style.display='none';
-  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-  if(levelHintEl)levelHintEl.style.display='none';
-  return nearestEdge.point;
- }
+
  if(snapVertexObject)snapVertexObject.visible=false;
  if(snapEdgeObject)snapEdgeObject.visible=false;
  inferenceGuideObjects.forEach(g=>g.visible=false);
