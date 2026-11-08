@@ -58,3 +58,5 @@ jobs:
 # Deploy immediate touch cross and stronger CAD snapping.
 
 # deploy-refresh 2026-11-08 first-anchor swipe guard
+
+# Trigger deployment for the latest synchronized studio files.
