@@ -115,7 +115,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null;
+let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -136,6 +136,14 @@ async function startViewport(){
   const snapVertexMaterial=new window.nocturneFatLine.LineMaterial({color:0xffb52e,linewidth:3.2,worldUnits:false,depthTest:false,depthWrite:false});
   snapVertexMaterial.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
   snapVertexObject=new window.nocturneFatLine.Line2(snapVertexGeometry,snapVertexMaterial);snapVertexObject.computeLineDistances();snapVertexObject.visible=false;snapVertexObject.renderOrder=10001;scene.add(snapVertexObject);
+  // Líneas de inferencia amarillas: referencias temporales, no geometría del boceto.
+  inferenceGuideObjects=[];
+  for(let i=0;i<2;i++){
+   const g=new window.nocturneFatLine.LineGeometry();g.setPositions([0,0,0,1,0,0]);
+   const m=new window.nocturneFatLine.LineMaterial({color:0xffc52e,linewidth:2.2,transparent:true,opacity:.95,depthTest:false,depthWrite:false});
+   m.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
+   const line=new window.nocturneFatLine.Line2(g,m);line.computeLineDistances();line.visible=false;line.renderOrder=9999;scene.add(line);inferenceGuideObjects.push(line);
+  }
   camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
@@ -202,7 +210,7 @@ function pointOnGroundAt(clientX,clientY){
 }
 function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
-function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;snapKind=null;}
+function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
 function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
@@ -263,6 +271,12 @@ function resolveSnap(event,raw){
    snapVertexObject.computeLineDistances();
    snapVertexObject.visible=true;
   }
+  if(inferenceGuideObjects.length>=2){
+   const plane=workPlanes[activePlane],c=nearestVertex.point,span=160;
+   const a0=c.clone().addScaledVector(plane.u,-span),a1=c.clone().addScaledVector(plane.u,span);
+   const b0=c.clone().addScaledVector(plane.v,-span),b1=c.clone().addScaledVector(plane.v,span);
+   [[a0,a1],[b0,b1]].forEach((pair,i)=>{const g=inferenceGuideObjects[i];g.geometry.setPositions([pair[0].x,pair[0].y,pair[0].z,pair[1].x,pair[1].y,pair[1].z]);g.computeLineDistances();g.visible=true;});
+  }
   if(snapMarkerEl)snapMarkerEl.style.display='none';
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   if(levelHintEl)levelHintEl.style.display='none';
@@ -275,6 +289,12 @@ function resolveSnap(event,raw){
    snapEdgeObject.geometry.setPositions([nearestEdge.start.x,nearestEdge.start.y,nearestEdge.start.z,nearestEdge.end.x,nearestEdge.end.y,nearestEdge.end.z]);
    snapEdgeObject.computeLineDistances();snapEdgeObject.visible=true;
   }
+  if(inferenceGuideObjects.length>=1){
+   const direction=nearestEdge.end.clone().sub(nearestEdge.start).normalize(),span=160,c=nearestEdge.point;
+   const a=c.clone().addScaledVector(direction,-span),b=c.clone().addScaledVector(direction,span),g=inferenceGuideObjects[0];
+   g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
+   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  }
   if(snapMarkerEl)snapMarkerEl.style.display='none';
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   if(levelHintEl)levelHintEl.style.display='none';
@@ -282,6 +302,7 @@ function resolveSnap(event,raw){
  }
  if(snapVertexObject)snapVertexObject.visible=false;
  if(snapEdgeObject)snapEdgeObject.visible=false;
+ inferenceGuideObjects.forEach(g=>g.visible=false);
  if(snapMarkerEl)snapMarkerEl.style.display='none';
  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
  // Guías ortogonales en ambos ejes del plano: horizontal y vertical.
@@ -459,7 +480,7 @@ function updateMeasureAt(value,hint,point){measureValue=value;measureHint=hint||
 function positionMeasure(){const el=document.getElementById('measureLabel');if(!el||!measureAnchor||!camera)return;const q=measureAnchor.clone().project(camera);if(q.z>1||q.z< -1){el.style.display='none';return;}el.replaceChildren();const main=document.createElement('span');main.textContent=measureValue;el.appendChild(main);if(measureHint){const sub=document.createElement('small');sub.textContent=measureHint;el.appendChild(sub);}el.style.left=(host.offsetLeft+(q.x+1)*.5*host.clientWidth)+'px';el.style.top=(host.offsetTop+(1-q.y)*.5*host.clientHeight)+'px';el.style.display='block';}
 function hideMeasure(){measureAnchor=null;const el=document.getElementById('measureLabel');if(el)el.style.display='none';}
 function shapeMeasure(type,p){if(type==='rect')return fmt(Math.abs(p.x-drawStart.x))+' × '+fmt(Math.abs(p.z-drawStart.z))+' cm';if(type==='circle')return 'Ø '+fmt(Math.hypot(p.x-drawStart.x,p.z-drawStart.z)*2)+' cm';return '—';}
-function updateContinuousLine(cursor,fromPoint){if(!linePoints.length)return;const pts=linePoints.map(p=>p.clone());if(cursor&&(!pts.length||pts[pts.length-1].distanceTo(cursor)>.001))pts.push(cursor.clone());if(pts.length<2)return;if(!lineObject){lineObject=makeFatStroke(pts,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}else updateFatStroke(lineObject,pts);const start=linePoints[linePoints.length-1],a=planeCoords(start),b=planeCoords(cursor||pts[pts.length-1]),du=b.u-a.u,dv=b.v-a.v,distance=Math.hypot(du,dv),angle=(Math.atan2(dv,du)*180/Math.PI+360)%360,mid=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);updateMeasureAt('Longitud: '+fmt(distance)+' cm','Ángulo: '+fmt(angle)+'°',mid);}
+function updateContinuousLine(cursor,fromPoint){if(!linePoints.length)return;const pts=linePoints.map(p=>p.clone());if(cursor&&(!pts.length||pts[pts.length-1].distanceTo(cursor)>.001))pts.push(cursor.clone());if(pts.length<2)return;if(!lineObject){lineObject=makeFatStroke(pts,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}else updateFatStroke(lineObject,pts);const start=linePoints[linePoints.length-1],a=planeCoords(start),b=planeCoords(cursor||pts[pts.length-1]),du=b.u-a.u,dv=b.v-a.v,distance=Math.hypot(du,dv),angle=(Math.atan2(dv,du)*180/Math.PI+360)%360,mid=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);updateMeasureAt('Ángulo: '+fmt(angle)+'°','',mid);}
 function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);drawnObjects.push(lineObject);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function makeShape(type,a,b,preview){
  const points=[];
@@ -490,7 +511,7 @@ function updateFatStroke(obj,points){
  obj.geometry.dispose();obj.geometry=new window.nocturneFatLine.LineGeometry();obj.geometry.setPositions(coords);
  obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());
 }
-function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
+function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject,...inferenceGuideObjects].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
 function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);const target=controls.target.clone();camera.position.copy(target.add(new THREE.Vector3(...p)));controls.update();}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
