@@ -60,3 +60,5 @@ jobs:
 # deploy-refresh 2026-11-08 first-anchor swipe guard
 
 # Trigger deployment for the latest synchronized studio files.
+
+# Redeploy corrected CAD snap detection without live-preview self-snapping.
