@@ -310,8 +310,11 @@ function beginSketch(event){
    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
    touchLineStart=lineDragStart.clone();touchLineMoved=false;touchLinePointAdded=false;
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
-   if(touchStartTimer)clearTimeout(touchStartTimer);
-   touchStartTimer=setTimeout(()=>{touchStartTimer=null;if(activeTouchPointers.size===1&&!pinchGesture&&touchPendingEvent){touchLineGuideActive=true;updateLineStartGuide(touchPendingEvent);}},180);
+   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+   // La guía de snap debe estar activa desde el primer instante del arrastre,
+   // no después de una espera que puede superar la duración del gesto.
+   touchLineGuideActive=true;
+   updateLineStartGuide(event);
    event.preventDefault();return;
   }
   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
