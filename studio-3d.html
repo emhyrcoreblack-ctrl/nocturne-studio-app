@@ -271,12 +271,7 @@ function resolveSnap(event,raw){
    snapVertexObject.computeLineDistances();
    snapVertexObject.visible=true;
   }
-  if(inferenceGuideObjects.length>=2){
-   const plane=workPlanes[activePlane],c=nearestVertex.point,span=160;
-   const a0=c.clone().addScaledVector(plane.u,-span),a1=c.clone().addScaledVector(plane.u,span);
-   const b0=c.clone().addScaledVector(plane.v,-span),b1=c.clone().addScaledVector(plane.v,span);
-   [[a0,a1],[b0,b1]].forEach((pair,i)=>{const g=inferenceGuideObjects[i];g.geometry.setPositions([pair[0].x,pair[0].y,pair[0].z,pair[1].x,pair[1].y,pair[1].z]);g.computeLineDistances();g.visible=true;});
-  }
+  inferenceGuideObjects.forEach(g=>g.visible=false);
   if(snapMarkerEl)snapMarkerEl.style.display='none';
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   if(levelHintEl)levelHintEl.style.display='none';
@@ -295,6 +290,32 @@ function resolveSnap(event,raw){
    g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
    if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
   }
+ // Inferencia dinámica desde vértices existentes: la guía aparece solo cuando
+ // la cruz se alinea con su coordenada horizontal o vertical en el plano.
+ const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
+ let horizontal=null,vertical=null,bestAlignment=null;
+ const screenDistance=(a,b)=>{const pa=a.clone().project(camera),pb=b.clone().project(camera);return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);};
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(!pts.length)continue;
+  obj.updateWorldMatrix(true,false);
+  for(const local of pts){
+   const vertex=obj.localToWorld(local.clone()),coord=planeCoords(vertex);
+   const hPoint=planePoint(cursor.u,coord.v),vPoint=planePoint(coord.u,cursor.v);
+   const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
+   if(hPx<12&&(!horizontal||hPx<horizontal.px))horizontal={vertex,point:hPoint,px:hPx};
+   if(vPx<12&&(!vertical||vPx<vertical.px))vertical={vertex,point:vPoint,px:vPx};
+  }
+ }
+ const setGuide=(index,a,b)=>{const g=inferenceGuideObjects[index];if(!g)return;g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;};
+ const span=160;
+ if(horizontal){const c=horizontal.vertex,a=c.clone().addScaledVector(plane.u,-span),b=c.clone().addScaledVector(plane.u,span);setGuide(0,a,b);}
+ if(vertical){const c=vertical.vertex,a=c.clone().addScaledVector(plane.v,-span),b=c.clone().addScaledVector(plane.v,span);setGuide(1,a,b);}
+ if(horizontal||vertical){
+  const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
+  if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
+  snapKind='inference';return chosen.point;
+ }
   if(snapMarkerEl)snapMarkerEl.style.display='none';
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   if(levelHintEl)levelHintEl.style.display='none';
