@@ -115,7 +115,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null;
+let selectedObject=null,selectionDrag=null;\nlet workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null;
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -157,7 +157,7 @@ async function startViewport(){
   canvas.addEventListener('pointercancel',cancelSketch);canvas.addEventListener('lostpointercapture',cancelSketch);
   setTool('select');
   document.getElementById('undoButton').addEventListener('click',undoDrawing);
-  document.getElementById('redoButton').addEventListener('click',redoDrawing);
+  document.getElementById('redoButton').addEventListener('click',redoDrawing);\n  window.addEventListener('keydown',e=>{if((e.key==='Delete'||e.key==='Backspace')&&activeTool==='select'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();deleteSelected();}});
   updateHistoryButtons();
   const drawMenu=document.getElementById('drawToolsPanel'),drawMenuButton=document.getElementById('drawMenuButton');
   drawMenuButton.addEventListener('click',()=>{const open=drawMenu.classList.toggle('open');drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));});
@@ -315,6 +315,75 @@ function resolveSnap(event,raw){
  if(levelHintEl)levelHintEl.style.display='none';
  if(angleHintEl)angleHintEl.style.display='none';
  snapKind=null;return raw;
+}
+function screenPoint(point){
+ const q=point.clone().project(camera),r=renderer.domElement.getBoundingClientRect();
+ return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2,z:q.z};
+}
+function distanceToSegment2D(p,a,b){
+ const dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy;
+ const t=len?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/len)):0;
+ return Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy));
+}
+function clearSelection(){
+ if(selectedObject&&selectedObject.userData){
+  const old=selectedObject.userData.selectionOriginalColor;
+  if(Number.isFinite(old)&&selectedObject.material&&selectedObject.material.color)selectedObject.material.color.setHex(old);
+  delete selectedObject.userData.selectionOriginalColor;
+ }
+ selectedObject=null;
+}
+function selectAt(event){
+ const p={x:event.clientX,y:event.clientY};let best=null,bestDist=16,bestEndpoint=-1;
+ for(const obj of drawnObjects){
+  const pts=obj.userData.controlPoints||[];
+  for(let i=0;i<pts.length;i++){
+   const q=screenPoint(pts[i]),d=Math.hypot(q.x-p.x,q.y-p.y);
+   if(q.z<1&&d<18&&d<bestDist){best=obj;bestDist=d;bestEndpoint=i;}
+  }
+  const count=pts.length<2?0:(obj.userData.closed?pts.length:pts.length-1);
+  for(let i=0;i<count;i++){
+   const a=screenPoint(pts[i]),b=screenPoint(pts[(i+1)%pts.length]),d=distanceToSegment2D(p,a,b);
+   if(a.z<1&&b.z<1&&d<bestDist){best=obj;bestDist=d;bestEndpoint=-1;}
+  }
+ }
+ if(best!==selectedObject){
+  clearSelection();selectedObject=best;
+  if(best&&best.material&&best.material.color){best.userData.selectionOriginalColor=best.material.color.getHex();best.material.color.setHex(0x55c8ff);}
+ }
+ if(!best){document.getElementById('saveState').textContent='Seleccionar';return;}
+ const pts=best.userData.controlPoints||[];
+ const hit=bestEndpoint>=0?bestEndpoint:-1;
+ const start=pointOnGround(event);
+ selectionDrag={object:best,endpoint:hit,start:start?start.clone():null,original:pts.map(v=>v.clone()),moved:false,pointerId:event.pointerId};
+ controls.enabled=false;renderer.domElement.style.cursor='grabbing';
+ document.getElementById('saveState').textContent=hit>=0?'Editar extremo':'Mover trazo';
+ try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+ event.preventDefault();
+}
+function moveSelection(event){
+ if(!selectionDrag||selectionDrag.pointerId!==event.pointerId)return;
+ const p=pointOnGround(event);if(!p||!selectionDrag.start)return;
+ const delta=p.clone().sub(selectionDrag.start);
+ if(delta.length()<.002&&!selectionDrag.moved)return;
+ selectionDrag.moved=true;
+ const pts=selectionDrag.original.map(v=>v.clone());
+ if(selectionDrag.endpoint>=0)pts[selectionDrag.endpoint].copy(p);
+ else pts.forEach(v=>v.add(delta));
+ updateFatStroke(selectionDrag.object,pts);
+}
+function finishSelection(event){
+ if(!selectionDrag||selectionDrag.pointerId!==event.pointerId)return;
+ const changed=selectionDrag.moved;
+ selectionDrag=null;controls.enabled=true;renderer.domElement.style.cursor='grab';
+ if(changed){saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Trazo actualizado';}
+}
+function deleteSelected(){
+ if(!selectedObject)return;
+ const obj=selectedObject;clearSelection();
+ const i=drawnObjects.indexOf(obj);if(i>=0)drawnObjects.splice(i,1);
+ scene.remove(obj);disposePreview(obj);saveViewportProject();recordDrawingHistory();
+ document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
 }
 function beginSketch(event){
  if(event.pointerType==='touch'){
@@ -496,7 +565,7 @@ function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001]
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();activeProjectId=id;clearSelection();selectionDrag=null;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
 function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
