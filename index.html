@@ -208,7 +208,7 @@ function updateLineStartGuide(event){
 }
 function resolveSnap(event,raw){
  if(!raw||activeTool==='select'||!renderer||!camera)return raw;
- const rect=renderer.domElement.getBoundingClientRect(),limit=19,vertexLimit=13;
+ const rect=renderer.domElement.getBoundingClientRect(),limit=24,vertexLimit=20;
  let nearestVertex=null,nearestVertexPx=vertexLimit,nearestEdge=null,nearestEdgePx=limit;
  const project=(v)=>{const q=v.clone().project(camera);return {x:rect.left+(q.x+1)*rect.width/2,y:rect.top+(1-q.y)*rect.height/2};};
  const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -263,7 +263,7 @@ function resolveSnap(event,raw){
   const origin=planeCoords(linePoints[linePoints.length-1]),current=planeCoords(raw);
   const aligned=planePoint(current.u,origin.v);
   const a=project(planePoint(origin.u,origin.v)),b=project(aligned),cursor=project(raw),dist=distance(cursor,b);
-  if(dist<13){
+  if(dist<17){
    if(levelHintEl){
     const r=host.getBoundingClientRect(),dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
     levelHintEl.style.left=(a.x-r.left)+'px';levelHintEl.style.top=(a.y-r.top)+'px';
@@ -293,9 +293,12 @@ function beginSketch(event){
   if(activeTool==='line'){
    // Primer toque: solo muestra la cruz; el punto inicial se fija al levantar el dedo.
    if(!linePoints.length){
+    // Primer apoyo táctil: mostrar solo la cruz y seguir el dedo, sin crear geometría.
+    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
     touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
-    if(touchStartTimer)clearTimeout(touchStartTimer);
-    touchStartTimer=setTimeout(()=>{touchStartTimer=null;if(activeTouchPointers.size===1&&!pinchGesture&&touchPendingEvent){touchLineGuideActive=true;updateLineStartGuide(touchPendingEvent);}},180);
+    touchLineGuideActive=true;
+    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+    updateLineStartGuide(event);
     event.preventDefault();return;
    }
    const p=pointForSketch(event);if(!p)return;
@@ -375,7 +378,7 @@ function finishSketch(event){
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
    const p=pointForSketch(event)||pointForSketch(touchPendingEvent);
-   if(p)linePoints=[p.clone()];
+   if(p){linePoints=[p.clone()];saveViewportProject();recordDrawingHistory();}
    activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
    hideSnapFeedback();hideLineGuide();return;
   }
