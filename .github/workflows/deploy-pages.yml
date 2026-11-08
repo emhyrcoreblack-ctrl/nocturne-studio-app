@@ -46,3 +46,5 @@ jobs:
 # Publish unified touch and mouse drag handling.
 
 # Restore touch guide and allow continuous multi-segment line drawing.
+
+# Redeploy aligned touch cursor and stable pointer cleanup.
