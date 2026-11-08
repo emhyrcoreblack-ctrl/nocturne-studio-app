@@ -381,7 +381,7 @@ function finishSketch(event){
    saveViewportProject();recordDrawingHistory();
   }else if(lineGestureCreatedAnchor){
    linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}
-  }
+  }else if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);}
   lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;
   hideSnapFeedback();hideLineGuide();return;
  }
