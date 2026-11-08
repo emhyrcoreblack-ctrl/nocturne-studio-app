@@ -64,7 +64,7 @@
 </header>
 <nav id="editorToolbar" aria-label="Herramientas del espacio">
 <button id="undoButton" title="Deshacer">↶</button><button id="redoButton" title="Rehacer">↷</button><span class="tool-separator"></span>
-<button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><button id="activeToolToggle" type="button" hidden aria-label="Desactivar herramienta activa"></button><div id="drawToolsPanel" role="group" aria-label="Herramientas de dibujo"><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea">／ <small>Línea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button></div><span class="tool-separator"></span>
+<button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><button id="activeToolToggle" type="button" hidden aria-label="Desactivar herramienta activa"></button><button id="deleteSelectionButton" type="button" hidden title="Eliminar trazo seleccionado" aria-label="Eliminar trazo seleccionado" style="font-size:17px;color:#a12c3b">⌫</button><div id="drawToolsPanel" role="group" aria-label="Herramientas de dibujo"><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea">／ <small>Línea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button></div><span class="tool-separator"></span>
 <button id="gridButton" class="tool-active" title="Mostrar u ocultar cuadrícula">▦</button><button id="axesButton" class="tool-active" title="Mostrar u ocultar ejes">⌖</button><button id="fitButton" title="Restablecer vista">⟳</button><span class="tool-separator"></span><span class="save-state" id="saveState">Seleccionar</span>
 </nav>
 <div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
@@ -159,6 +159,7 @@ async function startViewport(){
   setTool('select');
   document.getElementById('undoButton').addEventListener('click',undoDrawing);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
+  document.getElementById('deleteSelectionButton').addEventListener('click',deleteSelected);
   window.addEventListener('keydown',e=>{if((e.key==='Delete'||e.key==='Backspace')&&activeTool==='select'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();deleteSelected();}});
   updateHistoryButtons();
   const drawMenu=document.getElementById('drawToolsPanel'),drawMenuButton=document.getElementById('drawMenuButton');
@@ -334,6 +335,7 @@ function clearSelection(){
   delete selectedObject.userData.selectionOriginalColor;
  }
  selectedObject=null;
+ const removeButton=document.getElementById('deleteSelectionButton');if(removeButton)removeButton.hidden=true;
 }
 function selectAt(event){
  const p={x:event.clientX,y:event.clientY};let best=null,bestDist=16,bestEndpoint=-1;
@@ -354,6 +356,7 @@ function selectAt(event){
   if(best&&best.material&&best.material.color){best.userData.selectionOriginalColor=best.material.color.getHex();best.material.color.setHex(0x55c8ff);}
  }
  if(!best){document.getElementById('saveState').textContent='Seleccionar';return;}
+ const removeButton=document.getElementById('deleteSelectionButton');if(removeButton)removeButton.hidden=false;
  const pts=best.userData.controlPoints||[];
  const hit=bestEndpoint>=0?bestEndpoint:-1;
  const start=pointOnGround(event);
