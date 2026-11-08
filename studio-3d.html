@@ -378,7 +378,7 @@ function finishSketch(event){
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-   const p=touchFirstAnchorMoved?null:(pointForSketch(event)||pointForSketch(touchPendingEvent));
+   const p=pointForSketch(event)||pointForSketch(touchPendingEvent);
    if(p){linePoints=[p.clone()];saveViewportProject();recordDrawingHistory();}
    activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
    hideSnapFeedback();hideLineGuide();return;
