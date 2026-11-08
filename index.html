@@ -197,7 +197,7 @@ function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
 }
-function lineGuideEvent(event){return event.pointerType==='touch'?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
+function lineGuideEvent(event){return event.pointerType==='touch'&&activeTool==='line'?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
 function pointForSketch(event){const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);return raw?resolveSnap(guide,raw):null;}
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
@@ -349,17 +349,19 @@ function moveSketch(event){
  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
 }
+function cancelLineGesture(){
+ if(lineGestureCreatedAnchor){linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
+ else if(lineObject){if(linePoints.length>1)updateFatStroke(lineObject,linePoints);else{scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
+ lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;
+}
 function cancelSketch(event){
  hideSnapFeedback();hideLineGuide();
  if(event.pointerType==='touch'){
   activeTouchPointers.delete(event.pointerId);
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
-  if(activeTouchPointers.size===0){
-   if(lineGestureCreatedAnchor){linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
-   lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;pinchGesture=false;
-  }
- }else if(lineDragPointerId===event.pointerId){lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;}
+  if(activeTouchPointers.size===0){cancelLineGesture();pinchGesture=false;}
+ }else if(lineDragPointerId===event.pointerId){cancelLineGesture();}
  if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}
 }
 function finishSketch(event){
@@ -434,7 +436,7 @@ function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001]
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
 function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.material&&o.material.color?o.material.color.getHex():0xe5efff,points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
