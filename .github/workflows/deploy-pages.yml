@@ -42,3 +42,5 @@ jobs:
 # Redeploy continuous line drag and pointer release fixes.
 
 # Redeploy immediate first-touch line preview behavior.
+
+# Publish unified touch and mouse drag handling.
