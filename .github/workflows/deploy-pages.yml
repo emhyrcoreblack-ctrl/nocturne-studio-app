@@ -54,3 +54,5 @@ jobs:
 # Publish compact crosshair and unified line endpoint mapping.
 
 # Deploy first-touch cross-only anchor behavior.
+
+# Deploy immediate touch cross and stronger CAD snapping.
