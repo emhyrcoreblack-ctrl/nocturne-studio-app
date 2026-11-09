@@ -160,7 +160,7 @@ async function startViewport(){
   axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   // Identificación discreta de los ejes positivos y del origen del sistema mundial.
   axisLabelEls=[];
-  [['X','#ef6868',new THREE.Vector3(68,0,0)],['Y','#63d98a',new THREE.Vector3(0,68,0)],['Z','#65aaff',new THREE.Vector3(0,0,68)]].forEach(([label,color])=>{const el=document.createElement('div');el.textContent=label;el.style.cssText='position:absolute;display:none;transform:translate(-50%,-50%);font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.03em;color:'+color+';text-shadow:0 1px 3px #080d16,0 0 5px #080d16;pointer-events:none;z-index:4';host.appendChild(el);axisLabelEls.push({el,point:arguments});});
+  [['X','#ef6868',new THREE.Vector3(68,0,0)],['Y','#63d98a',new THREE.Vector3(0,68,0)],['Z','#65aaff',new THREE.Vector3(0,0,68)]].forEach(([label,color])=>{const el=document.createElement('div');el.textContent=label;el.style.cssText='position:absolute;display:none;transform:translate(-50%,-50%);font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.03em;color:'+color+';text-shadow:0 1px 3px #080d16,0 0 5px #080d16;pointer-events:none;z-index:4';host.appendChild(el);axisLabelEls.push({el});});
   originMarkerEl=document.createElement('div');originMarkerEl.style.cssText='position:absolute;display:none;width:8px;height:8px;transform:translate(-50%,-50%);border:1px solid #dce7f4;border-radius:50%;background:#26384b;box-shadow:0 0 0 2px rgba(8,14,23,.7);pointer-events:none;z-index:4';host.appendChild(originMarkerEl);
   axisLabelEls.forEach((item,i)=>{item.point=[new THREE.Vector3(68,0,0),new THREE.Vector3(0,68,0),new THREE.Vector3(0,0,68)][i];});
   defaultCameraPosition=camera.position.clone();
