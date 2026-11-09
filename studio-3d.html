@@ -235,6 +235,8 @@ function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coord
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
  const p=resolveSnap(guide,raw);
+ // Mantiene la lectura XYZ sincronizada también durante el gesto táctil de inicio.
+ if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}
  if(cursorMarker)cursorMarker.visible=false;
  if(lineGuideEl){const r=host.getBoundingClientRect();lineGuideEl.style.left=(x-r.left)+'px';lineGuideEl.style.top=(y-r.top)+'px';lineGuideEl.style.display='block';}
  return p;
