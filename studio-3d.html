@@ -326,16 +326,16 @@ function resolveSnap(event,raw){
   line.setAttribute('x1',p0.x-dx);line.setAttribute('y1',p0.y-dy);line.setAttribute('x2',p0.x+dx);line.setAttribute('y2',p0.y+dy);line.setAttribute('visibility','visible');
  };
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
- // devuelve la proyección ortogonal y dibuja una guía larga por el plano.
+ // devuelve el punto de ajuste sobre la recta 3D de la referencia.
  if(nearestVertex&&nearestVertexPx<9){
   hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
  }else if(horizontal||vertical){
   hideInferenceOverlay();const span=500;
   if(horizontal){
-   setGuide(0,horizontal.vertex,plane.u);
+   setGuide(0,horizontal.anchor,plane.u);
   }else if(inferenceGuideObjects[0])inferenceGuideObjects[0].visible=false;
   if(vertical){
-   setGuide(1,vertical.vertex,plane.v);
+   setGuide(1,vertical.anchor,plane.v);
   }else if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
   const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
   if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
