@@ -258,42 +258,50 @@ function resolveSnap(event,raw){
   inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
  if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
- // Inferencia tipo Onshape: primero se "despierta" una referencia al acercar
- // la cruz a un vértice; después la referencia permanece activa mientras se
- // mueve el cursor para encontrar la alineación horizontal o vertical.
+ // Inferencia continua: evalúa todos los vértices en cada movimiento.
+ // No requiere "despertar" ni conservar un vértice previo; evita perder la
+ // referencia cuando el cursor pasa exactamente sobre ella.
  const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
- let horizontal=null,vertical=null,wakeCandidate=null,wakeDistance=26;
  const screenDistance=(a,b)=>{const pa=a.clone().project(camera),pb=b.clone().project(camera);return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);};
- const considerWake=(vertex)=>{
-  const px=screenDistance(raw,vertex);
-  if(px<wakeDistance){wakeDistance=px;wakeCandidate=vertex.clone();}
+ let horizontal=null,vertical=null;
+ const considerInference=(vertex)=>{
+  const c=planeCoords(vertex);
+  const hPoint=planePoint(cursor.u,c.v),vPoint=planePoint(c.u,cursor.v);
+  const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
+  if(hPx<20&&(!horizontal||hPx<horizontal.px))horizontal={vertex:vertex.clone(),point:hPoint,px:hPx};
+  if(vPx<20&&(!vertical||vPx<vertical.px))vertical={vertex:vertex.clone(),point:vPoint,px:vPx};
  };
  for(const obj of drawnObjects){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
   if(!pts.length)continue;
   obj.updateWorldMatrix(true,false);
-  for(const local of pts)considerWake(obj.localToWorld(local.clone()));
+  for(const local of pts)considerInference(obj.localToWorld(local.clone()));
  }
- if(Array.isArray(linePoints))linePoints.forEach(considerWake);
- if(nearestVertex&&nearestVertexPx<10)inferenceWakePoint=null;
- else if(wakeCandidate)inferenceWakePoint=wakeCandidate;
- const anchor=inferenceWakePoint;
- if(anchor){
-  const coord=planeCoords(anchor);
-  const hPoint=planePoint(cursor.u,coord.v),vPoint=planePoint(coord.u,cursor.v);
-  const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
-  if(hPx<22)horizontal={vertex:anchor,point:hPoint,px:hPx};
-  if(vPx<22)vertical={vertex:anchor,point:vPoint,px:vPx};
- }
- const setGuide=(index,a,b)=>{const g=inferenceGuideObjects[index];if(!g)return;g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;};
- if(horizontal)setGuide(0,horizontal.vertex,horizontal.point);
- if(vertical)setGuide(1,vertical.vertex,vertical.point);
- if(horizontal||vertical){
+ if(Array.isArray(linePoints))linePoints.forEach(considerInference);
+ const setGuide=(index,a,b)=>{
+  const g=inferenceGuideObjects[index];if(!g)return;
+  g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
+ };
+ // La captura exacta de vértice prevalece; en los demás casos, la inferencia
+ // devuelve la proyección ortogonal y dibuja una guía larga por el plano.
+ if(nearestVertex&&nearestVertexPx<9){
+  inferenceGuideObjects.forEach(g=>g.visible=false);
+ }else if(horizontal||vertical){
+  const span=500;
+  if(horizontal){
+   const c=planeCoords(horizontal.vertex);
+   setGuide(0,planePoint(-span,c.v),planePoint(span,c.v));
+  }else if(inferenceGuideObjects[0])inferenceGuideObjects[0].visible=false;
+  if(vertical){
+   const c=planeCoords(vertical.vertex);
+   setGuide(1,planePoint(c.u,-span),planePoint(c.u,span));
+  }else if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
   const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
   if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
   snapKind='inference';return chosen.point;
+ }else{
+  inferenceGuideObjects.forEach(g=>g.visible=false);
  }
-
  if(nearestVertex){
   snapKind='vertex';
   if(snapEdgeObject)snapEdgeObject.visible=false;
