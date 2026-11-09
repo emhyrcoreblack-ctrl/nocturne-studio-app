@@ -300,18 +300,33 @@ function resolveSnap(event,raw){
   if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
   return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);
  };
+ const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
+ const projectedLineDistance=(anchor,axis)=>{
+  const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
+  if(a.z < -1 || a.z > 1 || b.z < -1 || b.z > 1)return Infinity;
+  const ax=(a.x+1)*.5*rectNow.width,ay=(1-a.y)*.5*rectNow.height;
+  const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
+  const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
+  if(!Number.isFinite(lenSq)||lenSq<.0001)return Infinity;
+  const t=((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq;
+  const qx=ax+t*dx,qy=ay+t*dy;
+  return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
+ };
  const considerInference=(reference)=>{
   const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
   if(cameraZ>=-camera.near)return;
+  // La inferencia se decide en píxeles contra la recta proyectada de cada eje.
+  // Así la guía responde a la posición real de la cruz en pantalla, no a la
+  // distancia 3D entre el plano de dibujo y una referencia a otra profundidad.
   const hPoint=closestPointOnRayToAxis(reference,plane.u);
   const vPoint=closestPointOnRayToAxis(reference,plane.v);
   if(hPoint){
-   const px=pixelDistance(raw,hPoint);
-   if(px<24&&(!horizontal||px<horizontal.px))horizontal={anchor:reference.clone(),point:hPoint,px};
+   const px=projectedLineDistance(reference,plane.u);
+   if(px<30&&(!horizontal||px<horizontal.px))horizontal={anchor:reference.clone(),point:hPoint,px};
   }
   if(vPoint){
-   const px=pixelDistance(raw,vPoint);
-   if(px<24&&(!vertical||px<vertical.px))vertical={anchor:reference.clone(),point:vPoint,px};
+   const px=projectedLineDistance(reference,plane.v);
+   if(px<30&&(!vertical||px<vertical.px))vertical={anchor:reference.clone(),point:vPoint,px};
   }
  };
  inferenceReferences.forEach(considerInference);
