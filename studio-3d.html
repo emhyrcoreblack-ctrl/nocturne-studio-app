@@ -260,11 +260,11 @@ function resolveSnap(event,raw){
   inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
  if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
- // Inferencia geométrica: usa vértices, puntos medios de aristas y centro de figuras cerradas.
- // La referencia define la altura real de la guía; la cruz solo aporta la coordenada
- // sobre el eje para calcular el punto de ajuste.
- const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
- const screenDistance=(a,b)=>{const pa=a.clone().project(camera),pb=b.clone().project(camera);return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);};
+ // Inferencia 3D basada en referencias geométricas reales.
+ // Cada guía es una recta que pasa por la referencia (vértice, centro de arista
+ // o centro de figura) y conserva su altura/profundidad. El punto de snap es
+ // el punto de esa recta más próximo al rayo de la cámara.
+ const plane=workPlanes[activePlane],rectNow=renderer.domElement.getBoundingClientRect();
  let horizontal=null,vertical=null;
  const inferenceReferences=[];
  const collectInferenceReferences=(world,closed=false)=>{
@@ -288,22 +288,36 @@ function resolveSnap(event,raw){
   collectInferenceReferences(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
  if(Array.isArray(linePoints)&&linePoints.length)collectInferenceReferences(linePoints,false);
+ const closestPointOnRayToAxis=(anchor,axis)=>{
+  const d=ray.direction,w=ray.origin.clone().sub(anchor),b=d.dot(axis),d0=d.dot(w),e=axis.dot(w),denom=1-b*b;
+  if(Math.abs(denom)<1e-7)return null;
+  const rayT=(b*e-d0)/denom,axisT=(e-b*d0)/denom;
+  if(rayT<=0)return null;
+  return anchor.clone().addScaledVector(axis,axisT);
+ };
+ const pixelDistance=(a,b)=>{
+  const pa=a.clone().project(camera),pb=b.clone().project(camera);
+  if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
+  return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);
+ };
  const considerInference=(reference)=>{
   const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
   if(cameraZ>=-camera.near)return;
-  const c=planeCoords(reference);
-  const hPoint=planePoint(cursor.u,c.v),vPoint=planePoint(c.u,cursor.v);
-  const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
-  if(hPx<24&&(!horizontal||hPx<horizontal.px))horizontal={vertex:reference.clone(),point:hPoint,px:hPx};
-  if(vPx<24&&(!vertical||vPx<vertical.px))vertical={vertex:reference.clone(),point:vPoint,px:vPx};
+  const hPoint=closestPointOnRayToAxis(reference,plane.u);
+  const vPoint=closestPointOnRayToAxis(reference,plane.v);
+  if(hPoint){
+   const px=pixelDistance(raw,hPoint);
+   if(px<24&&(!horizontal||px<horizontal.px))horizontal={anchor:reference.clone(),point:hPoint,px};
+  }
+  if(vPoint){
+   const px=pixelDistance(raw,vPoint);
+   if(px<24&&(!vertical||px<vertical.px))vertical={anchor:reference.clone(),point:vPoint,px};
+  }
  };
  inferenceReferences.forEach(considerInference);
  const setGuide=(index,anchor,axis)=>{
   const g=inferenceGuideObjects[index];if(g)g.visible=false;
   const line=inferenceOverlayLines[index];if(!line||!inferenceOverlay)return;
-  // La guía debe proyectarse desde el vértice que disparó la inferencia.
-  // Usar el punto medio de un segmento simétrico respecto al origen falla
-  // cuando ese origen queda detrás de la cámara o lejos del área visible.
   const project=p=>{const q=p.clone().project(camera);return {x:(q.x+1)*.5*rectNow.width,y:(1-q.y)*.5*rectNow.height};};
   const p0=project(anchor),p1=project(anchor.clone().addScaledVector(axis,10));
   let dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
