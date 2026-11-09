@@ -331,14 +331,18 @@ function resolveSnap(event,raw){
  };
  inferenceReferences.forEach(considerInference);
  const setGuide=(index,anchor,axis)=>{
-  const g=inferenceGuideObjects[index];if(g)g.visible=false;
-  const line=inferenceOverlayLines[index];if(!line||!inferenceOverlay)return;
-  const project=p=>{const q=p.clone().project(camera);return {x:(q.x+1)*.5*rectNow.width,y:(1-q.y)*.5*rectNow.height};};
-  const p0=project(anchor),p1=project(anchor.clone().addScaledVector(axis,10));
-  let dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
-  if(!Number.isFinite(len)||len<.0001||!Number.isFinite(p0.x)||!Number.isFinite(p0.y)){line.setAttribute('visibility','hidden');return;}
-  dx=dx/len*2000;dy=dy/len*2000;
-  line.setAttribute('x1',p0.x-dx);line.setAttribute('y1',p0.y-dy);line.setAttribute('x2',p0.x+dx);line.setAttribute('y2',p0.y+dy);line.setAttribute('visibility','visible');
+  // Dibujar la inferencia en la misma escena WebGL del modelo evita
+  // desajustes de coordenadas entre el canvas y una capa SVG superpuesta.
+  const g=inferenceGuideObjects[index];
+  if(!g||!anchor||!axis)return;
+  const direction=axis.clone().normalize(),span=2000;
+  const a=anchor.clone().addScaledVector(direction,-span);
+  const b=anchor.clone().addScaledVector(direction,span);
+  g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);
+  g.computeLineDistances();
+  g.visible=true;
+  const line=inferenceOverlayLines[index];
+  if(line)line.setAttribute('visibility','hidden');
  };
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve el punto de ajuste sobre la recta 3D de la referencia.
