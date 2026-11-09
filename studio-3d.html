@@ -275,7 +275,8 @@ function resolveSnap(event,raw){
   for(const local of pts)considerWake(obj.localToWorld(local.clone()));
  }
  if(Array.isArray(linePoints))linePoints.forEach(considerWake);
- if(wakeCandidate)inferenceWakePoint=wakeCandidate;
+ if(nearestVertex&&nearestVertexPx<10)inferenceWakePoint=null;
+ else if(wakeCandidate)inferenceWakePoint=wakeCandidate;
  const anchor=inferenceWakePoint;
  if(anchor){
   const coord=planeCoords(anchor);
