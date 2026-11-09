@@ -283,10 +283,14 @@ function resolveSnap(event,raw){
  const setGuide=(index,a,b)=>{
   const g=inferenceGuideObjects[index];if(g){g.visible=false;}
   const line=inferenceOverlayLines[index];if(!line||!inferenceOverlay)return;
-  const project=p=>{const q=p.clone().project(camera);return {x:(q.x+1)*.5*host.clientWidth,y:(1-q.y)*.5*host.clientHeight,z:q.z};};
-  const p0=project(a),p1=project(b);
-  if(p0.z < -1 || p0.z > 1 || p1.z < -1 || p1.z > 1){line.setAttribute('visibility','hidden');return;}
-  line.setAttribute('x1',p0.x);line.setAttribute('y1',p0.y);line.setAttribute('x2',p1.x);line.setAttribute('y2',p1.y);line.setAttribute('visibility','visible');
+  const project=p=>{const q=p.clone().project(camera);return {x:(q.x+1)*.5*host.clientWidth,y:(1-q.y)*.5*host.clientHeight};};
+  // Proyectar el centro y la dirección evita que un extremo lejano, situado
+  // detrás de la cámara, invalide toda la guía en perspectiva.
+  const center=a.clone().add(b).multiplyScalar(.5),direction=b.clone().sub(a).normalize();
+  const p0=project(center),p1=project(center.clone().addScaledVector(direction,10));
+  let dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);if(len<.0001){line.setAttribute('visibility','hidden');return;}
+  dx=dx/len*2000;dy=dy/len*2000;
+  line.setAttribute('x1',p0.x-dx);line.setAttribute('y1',p0.y-dy);line.setAttribute('x2',p0.x+dx);line.setAttribute('y2',p0.y+dy);line.setAttribute('visibility','visible');
  };
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve la proyección ortogonal y dibuja una guía larga por el plano.
