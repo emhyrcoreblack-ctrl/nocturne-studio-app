@@ -258,43 +258,6 @@ function resolveSnap(event,raw){
   inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
  if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
- if(nearestVertex){
-  snapKind='vertex';
-  if(snapEdgeObject)snapEdgeObject.visible=false;
-  if(snapVertexObject){
-   const size=worldPerPixelAt(nearestVertex.depth)*14;
-   const c=nearestVertex.point,half=size*.5;
-   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
-   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
-   const corners=[c.clone().sub(right).sub(up),c.clone().add(right).sub(up),c.clone().add(right).add(up),c.clone().sub(right).add(up),c.clone().sub(right).sub(up)];
-   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
-   snapVertexObject.computeLineDistances();
-   snapVertexObject.visible=true;
-  }
-  inferenceGuideObjects.forEach(g=>g.visible=false);
-  if(snapMarkerEl)snapMarkerEl.style.display='none';
-  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-  if(levelHintEl)levelHintEl.style.display='none';
-  return nearestVertex.point;
- }
- if(nearestEdge){
-  snapKind='edge';
-  if(snapVertexObject)snapVertexObject.visible=false;
-  if(snapEdgeObject){
-   snapEdgeObject.geometry.setPositions([nearestEdge.start.x,nearestEdge.start.y,nearestEdge.start.z,nearestEdge.end.x,nearestEdge.end.y,nearestEdge.end.z]);
-   snapEdgeObject.computeLineDistances();snapEdgeObject.visible=true;
-  }
-  if(inferenceGuideObjects.length>=1){
-   const direction=nearestEdge.end.clone().sub(nearestEdge.start).normalize(),span=160,c=nearestEdge.point;
-   const a=c.clone().addScaledVector(direction,-span),b=c.clone().addScaledVector(direction,span),g=inferenceGuideObjects[0];
-   g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
-   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
-  }
-  if(snapMarkerEl)snapMarkerEl.style.display='none';
-  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-  if(levelHintEl)levelHintEl.style.display='none';
-  return nearestEdge.point;
- }
  // Inferencia dinámica desde vértices existentes: la guía aparece solo cuando
  // la cruz se alinea con su coordenada horizontal o vertical en el plano.
  const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
@@ -320,6 +283,43 @@ function resolveSnap(event,raw){
   const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
   if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
   snapKind='inference';return chosen.point;
+ }
+
+ if(nearestVertex){
+  snapKind='vertex';
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapVertexObject){
+   const size=worldPerPixelAt(nearestVertex.depth)*14;
+   const c=nearestVertex.point,half=size*.5;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[c.clone().sub(right).sub(up),c.clone().add(right).sub(up),c.clone().add(right).add(up),c.clone().sub(right).add(up),c.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();
+   snapVertexObject.visible=true;
+  }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  return nearestVertex.point;
+ }
+ if(nearestEdge){
+  snapKind='edge';
+  if(snapVertexObject)snapVertexObject.visible=false;
+  if(snapEdgeObject){
+   snapEdgeObject.geometry.setPositions([nearestEdge.start.x,nearestEdge.start.y,nearestEdge.start.z,nearestEdge.end.x,nearestEdge.end.y,nearestEdge.end.z]);
+   snapEdgeObject.computeLineDistances();snapEdgeObject.visible=true;
+  }
+  if(inferenceGuideObjects.length>=1){
+   const direction=nearestEdge.end.clone().sub(nearestEdge.start).normalize(),span=160,c=nearestEdge.point;
+   const a=c.clone().addScaledVector(direction,-span),b=c.clone().addScaledVector(direction,span),g=inferenceGuideObjects[0];
+   g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
+   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  return nearestEdge.point;
  }
 
  if(snapVertexObject)snapVertexObject.visible=false;
