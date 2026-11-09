@@ -267,11 +267,14 @@ function resolveSnap(event,raw){
  const screenDistance=(a,b)=>{const pa=a.clone().project(camera),pb=b.clone().project(camera);return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);};
  let horizontal=null,vertical=null;
  const considerInference=(vertex)=>{
+  // Solo usa referencias que realmente están delante de la cámara.
+  const cameraZ=vertex.clone().applyMatrix4(camera.matrixWorldInverse).z;
+  if(cameraZ>=-camera.near)return;
   const c=planeCoords(vertex);
   const hPoint=planePoint(cursor.u,c.v),vPoint=planePoint(c.u,cursor.v);
   const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
-  if(hPx<20&&(!horizontal||hPx<horizontal.px))horizontal={vertex:vertex.clone(),point:hPoint,px:hPx};
-  if(vPx<20&&(!vertical||vPx<vertical.px))vertical={vertex:vertex.clone(),point:vPoint,px:vPx};
+  if(hPx<24&&(!horizontal||hPx<horizontal.px))horizontal={vertex:vertex.clone(),point:hPoint,px:hPx};
+  if(vPx<24&&(!vertical||vPx<vertical.px))vertical={vertex:vertex.clone(),point:vPoint,px:vPx};
  };
  for(const obj of drawnObjects){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
@@ -280,15 +283,16 @@ function resolveSnap(event,raw){
   for(const local of pts)considerInference(obj.localToWorld(local.clone()));
  }
  if(Array.isArray(linePoints))linePoints.forEach(considerInference);
- const setGuide=(index,a,b)=>{
-  const g=inferenceGuideObjects[index];if(g){g.visible=false;}
+ const setGuide=(index,anchor,axis)=>{
+  const g=inferenceGuideObjects[index];if(g)g.visible=false;
   const line=inferenceOverlayLines[index];if(!line||!inferenceOverlay)return;
-  const project=p=>{const q=p.clone().project(camera);return {x:(q.x+1)*.5*host.clientWidth,y:(1-q.y)*.5*host.clientHeight};};
-  // Proyectar el centro y la dirección evita que un extremo lejano, situado
-  // detrás de la cámara, invalide toda la guía en perspectiva.
-  const center=a.clone().add(b).multiplyScalar(.5),direction=b.clone().sub(a).normalize();
-  const p0=project(center),p1=project(center.clone().addScaledVector(direction,10));
-  let dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);if(len<.0001){line.setAttribute('visibility','hidden');return;}
+  // La guía debe proyectarse desde el vértice que disparó la inferencia.
+  // Usar el punto medio de un segmento simétrico respecto al origen falla
+  // cuando ese origen queda detrás de la cámara o lejos del área visible.
+  const project=p=>{const q=p.clone().project(camera);return {x:(q.x+1)*.5*rectNow.width,y:(1-q.y)*.5*rectNow.height};};
+  const p0=project(anchor),p1=project(anchor.clone().addScaledVector(axis,10));
+  let dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
+  if(!Number.isFinite(len)||len<.0001||!Number.isFinite(p0.x)||!Number.isFinite(p0.y)){line.setAttribute('visibility','hidden');return;}
   dx=dx/len*2000;dy=dy/len*2000;
   line.setAttribute('x1',p0.x-dx);line.setAttribute('y1',p0.y-dy);line.setAttribute('x2',p0.x+dx);line.setAttribute('y2',p0.y+dy);line.setAttribute('visibility','visible');
  };
@@ -299,12 +303,10 @@ function resolveSnap(event,raw){
  }else if(horizontal||vertical){
   hideInferenceOverlay();const span=500;
   if(horizontal){
-   const c=planeCoords(horizontal.vertex);
-   setGuide(0,planePoint(-span,c.v),planePoint(span,c.v));
+   setGuide(0,horizontal.vertex,plane.u);
   }else if(inferenceGuideObjects[0])inferenceGuideObjects[0].visible=false;
   if(vertical){
-   const c=planeCoords(vertical.vertex);
-   setGuide(1,planePoint(c.u,-span),planePoint(c.u,span));
+   setGuide(1,vertical.vertex,plane.v);
   }else if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
   const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
   if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
