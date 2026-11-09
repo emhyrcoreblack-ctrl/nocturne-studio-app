@@ -328,7 +328,11 @@ function resolveSnap(event,raw){
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve el punto de ajuste sobre la recta 3D de la referencia.
  if(nearestVertex&&nearestVertexPx<9){
-  hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+  // Al capturar exactamente un vértice, la referencia también debe generar
+  // sus dos ejes de inferencia; antes este caso ocultaba todas las guías.
+  hideInferenceOverlay();
+  setGuide(0,nearestVertex.point,plane.u);
+  setGuide(1,nearestVertex.point,plane.v);
  }else if(horizontal||vertical){
   hideInferenceOverlay();const span=500;
   if(horizontal){
