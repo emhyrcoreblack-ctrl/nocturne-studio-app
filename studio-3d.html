@@ -371,6 +371,13 @@ function resolveSnap(event,raw){
  }
  if(nearestVertex){
   snapKind='vertex';
+  // Si el vértice queda dentro del radio de captura pero no del radio
+  // prioritario de 9 px, también debe mostrar sus guías amarillas.
+  // La prioridad de inferencia horizontal/vertical ya se resolvió arriba.
+  if(!inferenceGuideObjects.some(g=>g.visible)){
+   setGuide(0,nearestVertex.point,plane.u);
+   setGuide(1,nearestVertex.point,plane.v);
+  }
   if(snapEdgeObject)snapEdgeObject.visible=false;
   if(snapVertexObject){
    const size=worldPerPixelAt(nearestVertex.depth)*14;
