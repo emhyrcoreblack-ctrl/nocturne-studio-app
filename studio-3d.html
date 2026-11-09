@@ -397,7 +397,7 @@ function resolveSnap(event,raw){
   if(inferenceGuideObjects.length>=1){
    const direction=nearestEdge.end.clone().sub(nearestEdge.start).normalize(),span=160,c=nearestEdge.point;
    const a=c.clone().addScaledVector(direction,-span),b=c.clone().addScaledVector(direction,span),g=inferenceGuideObjects[0];
-   g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
+   g.geometry.setFromPoints([a,b]);g.geometry.computeBoundingSphere();g.visible=true;
    if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
   }
   if(snapMarkerEl)snapMarkerEl.style.display='none';
