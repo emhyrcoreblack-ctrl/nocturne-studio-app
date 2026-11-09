@@ -115,7 +115,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[];
+let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -147,6 +147,7 @@ async function startViewport(){
   camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
+  inferenceOverlay=document.createElementNS('http://www.w3.org/2000/svg','svg');inferenceOverlay.setAttribute('aria-hidden','true');inferenceOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:24';host.appendChild(inferenceOverlay);inferenceOverlayLines=[];for(let i=0;i<2;i++){const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke','#ffd23f');line.setAttribute('stroke-width','2');line.setAttribute('stroke-dasharray','7 5');line.setAttribute('stroke-linecap','round');line.setAttribute('filter','drop-shadow(0 0 3px rgba(255,210,63,.9))');line.setAttribute('visibility','hidden');inferenceOverlay.appendChild(line);inferenceOverlayLines.push(line);}
   controls=new mod.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.075;controls.rotateSpeed=.72;controls.zoomSpeed=1;controls.panSpeed=.8;controls.minDistance=5;controls.maxDistance=650;controls.target.set(0,0,0);controls.update();
   raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);snapMarkerEl=document.createElement('div');snapMarkerEl.style.cssText='position:absolute;display:none;width:13px;height:13px;border:2px solid #39e6b0;background:#39e6b066;box-shadow:0 0 0 2px #0c1725,0 0 12px #39e6b0,0 0 20px #39e6b0;transform:translate(-50%,-50%);pointer-events:none;z-index:1001;border-radius:2px';host.appendChild(snapMarkerEl);edgeHighlightEl=document.createElement('div');edgeHighlightEl.style.cssText='position:absolute;display:none;height:5px;border-radius:5px;background:#62b8ff;box-shadow:0 0 0 1px rgba(8,22,38,.95),0 0 9px #62b8ff,0 0 18px rgba(98,184,255,.9);transform-origin:0 50%;pointer-events:none;z-index:1000';host.appendChild(edgeHighlightEl);levelHintEl=document.createElement('div');levelHintEl.style.cssText='position:absolute;display:none;height:2px;min-width:2px;border-radius:2px;background:linear-gradient(90deg,rgba(57,230,176,.22),#55f0c2);box-shadow:0 0 5px rgba(57,230,176,.55),0 0 12px rgba(57,230,176,.22);transform-origin:0 50%;pointer-events:none;z-index:9';levelHintEl.innerHTML='<span style="position:absolute;right:-3px;top:-2px;width:6px;height:6px;border:1px solid #caffef;background:#39e6b0;border-radius:50%;box-shadow:0 0 7px #39e6b0"></span>';host.appendChild(levelHintEl);angleHintEl=document.createElement('div');angleHintEl.style.cssText='position:absolute;display:none;transform:translate(-50%,-145%);padding:3px 7px;border:1px solid #55f0c2;border-radius:6px;background:#10251fee;color:#caffef;font-size:11px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;z-index:19;box-shadow:0 2px 9px #0008;font-variant-numeric:tabular-nums';host.appendChild(angleHintEl);cursorMarker=null;lineGuideEl=document.createElement('div');lineGuideEl.style.cssText='position:absolute;display:none;left:0;top:0;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none;z-index:18';lineGuideEl.innerHTML='<span style="position:absolute;left:8px;top:0;width:1px;height:18px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:0;top:8px;width:18px;height:1px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:6px;top:6px;width:6px;height:6px;border:1px solid #dceaff;background:#24558b;border-radius:1px;box-sizing:border-box"></span>';host.appendChild(lineGuideEl);
   scene.add(new THREE.HemisphereLight(0xdceaff,0x202938,2));
@@ -210,7 +211,8 @@ function pointOnGroundAt(clientX,clientY){
 }
 function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
-function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
+function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
+function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
 function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
@@ -279,15 +281,19 @@ function resolveSnap(event,raw){
  }
  if(Array.isArray(linePoints))linePoints.forEach(considerInference);
  const setGuide=(index,a,b)=>{
-  const g=inferenceGuideObjects[index];if(!g)return;
-  g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;
+  const g=inferenceGuideObjects[index];if(g){g.visible=false;}
+  const line=inferenceOverlayLines[index];if(!line||!inferenceOverlay)return;
+  const project=p=>{const q=p.clone().project(camera);return {x:(q.x+1)*.5*host.clientWidth,y:(1-q.y)*.5*host.clientHeight,z:q.z};};
+  const p0=project(a),p1=project(b);
+  if(p0.z < -1 || p0.z > 1 || p1.z < -1 || p1.z > 1){line.setAttribute('visibility','hidden');return;}
+  line.setAttribute('x1',p0.x);line.setAttribute('y1',p0.y);line.setAttribute('x2',p1.x);line.setAttribute('y2',p1.y);line.setAttribute('visibility','visible');
  };
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve la proyección ortogonal y dibuja una guía larga por el plano.
  if(nearestVertex&&nearestVertexPx<9){
-  inferenceGuideObjects.forEach(g=>g.visible=false);
+  hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
  }else if(horizontal||vertical){
-  const span=500;
+  hideInferenceOverlay();const span=500;
   if(horizontal){
    const c=planeCoords(horizontal.vertex);
    setGuide(0,planePoint(-span,c.v),planePoint(span,c.v));
@@ -300,7 +306,7 @@ function resolveSnap(event,raw){
   if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
   snapKind='inference';return chosen.point;
  }else{
-  inferenceGuideObjects.forEach(g=>g.visible=false);
+  hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
  }
  if(nearestVertex){
   snapKind='vertex';
