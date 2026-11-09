@@ -231,7 +231,7 @@ function placeFeedback(el,event,color){
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
 }
 function lineGuideEvent(event){return event.pointerType==='touch'&&activeTool==='line'?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
-function pointForSketch(event){if(coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
+function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
  const p=resolveSnap(guide,raw);
@@ -528,7 +528,7 @@ function beginSketch(event){
 }
 function beginSketchNow(event){
  if(activeTool==='select'||(event.pointerType!=='touch'&&event.button!==0))return;
- const p=pointForSketch(event);if(!p)return;
+ const p=pointForSketch(event,true);if(!p)return;
  event.preventDefault();
  if(activeTool==='line'){
   try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
@@ -583,7 +583,7 @@ function finishSketch(event){
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-   const p=pointForSketch(event)||pointForSketch(touchPendingEvent);
+   const p=pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);
    if(p){linePoints=[p.clone()];saveViewportProject();recordDrawingHistory();}
    activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
    hideSnapFeedback();hideLineGuide();return;
