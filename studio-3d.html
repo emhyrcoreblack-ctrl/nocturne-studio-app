@@ -260,29 +260,44 @@ function resolveSnap(event,raw){
   inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
  if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
- // Inferencia continua: evalúa todos los vértices en cada movimiento.
- // No requiere "despertar" ni conservar un vértice previo; evita perder la
- // referencia cuando el cursor pasa exactamente sobre ella.
+ // Inferencia geométrica: usa vértices, puntos medios de aristas y centro de figuras cerradas.
+ // La referencia define la altura real de la guía; la cruz solo aporta la coordenada
+ // sobre el eje para calcular el punto de ajuste.
  const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
  const screenDistance=(a,b)=>{const pa=a.clone().project(camera),pb=b.clone().project(camera);return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);};
  let horizontal=null,vertical=null;
- const considerInference=(vertex)=>{
-  // Solo usa referencias que realmente están delante de la cámara.
-  const cameraZ=vertex.clone().applyMatrix4(camera.matrixWorldInverse).z;
-  if(cameraZ>=-camera.near)return;
-  const c=planeCoords(vertex);
-  const hPoint=planePoint(cursor.u,c.v),vPoint=planePoint(c.u,cursor.v);
-  const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
-  if(hPx<24&&(!horizontal||hPx<horizontal.px))horizontal={vertex:vertex.clone(),point:hPoint,px:hPx};
-  if(vPx<24&&(!vertical||vPx<vertical.px))vertical={vertex:vertex.clone(),point:vPoint,px:vPx};
+ const inferenceReferences=[];
+ const collectInferenceReferences=(world,closed=false)=>{
+  if(!world.length)return;
+  world.forEach(p=>inferenceReferences.push(p.clone()));
+  const count=world.length>1?(closed?world.length:world.length-1):0;
+  for(let i=0;i<count;i++){
+   const j=(i+1)%world.length;
+   inferenceReferences.push(world[i].clone().add(world[j]).multiplyScalar(.5));
+  }
+  if(closed&&world.length>=3){
+   const center=new THREE.Vector3();
+   world.forEach(p=>center.add(p));
+   inferenceReferences.push(center.multiplyScalar(1/world.length));
+  }
  };
  for(const obj of drawnObjects){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
   if(!pts.length)continue;
   obj.updateWorldMatrix(true,false);
-  for(const local of pts)considerInference(obj.localToWorld(local.clone()));
+  collectInferenceReferences(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
- if(Array.isArray(linePoints))linePoints.forEach(considerInference);
+ if(Array.isArray(linePoints)&&linePoints.length)collectInferenceReferences(linePoints,false);
+ const considerInference=(reference)=>{
+  const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
+  if(cameraZ>=-camera.near)return;
+  const c=planeCoords(reference);
+  const hPoint=planePoint(cursor.u,c.v),vPoint=planePoint(c.u,cursor.v);
+  const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
+  if(hPx<24&&(!horizontal||hPx<horizontal.px))horizontal={vertex:reference.clone(),point:hPoint,px:hPx};
+  if(vPx<24&&(!vertical||vPx<vertical.px))vertical={vertex:reference.clone(),point:vPoint,px:vPx};
+ };
+ inferenceReferences.forEach(considerInference);
  const setGuide=(index,anchor,axis)=>{
   const g=inferenceGuideObjects[index];if(g)g.visible=false;
   const line=inferenceOverlayLines[index];if(!line||!inferenceOverlay)return;
