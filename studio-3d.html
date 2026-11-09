@@ -334,18 +334,32 @@ function resolveSnap(event,raw){
  };
  inferenceReferences.forEach(considerInference);
  const setGuide=(index,anchor,axis)=>{
-  // Dibujar la inferencia en la misma escena WebGL del modelo evita
-  // desajustes de coordenadas entre el canvas y una capa SVG superpuesta.
-  const g=inferenceGuideObjects[index];
-  if(!g||!anchor||!axis)return;
-  const direction=axis.clone().normalize(),span=2000;
-  const a=anchor.clone().addScaledVector(direction,-span);
-  const b=anchor.clone().addScaledVector(direction,span);
-  g.geometry.setFromPoints([a,b]);
-  g.geometry.computeBoundingSphere();
-  g.visible=true;
-  const line=inferenceOverlayLines[index];
-  if(line)line.setAttribute('visibility','hidden');
+  // La guía se dibuja en coordenadas de pantalla para que siempre ocupe
+  // el viewport, aunque la referencia esté a otra profundidad de cámara.
+  const line=inferenceOverlayLines[index],g=inferenceGuideObjects[index];
+  if(g)g.visible=false;
+  if(!line||!anchor||!axis)return;
+  const origin=anchor.clone().project(camera);
+  const next=anchor.clone().add(axis.clone().normalize()).project(camera);
+  if(origin.z < -1 || origin.z > 1 || !Number.isFinite(origin.x) || !Number.isFinite(origin.y) ||
+     !Number.isFinite(next.x) || !Number.isFinite(next.y)){
+   line.setAttribute('visibility','hidden');return;
+  }
+  const width=rectNow.width,height=rectNow.height;
+  const x=(origin.x+1)*width*.5,y=(1-origin.y)*height*.5;
+  const dx=(next.x-origin.x)*width*.5,dy=-(next.y-origin.y)*height*.5;
+  const len=Math.hypot(dx,dy);
+  if(!Number.isFinite(len)||len<.0001){line.setAttribute('visibility','hidden');return;}
+  const ux=dx/len,uy=dy/len,ts=[];
+  if(Math.abs(ux)>.000001){ts.push((0-x)/ux,(width-x)/ux);}
+  if(Math.abs(uy)>.000001){ts.push((0-y)/uy,(height-y)/uy);}
+  const hits=ts.filter(t=>Number.isFinite(t)&&x+t*ux>=-.5&&x+t*ux<=width+.5&&y+t*uy>=-.5&&y+t*uy<=height+.5).sort((a,b)=>a-b);
+  if(hits.length<2){line.setAttribute('visibility','hidden');return;}
+  line.setAttribute('x1',String(x+hits[0]*ux));
+  line.setAttribute('y1',String(y+hits[0]*uy));
+  line.setAttribute('x2',String(x+hits[hits.length-1]*ux));
+  line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
+  line.setAttribute('visibility','visible');
  };
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve el punto de ajuste sobre la recta 3D de la referencia.
