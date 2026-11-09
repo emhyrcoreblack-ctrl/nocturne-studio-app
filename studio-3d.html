@@ -115,7 +115,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[];
+let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceWakePoint=null;
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -140,7 +140,7 @@ async function startViewport(){
   inferenceGuideObjects=[];
   for(let i=0;i<2;i++){
    const g=new window.nocturneFatLine.LineGeometry();g.setPositions([0,0,0,1,0,0]);
-   const m=new window.nocturneFatLine.LineMaterial({color:0xffc52e,linewidth:2.2,transparent:true,opacity:.95,depthTest:false,depthWrite:false});
+   const m=new window.nocturneFatLine.LineMaterial({color:0xffc52e,linewidth:2.2,transparent:true,opacity:.95,depthTest:false,depthWrite:false,dashed:true,dashSize:5,gapSize:3});
    m.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
    const line=new window.nocturneFatLine.Line2(g,m);line.computeLineDistances();line.visible=false;line.renderOrder=9999;scene.add(line);inferenceGuideObjects.push(line);
   }
@@ -210,7 +210,7 @@ function pointOnGroundAt(clientX,clientY){
 }
 function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
-function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
+function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);inferenceWakePoint=null;snapKind=null;}
 function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
@@ -258,27 +258,35 @@ function resolveSnap(event,raw){
   inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
  if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
- // Inferencia dinámica desde vértices existentes: la guía aparece solo cuando
- // la cruz se alinea con su coordenada horizontal o vertical en el plano.
+ // Inferencia tipo Onshape: primero se "despierta" una referencia al acercar
+ // la cruz a un vértice; después la referencia permanece activa mientras se
+ // mueve el cursor para encontrar la alineación horizontal o vertical.
  const plane=workPlanes[activePlane],cursor=planeCoords(raw),rectNow=renderer.domElement.getBoundingClientRect();
- let horizontal=null,vertical=null;
+ let horizontal=null,vertical=null,wakeCandidate=null,wakeDistance=26;
  const screenDistance=(a,b)=>{const pa=a.clone().project(camera),pb=b.clone().project(camera);return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);};
+ const considerWake=(vertex)=>{
+  const px=screenDistance(raw,vertex);
+  if(px<wakeDistance){wakeDistance=px;wakeCandidate=vertex.clone();}
+ };
  for(const obj of drawnObjects){
   const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
   if(!pts.length)continue;
   obj.updateWorldMatrix(true,false);
-  for(const local of pts){
-   const vertex=obj.localToWorld(local.clone()),coord=planeCoords(vertex);
-   const hPoint=planePoint(cursor.u,coord.v),vPoint=planePoint(coord.u,cursor.v);
-   const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
-   if(hPx<12&&(!horizontal||hPx<horizontal.px))horizontal={vertex,point:hPoint,px:hPx};
-   if(vPx<12&&(!vertical||vPx<vertical.px))vertical={vertex,point:vPoint,px:vPx};
-  }
+  for(const local of pts)considerWake(obj.localToWorld(local.clone()));
+ }
+ if(Array.isArray(linePoints))linePoints.forEach(considerWake);
+ if(wakeCandidate)inferenceWakePoint=wakeCandidate;
+ const anchor=inferenceWakePoint;
+ if(anchor){
+  const coord=planeCoords(anchor);
+  const hPoint=planePoint(cursor.u,coord.v),vPoint=planePoint(coord.u,cursor.v);
+  const hPx=screenDistance(raw,hPoint),vPx=screenDistance(raw,vPoint);
+  if(hPx<22)horizontal={vertex:anchor,point:hPoint,px:hPx};
+  if(vPx<22)vertical={vertex:anchor,point:vPoint,px:vPx};
  }
  const setGuide=(index,a,b)=>{const g=inferenceGuideObjects[index];if(!g)return;g.geometry.setPositions([a.x,a.y,a.z,b.x,b.y,b.z]);g.computeLineDistances();g.visible=true;};
- const span=160;
- if(horizontal){const c=horizontal.vertex,a=c.clone().addScaledVector(plane.u,-span),b=c.clone().addScaledVector(plane.u,span);setGuide(0,a,b);}
- if(vertical){const c=vertical.vertex,a=c.clone().addScaledVector(plane.v,-span),b=c.clone().addScaledVector(plane.v,span);setGuide(1,a,b);}
+ if(horizontal)setGuide(0,horizontal.vertex,horizontal.point);
+ if(vertical)setGuide(1,vertical.vertex,vertical.point);
  if(horizontal||vertical){
   const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
   if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
