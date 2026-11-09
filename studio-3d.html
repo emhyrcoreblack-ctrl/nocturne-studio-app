@@ -339,8 +339,12 @@ function resolveSnap(event,raw){
   const line=inferenceOverlayLines[index],g=inferenceGuideObjects[index];
   if(g)g.visible=false;
   if(!line||!anchor||!axis)return;
+  inferenceOverlay.setAttribute('viewBox','0 0 '+rectNow.width+' '+rectNow.height);
+  inferenceOverlay.setAttribute('width',String(rectNow.width));
+  inferenceOverlay.setAttribute('height',String(rectNow.height));
   const origin=anchor.clone().project(camera);
-  const next=anchor.clone().add(axis.clone().normalize()).project(camera);
+  // Proyectar un tramo mayor estabiliza la dirección en perspectiva.
+  const next=anchor.clone().addScaledVector(axis.clone().normalize(),10).project(camera);
   if(origin.z < -1 || origin.z > 1 || !Number.isFinite(origin.x) || !Number.isFinite(origin.y) ||
      !Number.isFinite(next.x) || !Number.isFinite(next.y)){
    line.setAttribute('visibility','hidden');return;
