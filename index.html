@@ -115,7 +115,7 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
-let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null;
+let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -136,9 +136,16 @@ async function startViewport(){
   const snapVertexMaterial=new window.nocturneFatLine.LineMaterial({color:0xffb52e,linewidth:3.2,worldUnits:false,depthTest:false,depthWrite:false});
   snapVertexMaterial.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
   snapVertexObject=new window.nocturneFatLine.Line2(snapVertexGeometry,snapVertexMaterial);snapVertexObject.computeLineDistances();snapVertexObject.visible=false;snapVertexObject.renderOrder=10001;scene.add(snapVertexObject);
+  inferenceGuideObjects=[];
+  for(let i=0;i<2;i++){
+   const g=new THREE.BufferGeometry();g.setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(1,0,0)]);
+   const m=new THREE.LineBasicMaterial({color:0xffd23f,transparent:true,opacity:1,depthTest:false,depthWrite:false});
+   const line=new THREE.Line(g,m);line.visible=false;line.frustumCulled=false;line.renderOrder=10002;scene.add(line);inferenceGuideObjects.push(line);
+  }
   camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
+  inferenceOverlay=document.createElementNS('http://www.w3.org/2000/svg','svg');inferenceOverlay.setAttribute('aria-hidden','true');inferenceOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:24';host.appendChild(inferenceOverlay);inferenceOverlayLines=[];for(let i=0;i<2;i++){const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke','#ffd23f');line.setAttribute('stroke-width','2');line.setAttribute('stroke-dasharray','7 5');line.setAttribute('stroke-linecap','round');line.setAttribute('filter','drop-shadow(0 0 3px rgba(255,210,63,.9))');line.setAttribute('visibility','hidden');inferenceOverlay.appendChild(line);inferenceOverlayLines.push(line);}
   controls=new mod.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.075;controls.rotateSpeed=.72;controls.zoomSpeed=1;controls.panSpeed=.8;controls.minDistance=5;controls.maxDistance=650;controls.target.set(0,0,0);controls.update();
   raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);snapMarkerEl=document.createElement('div');snapMarkerEl.style.cssText='position:absolute;display:none;width:13px;height:13px;border:2px solid #39e6b0;background:#39e6b066;box-shadow:0 0 0 2px #0c1725,0 0 12px #39e6b0,0 0 20px #39e6b0;transform:translate(-50%,-50%);pointer-events:none;z-index:1001;border-radius:2px';host.appendChild(snapMarkerEl);edgeHighlightEl=document.createElement('div');edgeHighlightEl.style.cssText='position:absolute;display:none;height:5px;border-radius:5px;background:#62b8ff;box-shadow:0 0 0 1px rgba(8,22,38,.95),0 0 9px #62b8ff,0 0 18px rgba(98,184,255,.9);transform-origin:0 50%;pointer-events:none;z-index:1000';host.appendChild(edgeHighlightEl);levelHintEl=document.createElement('div');levelHintEl.style.cssText='position:absolute;display:none;height:2px;min-width:2px;border-radius:2px;background:linear-gradient(90deg,rgba(57,230,176,.22),#55f0c2);box-shadow:0 0 5px rgba(57,230,176,.55),0 0 12px rgba(57,230,176,.22);transform-origin:0 50%;pointer-events:none;z-index:9';levelHintEl.innerHTML='<span style="position:absolute;right:-3px;top:-2px;width:6px;height:6px;border:1px solid #caffef;background:#39e6b0;border-radius:50%;box-shadow:0 0 7px #39e6b0"></span>';host.appendChild(levelHintEl);angleHintEl=document.createElement('div');angleHintEl.style.cssText='position:absolute;display:none;transform:translate(-50%,-145%);padding:3px 7px;border:1px solid #55f0c2;border-radius:6px;background:#10251fee;color:#caffef;font-size:11px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;z-index:19;box-shadow:0 2px 9px #0008;font-variant-numeric:tabular-nums';host.appendChild(angleHintEl);cursorMarker=null;lineGuideEl=document.createElement('div');lineGuideEl.style.cssText='position:absolute;display:none;left:0;top:0;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none;z-index:18';lineGuideEl.innerHTML='<span style="position:absolute;left:8px;top:0;width:1px;height:18px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:0;top:8px;width:18px;height:1px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:6px;top:6px;width:6px;height:6px;border:1px solid #dceaff;background:#24558b;border-radius:1px;box-sizing:border-box"></span>';host.appendChild(lineGuideEl);
   scene.add(new THREE.HemisphereLight(0xdceaff,0x202938,2));
@@ -202,7 +209,8 @@ function pointOnGroundAt(clientX,clientY){
 }
 function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
-function hideSnapFeedback(){if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;snapKind=null;}
+function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
+function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
 function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
@@ -250,8 +258,139 @@ function resolveSnap(event,raw){
   inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
  }
  if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
+ // Inferencia 3D basada en referencias geométricas reales.
+ // Cada guía es una recta que pasa por la referencia (vértice, centro de arista
+ // o centro de figura) y conserva su altura/profundidad. El punto de snap es
+ // el punto de esa recta más próximo al rayo de la cámara.
+ const plane=workPlanes[activePlane],rectNow=renderer.domElement.getBoundingClientRect();
+ let horizontal=null,vertical=null;
+ const inferenceReferences=[];
+ const collectInferenceReferences=(world,closed=false)=>{
+  if(!world.length)return;
+  world.forEach(p=>inferenceReferences.push(p.clone()));
+  const count=world.length>1?(closed?world.length:world.length-1):0;
+  for(let i=0;i<count;i++){
+   const j=(i+1)%world.length;
+   inferenceReferences.push(world[i].clone().add(world[j]).multiplyScalar(.5));
+  }
+  if(closed&&world.length>=3){
+   const center=new THREE.Vector3();
+   world.forEach(p=>center.add(p));
+   inferenceReferences.push(center.multiplyScalar(1/world.length));
+  }
+ };
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(!pts.length)continue;
+  obj.updateWorldMatrix(true,false);
+  collectInferenceReferences(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
+ }
+ if(Array.isArray(linePoints)&&linePoints.length)collectInferenceReferences(linePoints,false);
+ const closestPointOnRayToAxis=(anchor,axis)=>{
+  const d=ray.direction,w=ray.origin.clone().sub(anchor),b=d.dot(axis),d0=d.dot(w),e=axis.dot(w),denom=1-b*b;
+  if(Math.abs(denom)<1e-7)return null;
+  const rayT=(b*e-d0)/denom,axisT=(e-b*d0)/denom;
+  if(rayT<=0)return null;
+  return anchor.clone().addScaledVector(axis,axisT);
+ };
+ const pixelDistance=(a,b)=>{
+  const pa=a.clone().project(camera),pb=b.clone().project(camera);
+  if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
+  return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);
+ };
+ const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
+ const projectedLineDistance=(anchor,axis)=>{
+  const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
+  if(a.z < -1 || a.z > 1 || b.z < -1 || b.z > 1)return Infinity;
+  const ax=(a.x+1)*.5*rectNow.width,ay=(1-a.y)*.5*rectNow.height;
+  const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
+  const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
+  if(!Number.isFinite(lenSq)||lenSq<.0001)return Infinity;
+  const t=((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq;
+  const qx=ax+t*dx,qy=ay+t*dy;
+  return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
+ };
+ const considerInference=(reference)=>{
+  const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
+  if(cameraZ>=-camera.near)return;
+  // La inferencia se decide en píxeles contra la recta proyectada de cada eje.
+  // Así la guía responde a la posición real de la cruz en pantalla, no a la
+  // distancia 3D entre el plano de dibujo y una referencia a otra profundidad.
+  const hPoint=closestPointOnRayToAxis(reference,plane.u);
+  const vPoint=closestPointOnRayToAxis(reference,plane.v);
+  if(hPoint){
+   const px=projectedLineDistance(reference,plane.u);
+   if(px<30&&(!horizontal||px<horizontal.px))horizontal={anchor:reference.clone(),point:hPoint,px};
+  }
+  if(vPoint){
+   const px=projectedLineDistance(reference,plane.v);
+   if(px<30&&(!vertical||px<vertical.px))vertical={anchor:reference.clone(),point:vPoint,px};
+  }
+ };
+ inferenceReferences.forEach(considerInference);
+ const setGuide=(index,anchor,axis)=>{
+  // La guía se dibuja en coordenadas de pantalla para que siempre ocupe
+  // el viewport, aunque la referencia esté a otra profundidad de cámara.
+  const line=inferenceOverlayLines[index],g=inferenceGuideObjects[index];
+  if(g)g.visible=false;
+  if(!line||!anchor||!axis)return;
+  inferenceOverlay.setAttribute('viewBox','0 0 '+rectNow.width+' '+rectNow.height);
+  inferenceOverlay.setAttribute('width',String(rectNow.width));
+  inferenceOverlay.setAttribute('height',String(rectNow.height));
+  const origin=anchor.clone().project(camera);
+  // Proyectar un tramo mayor estabiliza la dirección en perspectiva.
+  const next=anchor.clone().addScaledVector(axis.clone().normalize(),10).project(camera);
+  if(origin.z < -1 || origin.z > 1 || !Number.isFinite(origin.x) || !Number.isFinite(origin.y) ||
+     !Number.isFinite(next.x) || !Number.isFinite(next.y)){
+   line.setAttribute('visibility','hidden');return;
+  }
+  const width=rectNow.width,height=rectNow.height;
+  const x=(origin.x+1)*width*.5,y=(1-origin.y)*height*.5;
+  const dx=(next.x-origin.x)*width*.5,dy=-(next.y-origin.y)*height*.5;
+  const len=Math.hypot(dx,dy);
+  if(!Number.isFinite(len)||len<.0001){line.setAttribute('visibility','hidden');return;}
+  const ux=dx/len,uy=dy/len,ts=[];
+  if(Math.abs(ux)>.000001){ts.push((0-x)/ux,(width-x)/ux);}
+  if(Math.abs(uy)>.000001){ts.push((0-y)/uy,(height-y)/uy);}
+  const hits=ts.filter(t=>Number.isFinite(t)&&x+t*ux>=-.5&&x+t*ux<=width+.5&&y+t*uy>=-.5&&y+t*uy<=height+.5).sort((a,b)=>a-b);
+  if(hits.length<2){line.setAttribute('visibility','hidden');return;}
+  line.setAttribute('x1',String(x+hits[0]*ux));
+  line.setAttribute('y1',String(y+hits[0]*uy));
+  line.setAttribute('x2',String(x+hits[hits.length-1]*ux));
+  line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
+  line.setAttribute('visibility','visible');
+ };
+ // La captura exacta de vértice prevalece; en los demás casos, la inferencia
+ // devuelve el punto de ajuste sobre la recta 3D de la referencia.
+ if(nearestVertex&&nearestVertexPx<9){
+  // Al capturar exactamente un vértice, la referencia también debe generar
+  // sus dos ejes de inferencia; antes este caso ocultaba todas las guías.
+  hideInferenceOverlay();
+  setGuide(0,nearestVertex.point,plane.u);
+  setGuide(1,nearestVertex.point,plane.v);
+ }else if(horizontal||vertical){
+  hideInferenceOverlay();const span=500;
+  if(horizontal){
+   setGuide(0,horizontal.anchor,plane.u);
+  }else if(inferenceGuideObjects[0])inferenceGuideObjects[0].visible=false;
+  if(vertical){
+   setGuide(1,vertical.anchor,plane.v);
+  }else if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
+  if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
+  snapKind='inference';return chosen.point;
+ }else{
+  hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+ }
  if(nearestVertex){
   snapKind='vertex';
+  // Si el vértice queda dentro del radio de captura pero no del radio
+  // prioritario de 9 px, también debe mostrar sus guías amarillas.
+  // La prioridad de inferencia horizontal/vertical ya se resolvió arriba.
+  if(!inferenceGuideObjects.some(g=>g.visible)){
+   setGuide(0,nearestVertex.point,plane.u);
+   setGuide(1,nearestVertex.point,plane.v);
+  }
   if(snapEdgeObject)snapEdgeObject.visible=false;
   if(snapVertexObject){
    const size=worldPerPixelAt(nearestVertex.depth)*14;
@@ -275,13 +414,21 @@ function resolveSnap(event,raw){
    snapEdgeObject.geometry.setPositions([nearestEdge.start.x,nearestEdge.start.y,nearestEdge.start.z,nearestEdge.end.x,nearestEdge.end.y,nearestEdge.end.z]);
    snapEdgeObject.computeLineDistances();snapEdgeObject.visible=true;
   }
+  if(inferenceGuideObjects.length>=1){
+   const direction=nearestEdge.end.clone().sub(nearestEdge.start).normalize(),span=160,c=nearestEdge.point;
+   const a=c.clone().addScaledVector(direction,-span),b=c.clone().addScaledVector(direction,span),g=inferenceGuideObjects[0];
+   g.geometry.setFromPoints([a,b]);g.geometry.computeBoundingSphere();g.visible=true;
+   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  }
   if(snapMarkerEl)snapMarkerEl.style.display='none';
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   if(levelHintEl)levelHintEl.style.display='none';
   return nearestEdge.point;
  }
+
  if(snapVertexObject)snapVertexObject.visible=false;
  if(snapEdgeObject)snapEdgeObject.visible=false;
+ inferenceGuideObjects.forEach(g=>g.visible=false);
  if(snapMarkerEl)snapMarkerEl.style.display='none';
  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
  // Guías ortogonales en ambos ejes del plano: horizontal y vertical.
@@ -291,7 +438,7 @@ function resolveSnap(event,raw){
    {point:planePoint(current.u,origin.v),angle:current.u-origin.u>=0?0:180},
    {point:planePoint(origin.u,current.v),angle:current.v-origin.v>=0?90:270}
   ];
-  let best=null,bestPx=17;
+  let best=null,bestPx=2.5;
   for(const candidate of candidates){
    const depth=candidate.point.clone().sub(ray.origin).dot(ray.direction);
    if(depth<=0)continue;
@@ -490,7 +637,7 @@ function updateFatStroke(obj,points){
  obj.geometry.dispose();obj.geometry=new window.nocturneFatLine.LineGeometry();obj.geometry.setPositions(coords);
  obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());
 }
-function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
+function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject,...inferenceGuideObjects].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
 function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);const target=controls.target.clone();camera.position.copy(target.add(new THREE.Vector3(...p)));controls.update();}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);positionMeasure();}};tick();}
