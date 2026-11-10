@@ -659,7 +659,26 @@ function updateMeasureAt(value,hint,point){measureValue=value;measureHint=hint||
 function positionMeasure(){const el=document.getElementById('measureLabel');if(!el||!measureAnchor||!camera)return;const q=measureAnchor.clone().project(camera);if(q.z>1||q.z< -1){el.style.display='none';return;}el.replaceChildren();const main=document.createElement('span');main.textContent=measureValue;el.appendChild(main);if(measureHint){const sub=document.createElement('small');sub.textContent=measureHint;el.appendChild(sub);}el.style.left=(host.offsetLeft+(q.x+1)*.5*host.clientWidth)+'px';el.style.top=(host.offsetTop+(1-q.y)*.5*host.clientHeight)+'px';el.style.display='block';}
 function hideMeasure(){measureAnchor=null;const el=document.getElementById('measureLabel');if(el)el.style.display='none';}
 function shapeMeasure(type,p){if(type==='rect')return fmt(Math.abs(p.x-drawStart.x))+' × '+fmt(Math.abs(p.z-drawStart.z))+' cm';if(type==='circle')return 'Ø '+fmt(Math.hypot(p.x-drawStart.x,p.z-drawStart.z)*2)+' cm';return '—';}
-function updateContinuousLine(cursor,fromPoint){if(!linePoints.length)return;const pts=linePoints.map(p=>p.clone());if(cursor&&(!pts.length||pts[pts.length-1].distanceTo(cursor)>.001))pts.push(cursor.clone());if(pts.length<2)return;if(!lineObject){lineObject=makeFatStroke(pts,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}else updateFatStroke(lineObject,pts);const start=linePoints[linePoints.length-1],a=planeCoords(start),b=planeCoords(cursor||pts[pts.length-1]),du=b.u-a.u,dv=b.v-a.v,distance=Math.hypot(du,dv),angle=(Math.atan2(dv,du)*180/Math.PI+360)%360,mid=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);updateMeasureAt('Ángulo: '+fmt(angle)+'°','',mid);}
+function updateContinuousLine(cursor,fromPoint){
+ if(!linePoints.length)return;
+ const pts=linePoints.map(p=>p.clone());
+ if(cursor&&(!pts.length||pts[pts.length-1].distanceTo(cursor)>.001))pts.push(cursor.clone());
+ if(pts.length<2)return;
+ if(!lineObject){lineObject=makeFatStroke(pts,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}else updateFatStroke(lineObject,pts);
+ const start=linePoints[linePoints.length-1],delta=(cursor||pts[pts.length-1]).clone().sub(start),plane=workPlanes[activePlane];
+ const du=delta.dot(plane.u),dv=delta.dot(plane.v),normal=delta.dot(plane.normal);
+ const planarDistance=Math.hypot(du,dv),distance=delta.length();
+ const angle=(Math.atan2(dv,du)*180/Math.PI+360)%360;
+ const elevation=Math.atan2(normal,planarDistance)*180/Math.PI;
+ const mid=start.clone().addScaledVector(delta,.5).addScaledVector(plane.normal,.08);
+ if(Math.abs(normal)<.001){
+  updateMeasureAt('Ángulo: '+fmt(angle)+'°','Longitud: '+fmt(distance)+' cm',mid);
+ }else if(planarDistance<.001){
+  updateMeasureAt('Longitud: '+fmt(distance)+' cm','Dirección perpendicular · Elevación: '+(normal<0?'−':'+')+'90°',mid);
+ }else{
+  updateMeasureAt('Longitud: '+fmt(distance)+' cm','Ángulo: '+fmt(angle)+'° · Elevación: '+fmt(elevation)+'°',mid);
+ }
+}
 function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);drawnObjects.push(lineObject);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function makeShape(type,a,b,preview){
  const points=[];
