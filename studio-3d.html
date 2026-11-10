@@ -316,17 +316,31 @@ function resolveSnap(event,raw){
   return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);
  };
  const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
- // Captura de ejes globales antes de inferencias de plano y aristas.
- const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=[
-  {name:'X',axis:new THREE.Vector3(1,0,0)},
-  {name:'Y',axis:new THREE.Vector3(0,1,0)},
-  {name:'Z',axis:new THREE.Vector3(0,0,1)}
- ];
+ const projectedLineDistance=(anchor,axis)=>{
+  const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
+  if(a.z < -1 || a.z > 1 || b.z < -1 || b.z > 1)return Infinity;
+  const ax=(a.x+1)*.5*rectNow.width,ay=(1-a.y)*.5*rectNow.height;
+  const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
+  const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
+  if(!Number.isFinite(lenSq)||lenSq<.0001)return Infinity;
+  const t=((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq;
+  const qx=ax+t*dx,qy=ay+t*dy;
+  return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
+ };
+
+ // Captura solo los ejes que pertenecen al plano de trabajo activo.
+ const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=activePlane==='XY'
+  ?[{name:'X',axis:plane.u},{name:'Y',axis:plane.v}]
+  :activePlane==='YZ'
+   ?[{name:'Y',axis:plane.u},{name:'Z',axis:plane.v}]
+   :[{name:'X',axis:plane.u},{name:'Z',axis:plane.v}];
  let axisCandidate=null,axisCandidatePx=18;
  worldAxes.forEach(item=>{
   const px=projectedLineDistance(worldOrigin,item.axis);
   const point=closestPointOnRayToAxis(worldOrigin,item.axis);
-  if(point&&px<axisCandidatePx&&point.length()<10000){axisCandidatePx=px;axisCandidate={...item,point,px};}
+  if(point&&px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
+   axisCandidatePx=px;axisCandidate={...item,point,px};
+  }
  });
  if(axisCandidate){
   hideInferenceOverlay();setGuide(0,worldOrigin,axisCandidate.axis);
@@ -339,17 +353,6 @@ function resolveSnap(event,raw){
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   snapKind='axis';return axisCandidate.point;
  }
- const projectedLineDistance=(anchor,axis)=>{
-  const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
-  if(a.z < -1 || a.z > 1 || b.z < -1 || b.z > 1)return Infinity;
-  const ax=(a.x+1)*.5*rectNow.width,ay=(1-a.y)*.5*rectNow.height;
-  const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
-  const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
-  if(!Number.isFinite(lenSq)||lenSq<.0001)return Infinity;
-  const t=((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq;
-  const qx=ax+t*dx,qy=ay+t*dy;
-  return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
- };
  const considerInference=(reference)=>{
   const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
   if(cameraZ>=-camera.near)return;
