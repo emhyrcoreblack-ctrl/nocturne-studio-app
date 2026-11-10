@@ -368,9 +368,11 @@ function resolveSnap(event,raw){
    :[{name:'X',axis:plane.u},{name:'Z',axis:plane.v}];
  let axisCandidate=null,axisCandidatePx=18;
  worldAxes.forEach(item=>{
-  const px=projectedLineDistance(worldOrigin,item.axis);
-  const point=closestPointOnRayToAxis(worldOrigin,item.axis);
-  if(point&&px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
+  // raw ya está exactamente sobre el plano activo; proyectarlo sobre el eje
+  // de ese plano evita que el cálculo rayo-eje falle por paralelismo.
+  const point=item.axis.clone().multiplyScalar(raw.dot(item.axis));
+  const px=pixelDistance(raw,point);
+  if(px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
    axisCandidatePx=px;axisCandidate={...item,point,px};
   }
  });
