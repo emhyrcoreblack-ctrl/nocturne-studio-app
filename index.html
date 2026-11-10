@@ -116,7 +116,7 @@ const host=document.getElementById('viewport'),errorBox=document.getElementById(
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButton=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
 let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
-const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
+const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
@@ -199,7 +199,7 @@ async function startViewport(){
 }
 function setTool(tool){
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
- if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
+ if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
  activeTool=tool;
  if(cursorMarker)cursorMarker.visible=false;
@@ -373,7 +373,7 @@ function resolveSnap(event,raw){
   {name:'Y',axis:new THREE.Vector3(0,1,0)},
   {name:'Z',axis:new THREE.Vector3(0,0,1)}
  ];
- let axisCandidate=null,axisCandidatePx=18;
+ let axisCandidate=null,axisCandidatePx=24;
  worldAxes.forEach(item=>{
   // En los ejes del plano se proyecta raw para evitar el caso paralelo.
   // En el eje perpendicular se calcula el punto más cercano al rayo real.
@@ -592,7 +592,7 @@ function beginSketch(event){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
    if(lineGestureCreatedAnchor){linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
    else if(lineObject&&linePoints.length>1)updateFatStroke(lineObject,linePoints);
-   lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;
+   lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;shapeTouchDragPointerId=null;
    touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;drawStart=null;
    if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
    return;
@@ -625,6 +625,10 @@ function beginSketch(event){
    updateLineStartGuide(event);
    event.preventDefault();return;
   }
+  if(activeTool==='rect'||activeTool==='circle'){
+   if(drawStart){const p=pointForSketch(event);if(!p)return;shapeTouchDragPointerId=event.pointerId;try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);event.preventDefault();return;}
+   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};touchFirstAnchorStart={x:event.clientX,y:event.clientY};touchFirstAnchorMoved=false;touchLineGuideActive=true;updateLineStartGuide(event);event.preventDefault();return;
+  }
   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
   if(touchStartTimer)clearTimeout(touchStartTimer);
   touchStartTimer=setTimeout(()=>{touchStartTimer=null;if(activeTouchPointers.size===1&&!pinchGesture&&touchPendingEvent){const pending=touchPendingEvent;touchPendingEvent=null;beginSketchNow(pending);}},180);
@@ -654,6 +658,8 @@ function beginSketchNow(event){
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!drawStart){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;if(touchLineGuideActive)updateLineStartGuide(event);return;}
+ if(event.pointerType==='touch'&&shapeTouchDragPointerId!==null&&event.pointerId!==shapeTouchDragPointerId)return;
  if(event.pointerType==='touch'&&activeTool==='line'){
   if(touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;}
   if(touchLineGuideActive){if(linePoints.length===0&&touchFirstAnchorStart&&Math.hypot(event.clientX-touchFirstAnchorStart.x,event.clientY-touchFirstAnchorStart.y)>8)touchFirstAnchorMoved=true;updateLineStartGuide(event);}
@@ -681,7 +687,7 @@ function cancelLineGesture(){
 function cancelSketch(event){
  hideSnapFeedback();hideLineGuide();
  if(event.pointerType==='touch'){
-  activeTouchPointers.delete(event.pointerId);
+  activeTouchPointers.delete(event.pointerId);shapeTouchDragPointerId=null;
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
   if(activeTouchPointers.size===0){cancelLineGesture();pinchGesture=false;}
@@ -690,6 +696,7 @@ function cancelSketch(event){
 }
 function finishSketch(event){
  if(event.pointerType==='touch'){
+  if((activeTool==='rect'||activeTool==='circle')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;hideSnapFeedback();hideLineGuide();return;}
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
@@ -698,10 +705,11 @@ function finishSketch(event){
    activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
    hideSnapFeedback();hideLineGuide();return;
   }
+  if(shapeTouchDragPointerId!==null&&shapeTouchDragPointerId!==event.pointerId){activeTouchPointers.delete(event.pointerId);return;}
   activeTouchPointers.delete(event.pointerId);
   if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;hideLineGuide();}return;}
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-  touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
+  touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
  }
  if(activeTool==='select'){
   const down=selectionPointerDown;selectionPointerDown=null;
@@ -726,6 +734,8 @@ function finishSketch(event){
   hideSnapFeedback();hideLineGuide();return;
  }
  if(event.pointerType==='touch'&&activeTouchPointers.size>0)return;
+ if(event.pointerType==='touch'&&shapeTouchDragPointerId!==event.pointerId)return;
+ if(shapeTouchDragPointerId===event.pointerId)shapeTouchDragPointerId=null;
  if(activeTool==='line'||!drawStart)return;
  const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY),p=raw?resolveSnap(guide,raw):drawStart;
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);}
