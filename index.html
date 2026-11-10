@@ -114,7 +114,7 @@
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButton=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
-let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null;
+let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
 let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false;
 const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
@@ -199,7 +199,7 @@ async function startViewport(){
 }
 function setTool(tool){
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
- if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
+ if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
  activeTool=tool;
  if(cursorMarker)cursorMarker.visible=false;
@@ -584,6 +584,7 @@ function resolveSnap(event,raw){
  snapKind=null;return raw;
 }
 function beginSketch(event){
+ if(activeTool==='select'){beginSketchNow(event);return;}
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
@@ -632,7 +633,11 @@ function beginSketch(event){
  beginSketchNow(event);
 }
 function beginSketchNow(event){
- if(activeTool==='select'||(event.pointerType!=='touch'&&event.button!==0))return;
+ if(activeTool==='select'){
+  if(event.button!==0)return;
+  selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
+ }
+ if(event.pointerType!=='touch'&&event.button!==0)return;
  const p=pointForSketch(event,true);if(!p)return;
  event.preventDefault();
  if(activeTool==='line'){
@@ -698,6 +703,14 @@ function finishSketch(event){
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
  }
+ if(activeTool==='select'){
+  const down=selectionPointerDown;selectionPointerDown=null;
+  if(down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
+   const picked=findSelectableObject(event.clientX,event.clientY);
+   setSelectedObject(picked);
+  }
+  return;
+ }
  hideSnapFeedback();hideLineGuide();
  if(activeTool==='line'&&lineDragStart&&lineDragPointerId===event.pointerId){
   const p=pointForSketch(event);
@@ -719,6 +732,52 @@ function finishSketch(event){
  const obj=makeShape(activeTool,drawStart,p,false);
  if(obj){scene.add(obj);drawnObjects.push(obj);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}
  const start=drawStart;previewObject=null;drawStart=null;const a=planeCoords(start),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);saveViewportProject();recordDrawingHistory();
+}
+function findSelectableObject(clientX,clientY){
+ if(!camera||!drawnObjects.length)return null;
+ camera.updateMatrixWorld(true);
+ const rect=renderer.domElement.getBoundingClientRect();
+ let best=null,bestPixels=14,bestDepth=Infinity;
+ const px=(clientX-rect.left),py=(clientY-rect.top);
+ const projected=new THREE.Vector3();
+ const segmentDistance=(p,a,b)=>{
+  const dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy;
+  const t=len?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/len,0,1):0;
+  return {distance:Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy)),depth:a.z+(b.z-a.z)*t};
+ };
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(pts.length<2)continue;
+  obj.updateWorldMatrix(true,false);
+  const screen=pts.map(point=>{
+   projected.copy(point);obj.localToWorld(projected);projected.project(camera);
+   return {x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};
+  });
+  const count=obj.userData.closed?screen.length:screen.length-1;
+  for(let i=0;i<count;i++){
+   const a=screen[i],b=screen[(i+1)%screen.length];
+   if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;
+   const hit=segmentDistance({x:px,y:py},a,b);
+   if(hit.depth< -1||hit.depth>1)continue;
+   if(hit.distance<bestPixels||(Math.abs(hit.distance-bestPixels)<.25&&hit.depth<bestDepth)){
+    best=obj;bestPixels=hit.distance;bestDepth=hit.depth;
+   }
+  }
+ }
+ return best;
+}
+function setSelectedObject(obj){
+ if(selectedObject===obj)return;
+ if(selectedObject&&selectedObject.material&&selectedObject.userData.selectionOriginalColor!==undefined){
+  selectedObject.material.color.setHex(selectedObject.userData.selectionOriginalColor);
+  selectedObject.material.needsUpdate=true;
+ }
+ selectedObject=obj||null;
+ if(selectedObject&&selectedObject.material&&selectedObject.material.color){
+  if(selectedObject.userData.selectionOriginalColor===undefined)selectedObject.userData.selectionOriginalColor=selectedObject.material.color.getHex();
+  selectedObject.material.color.setHex(0x39bfff);
+  selectedObject.material.needsUpdate=true;
+ }
 }
 function disposePreview(obj){if(!obj)return;if(obj.geometry)obj.geometry.dispose();if(obj.material){if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material.dispose();}}
 function fmt(n){return (Math.round(n*10)/10).toFixed(1);}
