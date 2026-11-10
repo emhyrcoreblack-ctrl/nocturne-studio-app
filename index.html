@@ -230,7 +230,7 @@ function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
 }
-function lineGuideEvent(event){return event.pointerType==='touch'&&activeTool==='line'?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
+function lineGuideEvent(event){return event.pointerType==='touch'&&(activeTool==='line'||activeTool==='rect'||activeTool==='circle')?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
@@ -373,26 +373,24 @@ function resolveSnap(event,raw){
   {name:'Y',axis:new THREE.Vector3(0,1,0)},
   {name:'Z',axis:new THREE.Vector3(0,0,1)}
  ];
- let axisCandidate=null,axisCandidatePx=24;
+ let axisCandidate=null,axisCandidatePx=30;
  worldAxes.forEach(item=>{
-  // En los ejes del plano se proyecta raw para evitar el caso paralelo.
-  // En el eje perpendicular se calcula el punto más cercano al rayo real.
-  const inPlane=Math.abs(plane.normal.dot(item.axis))<.999;
-  let point;
-  if(inPlane)point=item.axis.clone().multiplyScalar(raw.dot(item.axis));
-  else{
-   point=closestPointOnRayToAxis(worldOrigin,item.axis);
-   if(!point)return;
-  }
-  const px=pixelDistance(raw,point);
+  // La proximidad se mide contra la línea del eje proyectada en pantalla,
+  // no contra la distancia 3D entre dos puntos de distinta profundidad.
+  // El punto capturado se obtiene sobre el mismo rayo que usa el cursor.
+  const point=closestPointOnRayToAxis(worldOrigin,item.axis);
+  if(!point)return;
+  const px=projectedLineDistance(worldOrigin,item.axis);
   if(px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
    axisCandidatePx=px;axisCandidate={...item,point,px};
   }
  });
  if(axisCandidate){
   hideInferenceOverlay();setGuide(0,worldOrigin,axisCandidate.axis);
+  const axisGuide=inferenceOverlayLines[0];
+  if(axisGuide){axisGuide.setAttribute('stroke','#ffd34e');axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
-  if(angleHintEl){angleHintEl.textContent='Eje '+axisCandidate.name;angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+  if(angleHintEl){angleHintEl.textContent='Conexión al eje '+axisCandidate.name;angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
   if(levelHintEl)levelHintEl.style.display='none';
   if(snapVertexObject)snapVertexObject.visible=false;
   if(snapEdgeObject)snapEdgeObject.visible=false;
