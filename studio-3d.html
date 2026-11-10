@@ -281,14 +281,18 @@ function resolveSnap(event,raw){
  // el punto de esa recta más próximo al rayo de la cámara.
  const plane=workPlanes[activePlane],rectNow=renderer.domElement.getBoundingClientRect();
  let horizontal=null,vertical=null;
- const inferenceReferences=[];
+ const inferenceReferences=[],inferenceDirections=[];
  const collectInferenceReferences=(world,closed=false)=>{
   if(!world.length)return;
   world.forEach(p=>inferenceReferences.push(p.clone()));
   const count=world.length>1?(closed?world.length:world.length-1):0;
   for(let i=0;i<count;i++){
-   const j=(i+1)%world.length;
+   const j=(i+1)%world.length,edge=world[j].clone().sub(world[i]),length=edge.length();
    inferenceReferences.push(world[i].clone().add(world[j]).multiplyScalar(.5));
+   if(length>.001)inferenceDirections.push({
+    anchor:world[i].clone().add(world[j]).multiplyScalar(.5),
+    axis:edge.multiplyScalar(1/length)
+   });
   }
   if(closed&&world.length>=3){
    const center=new THREE.Vector3();
@@ -539,6 +543,25 @@ function resolveSnap(event,raw){
     if(angleHintEl){angleHintEl.textContent=best.angle+'°';angleHintEl.style.left=(mx-r.left)+'px';angleHintEl.style.top=(my-r.top)+'px';angleHintEl.style.display='block';}
    }
    snapKind='level';return p1;
+  }
+ }
+ // Inferencia paralela: proyecta la dirección real de aristas existentes y
+ // ajusta sobre la recta que pasa por su punto medio. Se ejecuta después de
+ // capturas de vértice/arista y de la ortogonalidad para respetar su prioridad.
+ if(activeTool==='line'&&inferenceDirections.length){
+  let parallel=null;
+  inferenceDirections.forEach(item=>{
+   const point=closestPointOnRayToAxis(item.anchor,item.axis);
+   if(!point)return;
+   const px=projectedLineDistance(item.anchor,item.axis);
+   if(px<20&&(!parallel||px<parallel.px))parallel={...item,point,px};
+  });
+  if(parallel){
+   hideInferenceOverlay();setGuide(0,parallel.anchor,parallel.axis);
+   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+   if(levelHintEl)levelHintEl.style.display='none';
+   if(angleHintEl)angleHintEl.style.display='none';
+   snapKind='parallel';return parallel.point;
   }
  }
  if(levelHintEl)levelHintEl.style.display='none';
