@@ -306,6 +306,14 @@ function resolveSnap(event,raw){
  const closestPointOnRayToAxis=(anchor,axis)=>{
   const d=ray.direction,w=ray.origin.clone().sub(anchor),b=d.dot(axis),d0=d.dot(w),e=axis.dot(w),denom=1-b*b;
   if(Math.abs(denom)<1e-7)return null;
+  if(Math.abs(denom)<1e-7){
+   // Cuando la recta de inferencia es casi paralela al rayo, el cálculo
+   // convencional se vuelve inestable. Elegimos el punto de la recta más
+   // próximo al origen del rayo y comprobamos que quede delante de cámara.
+   const point=anchor.clone().addScaledVector(axis,-e);
+   if(point.clone().sub(ray.origin).dot(d)<=0)return null;
+   return point;
+  }
   const rayT=(b*e-d0)/denom,axisT=(e-b*d0)/denom;
   if(rayT<=0)return null;
   return anchor.clone().addScaledVector(axis,axisT);
@@ -412,6 +420,21 @@ function resolveSnap(event,raw){
   }
  };
  inferenceReferences.forEach(considerInference);
+ // Tercera dirección espacial: permite alinear el cursor con una referencia
+ // siguiendo la normal del plano activo, sin obligar a volver al plano base.
+ // Se conserva la prioridad de la captura exacta de vértices y solo se activa
+ // si esta dirección es la inferencia visual más cercana.
+ let depthInference=null;
+ if(activeTool==='line'){
+  inferenceReferences.forEach(reference=>{
+   const point=closestPointOnRayToAxis(reference,plane.normal);
+   if(!point)return;
+   const px=projectedLineDistance(reference,plane.normal);
+   if(px<30&&(!depthInference||px<depthInference.px)){
+    depthInference={anchor:reference.clone(),point,px};
+   }
+  });
+ }
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve el punto de ajuste sobre la recta 3D de la referencia.
  if(nearestVertex&&nearestVertexPx<9){
@@ -420,6 +443,15 @@ function resolveSnap(event,raw){
   hideInferenceOverlay();
   setGuide(0,nearestVertex.point,plane.u);
   setGuide(1,nearestVertex.point,plane.v);
+ }else if(depthInference&&(!horizontal&&!vertical||depthInference.px<Math.min(horizontal?horizontal.px:Infinity,vertical?vertical.px:Infinity))){
+  // La guía de profundidad ocupa el canal principal; no se muestran varias
+  // guías superpuestas que puedan confundir la dirección de captura.
+  hideInferenceOverlay();
+  setGuide(0,depthInference.anchor,plane.normal);
+  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(angleHintEl)angleHintEl.style.display='none';
+  snapKind='inference';return depthInference.point;
  }else if(horizontal||vertical){
   hideInferenceOverlay();const span=500;
   if(horizontal){
