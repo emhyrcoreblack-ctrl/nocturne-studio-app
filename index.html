@@ -305,15 +305,9 @@ function resolveSnap(event,raw){
  if(Array.isArray(linePoints)&&linePoints.length)collectInferenceReferences(linePoints,false);
  const closestPointOnRayToAxis=(anchor,axis)=>{
   const d=ray.direction,w=ray.origin.clone().sub(anchor),b=d.dot(axis),d0=d.dot(w),e=axis.dot(w),denom=1-b*b;
+  // Si el eje proyecta prácticamente un punto (paralelo al rayo), no hay
+  // una dirección de alineación visible y se evita un snap ambiguo.
   if(Math.abs(denom)<1e-7)return null;
-  if(Math.abs(denom)<1e-7){
-   // Cuando la recta de inferencia es casi paralela al rayo, el cálculo
-   // convencional se vuelve inestable. Elegimos el punto de la recta más
-   // próximo al origen del rayo y comprobamos que quede delante de cámara.
-   const point=anchor.clone().addScaledVector(axis,-e);
-   if(point.clone().sub(ray.origin).dot(d)<=0)return null;
-   return point;
-  }
   const rayT=(b*e-d0)/denom,axisT=(e-b*d0)/denom;
   if(rayT<=0)return null;
   return anchor.clone().addScaledVector(axis,axisT);
