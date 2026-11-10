@@ -545,23 +545,38 @@ function resolveSnap(event,raw){
    snapKind='level';return p1;
   }
  }
- // Inferencia paralela: proyecta la dirección real de aristas existentes y
- // ajusta sobre la recta que pasa por su punto medio. Se ejecuta después de
- // capturas de vértice/arista y de la ortogonalidad para respetar su prioridad.
+ // Inferencias paralela y perpendicular respecto a aristas existentes.
+ // La perpendicular se calcula dentro del plano activo: así la relación es
+ // determinista y el punto resultante permanece en el plano de dibujo.
  if(activeTool==='line'&&inferenceDirections.length){
-  let parallel=null;
+  let relation=null;
   inferenceDirections.forEach(item=>{
-   const point=closestPointOnRayToAxis(item.anchor,item.axis);
-   if(!point)return;
-   const px=projectedLineDistance(item.anchor,item.axis);
-   if(px<20&&(!parallel||px<parallel.px))parallel={...item,point,px};
+   const parallelPoint=closestPointOnRayToAxis(item.anchor,item.axis);
+   if(parallelPoint){
+    const px=projectedLineDistance(item.anchor,item.axis);
+    if(px<20&&(!relation||px<relation.px))relation={...item,point:parallelPoint,px,kind:'parallel'};
+   }
+   const projectedAxis=item.axis.clone().addScaledVector(plane.normal,-item.axis.dot(plane.normal));
+   if(projectedAxis.lengthSq()<1e-8)return;
+   projectedAxis.normalize();
+   const perpendicularAxis=plane.normal.clone().cross(projectedAxis).normalize();
+   const perpendicularPoint=closestPointOnRayToAxis(item.anchor,perpendicularAxis);
+   if(perpendicularPoint){
+    const px=projectedLineDistance(item.anchor,perpendicularAxis);
+    if(px<20&&(!relation||px<relation.px))relation={anchor:item.anchor,axis:perpendicularAxis,point:perpendicularPoint,px,kind:'perpendicular'};
+   }
   });
-  if(parallel){
-   hideInferenceOverlay();setGuide(0,parallel.anchor,parallel.axis);
+  if(relation){
+   hideInferenceOverlay();setGuide(0,relation.anchor,relation.axis);
    if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
    if(levelHintEl)levelHintEl.style.display='none';
-   if(angleHintEl)angleHintEl.style.display='none';
-   snapKind='parallel';return parallel.point;
+   if(angleHintEl){
+    angleHintEl.textContent=relation.kind==='parallel'?'Paralela':'Perpendicular';
+    angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';
+    angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';
+    angleHintEl.style.display='block';
+   }
+   snapKind=relation.kind;return relation.point;
   }
  }
  if(levelHintEl)levelHintEl.style.display='none';
