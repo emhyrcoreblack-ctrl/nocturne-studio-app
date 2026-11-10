@@ -360,17 +360,24 @@ function resolveSnap(event,raw){
   line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
   line.setAttribute('visibility','visible');
  };
- // Captura solo los ejes que pertenecen al plano de trabajo activo.
- const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=activePlane==='XY'
-  ?[{name:'X',axis:plane.u},{name:'Y',axis:plane.v}]
-  :activePlane==='YZ'
-   ?[{name:'Y',axis:plane.u},{name:'Z',axis:plane.v}]
-   :[{name:'X',axis:plane.u},{name:'Z',axis:plane.v}];
+ // Captura los tres ejes globales, incluso el que es perpendicular al
+ // plano activo. Así se puede dibujar sobre Y desde XZ sin cambiar de plano.
+ const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=[
+  {name:'X',axis:new THREE.Vector3(1,0,0)},
+  {name:'Y',axis:new THREE.Vector3(0,1,0)},
+  {name:'Z',axis:new THREE.Vector3(0,0,1)}
+ ];
  let axisCandidate=null,axisCandidatePx=18;
  worldAxes.forEach(item=>{
-  // raw ya está exactamente sobre el plano activo; proyectarlo sobre el eje
-  // de ese plano evita que el cálculo rayo-eje falle por paralelismo.
-  const point=item.axis.clone().multiplyScalar(raw.dot(item.axis));
+  // En los ejes del plano se proyecta raw para evitar el caso paralelo.
+  // En el eje perpendicular se calcula el punto más cercano al rayo real.
+  const inPlane=Math.abs(plane.normal.dot(item.axis))<.999;
+  let point;
+  if(inPlane)point=item.axis.clone().multiplyScalar(raw.dot(item.axis));
+  else{
+   point=closestPointOnRayToAxis(worldOrigin,item.axis);
+   if(!point)return;
+  }
   const px=pixelDistance(raw,point);
   if(px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
    axisCandidatePx=px;axisCandidate={...item,point,px};
