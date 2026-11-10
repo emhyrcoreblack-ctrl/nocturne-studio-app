@@ -328,6 +328,38 @@ function resolveSnap(event,raw){
   return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
  };
 
+ const setGuide=(index,anchor,axis)=>{
+  // La guía se dibuja en coordenadas de pantalla para que siempre ocupe
+  // el viewport, aunque la referencia esté a otra profundidad de cámara.
+  const line=inferenceOverlayLines[index],g=inferenceGuideObjects[index];
+  if(g)g.visible=false;
+  if(!line||!anchor||!axis)return;
+  inferenceOverlay.setAttribute('viewBox','0 0 '+rectNow.width+' '+rectNow.height);
+  inferenceOverlay.setAttribute('width',String(rectNow.width));
+  inferenceOverlay.setAttribute('height',String(rectNow.height));
+  const origin=anchor.clone().project(camera);
+  // Proyectar un tramo mayor estabiliza la dirección en perspectiva.
+  const next=anchor.clone().addScaledVector(axis.clone().normalize(),10).project(camera);
+  if(origin.z < -1 || origin.z > 1 || !Number.isFinite(origin.x) || !Number.isFinite(origin.y) ||
+     !Number.isFinite(next.x) || !Number.isFinite(next.y)){
+   line.setAttribute('visibility','hidden');return;
+  }
+  const width=rectNow.width,height=rectNow.height;
+  const x=(origin.x+1)*width*.5,y=(1-origin.y)*height*.5;
+  const dx=(next.x-origin.x)*width*.5,dy=-(next.y-origin.y)*height*.5;
+  const len=Math.hypot(dx,dy);
+  if(!Number.isFinite(len)||len<.0001){line.setAttribute('visibility','hidden');return;}
+  const ux=dx/len,uy=dy/len,ts=[];
+  if(Math.abs(ux)>.000001){ts.push((0-x)/ux,(width-x)/ux);}
+  if(Math.abs(uy)>.000001){ts.push((0-y)/uy,(height-y)/uy);}
+  const hits=ts.filter(t=>Number.isFinite(t)&&x+t*ux>=-.5&&x+t*ux<=width+.5&&y+t*uy>=-.5&&y+t*uy<=height+.5).sort((a,b)=>a-b);
+  if(hits.length<2){line.setAttribute('visibility','hidden');return;}
+  line.setAttribute('x1',String(x+hits[0]*ux));
+  line.setAttribute('y1',String(y+hits[0]*uy));
+  line.setAttribute('x2',String(x+hits[hits.length-1]*ux));
+  line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
+  line.setAttribute('visibility','visible');
+ };
  // Captura solo los ejes que pertenecen al plano de trabajo activo.
  const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=activePlane==='XY'
   ?[{name:'X',axis:plane.u},{name:'Y',axis:plane.v}]
@@ -371,38 +403,6 @@ function resolveSnap(event,raw){
   }
  };
  inferenceReferences.forEach(considerInference);
- const setGuide=(index,anchor,axis)=>{
-  // La guía se dibuja en coordenadas de pantalla para que siempre ocupe
-  // el viewport, aunque la referencia esté a otra profundidad de cámara.
-  const line=inferenceOverlayLines[index],g=inferenceGuideObjects[index];
-  if(g)g.visible=false;
-  if(!line||!anchor||!axis)return;
-  inferenceOverlay.setAttribute('viewBox','0 0 '+rectNow.width+' '+rectNow.height);
-  inferenceOverlay.setAttribute('width',String(rectNow.width));
-  inferenceOverlay.setAttribute('height',String(rectNow.height));
-  const origin=anchor.clone().project(camera);
-  // Proyectar un tramo mayor estabiliza la dirección en perspectiva.
-  const next=anchor.clone().addScaledVector(axis.clone().normalize(),10).project(camera);
-  if(origin.z < -1 || origin.z > 1 || !Number.isFinite(origin.x) || !Number.isFinite(origin.y) ||
-     !Number.isFinite(next.x) || !Number.isFinite(next.y)){
-   line.setAttribute('visibility','hidden');return;
-  }
-  const width=rectNow.width,height=rectNow.height;
-  const x=(origin.x+1)*width*.5,y=(1-origin.y)*height*.5;
-  const dx=(next.x-origin.x)*width*.5,dy=-(next.y-origin.y)*height*.5;
-  const len=Math.hypot(dx,dy);
-  if(!Number.isFinite(len)||len<.0001){line.setAttribute('visibility','hidden');return;}
-  const ux=dx/len,uy=dy/len,ts=[];
-  if(Math.abs(ux)>.000001){ts.push((0-x)/ux,(width-x)/ux);}
-  if(Math.abs(uy)>.000001){ts.push((0-y)/uy,(height-y)/uy);}
-  const hits=ts.filter(t=>Number.isFinite(t)&&x+t*ux>=-.5&&x+t*ux<=width+.5&&y+t*uy>=-.5&&y+t*uy<=height+.5).sort((a,b)=>a-b);
-  if(hits.length<2){line.setAttribute('visibility','hidden');return;}
-  line.setAttribute('x1',String(x+hits[0]*ux));
-  line.setAttribute('y1',String(y+hits[0]*uy));
-  line.setAttribute('x2',String(x+hits[hits.length-1]*ux));
-  line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
-  line.setAttribute('visibility','visible');
- };
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve el punto de ajuste sobre la recta 3D de la referencia.
  if(nearestVertex&&nearestVertexPx<9){
