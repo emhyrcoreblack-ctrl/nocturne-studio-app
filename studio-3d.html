@@ -484,12 +484,15 @@ function resolveSnap(event,raw){
 
  if(snapMarkerEl)snapMarkerEl.style.display='none';
  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
- // Guías ortogonales en ambos ejes del plano: horizontal y vertical.
+ // Guías ortogonales del plano activo, conservando la altura/profundidad
+ // del punto inicial. Es esencial si el primer punto se capturó en el eje
+ // perpendicular al plano (por ejemplo Y mientras se dibuja en XZ).
  if(activeTool==='line'&&linePoints.length){
-  const origin=planeCoords(linePoints[linePoints.length-1]),current=planeCoords(raw);
+  const lineStart=linePoints[linePoints.length-1],origin=planeCoords(lineStart),current=planeCoords(raw);
+  const normalOffset=lineStart.dot(plane.normal);
   const candidates=[
-   {point:planePoint(current.u,origin.v),angle:current.u-origin.u>=0?0:180},
-   {point:planePoint(origin.u,current.v),angle:current.v-origin.v>=0?90:270}
+   {point:planePoint(current.u,origin.v,normalOffset),angle:current.u-origin.u>=0?0:180},
+   {point:planePoint(origin.u,current.v,normalOffset),angle:current.v-origin.v>=0?90:270}
   ];
   let best=null,bestPx=2.5;
   for(const candidate of candidates){
@@ -499,7 +502,7 @@ function resolveSnap(event,raw){
    if(px<bestPx){bestPx=px;best=candidate;}
   }
   if(best){
-   const p0=planePoint(origin.u,origin.v),p1=best.point;
+   const p0=lineStart,p1=best.point;
    if(levelHintEl){
     const r=host.getBoundingClientRect(),v0=p0.clone().project(camera),v1=p1.clone().project(camera);
     const x0=r.left+(v0.x+1)*r.width/2,y0=r.top+(1-v0.y)*r.height/2,x1=r.left+(v1.x+1)*r.width/2,y1=r.top+(1-v1.y)*r.height/2;
