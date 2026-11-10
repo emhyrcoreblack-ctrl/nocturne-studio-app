@@ -176,7 +176,7 @@ async function startViewport(){
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
   canvas.addEventListener('pointermove',moveSketch);
-  canvas.addEventListener('pointercancel',cancelSketch);canvas.addEventListener('lostpointercapture',cancelSketch);
+  canvas.addEventListener('pointercancel',cancelSketch);
   setTool('select');
   document.getElementById('undoButton').addEventListener('click',undoDrawing);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
