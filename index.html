@@ -723,7 +723,14 @@ function beginSketch(event){
    event.preventDefault();return;
   }
   if(activeTool==='rect'||activeTool==='circle'){
-   if(drawStart){const p=pointForSketch(event);if(!p)return;shapeTouchDragPointerId=event.pointerId;try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);event.preventDefault();return;}
+   if(drawStart){
+    shapeTouchDragPointerId=event.pointerId;
+    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+    const p=pointForSketch(event)||drawStart.clone();
+    previewObject=makeShape(activeTool,drawStart,p,true);
+    if(previewObject)scene.add(previewObject);
+    event.preventDefault();return;
+   }
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};touchFirstAnchorStart={x:event.clientX,y:event.clientY};touchFirstAnchorMoved=false;touchLineGuideActive=true;try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}updateLineStartGuide(event);event.preventDefault();return;
   }
   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
@@ -755,6 +762,16 @@ function beginSketchNow(event){
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
+  const p=pointForSketch(event);if(!p)return;
+  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+  previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
+  const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
+  const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
+  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
+  else updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+  event.preventDefault();return;
+ }
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!drawStart){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;if(touchLineGuideActive)updateLineStartGuide(event);return;}
  if(event.pointerType==='touch'&&shapeTouchDragPointerId!==null&&event.pointerId!==shapeTouchDragPointerId)return;
  if(event.pointerType==='touch'&&activeTool==='line'){
@@ -791,7 +808,26 @@ function cancelSketch(event){
  }else if(lineDragPointerId===event.pointerId){cancelLineGesture();}
  if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}
 }
+function finalizeShapeAtPoint(p){
+ if(!drawStart)return false;
+ if(previewObject){scene.remove(previewObject);disposePreview(previewObject);}
+ const start=drawStart.clone(),end=p?p.clone():drawStart.clone();
+ const obj=makeShape(activeTool,start,end,false);
+ previewObject=null;drawStart=null;
+ if(!obj)return false;
+ scene.add(obj);drawnObjects.push(obj);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
+ const a=planeCoords(start),b=planeCoords(end),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
+ updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);
+ saveViewportProject();recordDrawingHistory();return true;
+}
 function finishSketch(event){
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
+  const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY),p=raw?resolveSnap(guide,raw):drawStart.clone();
+  const completed=finalizeShapeAtPoint(p);
+  shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+  hideSnapFeedback();hideLineGuide();
+  if(completed)return;
+ }
  if(event.pointerType==='touch'){
   if((activeTool==='rect'||activeTool==='circle')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;hideSnapFeedback();hideLineGuide();return;}
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
@@ -835,10 +871,7 @@ function finishSketch(event){
  if(shapeTouchDragPointerId===event.pointerId)shapeTouchDragPointerId=null;
  if(activeTool==='line'||!drawStart)return;
  const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY),p=raw?resolveSnap(guide,raw):drawStart;
- if(previewObject){scene.remove(previewObject);disposePreview(previewObject);}
- const obj=makeShape(activeTool,drawStart,p,false);
- if(obj){scene.add(obj);drawnObjects.push(obj);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}
- const start=drawStart;previewObject=null;drawStart=null;const a=planeCoords(start),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);saveViewportProject();recordDrawingHistory();
+ finalizeShapeAtPoint(p);
 }
 function findSelectableObject(clientX,clientY){
  if(!camera||!drawnObjects.length)return null;
