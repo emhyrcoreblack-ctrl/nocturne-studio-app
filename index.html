@@ -113,7 +113,7 @@
 <script type="module">
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
-let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButton=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
+let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
 let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
@@ -166,7 +166,14 @@ async function startViewport(){
   coordinatePanel=document.createElement('div');coordinatePanel.style.cssText='position:absolute;left:14px;bottom:54px;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:5px;max-width:calc(100% - 28px);padding:7px 9px;border:1px solid #40516a;border-radius:9px;background:rgba(16,23,34,.92);color:#dce7f5;font:11px/1.2 Inter,system-ui,sans-serif;box-shadow:0 3px 12px #0005;pointer-events:auto';
   coordinateReadout=document.createElement('span');coordinateReadout.textContent='X 0.0  Y 0.0  Z 0.0';coordinateReadout.style.cssText='font-variant-numeric:tabular-nums;letter-spacing:.02em;padding:0 4px;white-space:nowrap';coordinatePanel.appendChild(coordinateReadout);
   coordinateInputs=[];[['X','#ef7777'],['Y','#73d99a'],['Z','#78adff']].forEach(([axis,color])=>{const wrap=document.createElement('label');wrap.style.cssText='display:flex;align-items:center;gap:3px;color:'+color+';font-weight:700';wrap.textContent=axis;const input=document.createElement('input');input.type='number';input.step='0.1';input.value='0';input.setAttribute('aria-label','Coordenada '+axis);input.style.cssText='width:57px;height:25px;padding:2px 4px;border:1px solid #45566e;border-radius:5px;background:#111a27;color:#edf3fb;font:11px Inter,system-ui,sans-serif';wrap.appendChild(input);coordinatePanel.appendChild(wrap);coordinateInputs.push(input);});
-  const applyCoordinate=document.createElement('button');applyCoordinate.type='button';applyCoordinate.textContent='Fijar punto';applyCoordinate.style.cssText='height:26px;padding:0 8px;border:1px solid #5c789d;border-radius:5px;background:#263b55;color:#eaf3ff;font:600 10px Inter,system-ui,sans-serif';applyCoordinate.addEventListener('click',()=>{const values=coordinateInputs.map(input=>Number(input.value));if(values.every(Number.isFinite)){coordinateEntryPending=new THREE.Vector3(...values);coordinateReadout.textContent='Punto listo · '+values.map(v=>fmt(v)).join(', ');}});coordinatePanel.appendChild(applyCoordinate);coordinatePlaneButton=document.createElement('button');coordinatePlaneButton.type='button';coordinatePlaneButton.textContent='Plano XZ';coordinatePlaneButton.title='Cambiar entre los planos XZ, XY y YZ';coordinatePlaneButton.style.cssText='height:26px;padding:0 8px;border:1px solid #455c78;border-radius:5px;background:#1b2a3d;color:#cfe0f5;font:600 10px Inter,system-ui,sans-serif';coordinatePlaneButton.addEventListener('click',cycleWorkPlane);coordinatePanel.appendChild(coordinatePlaneButton);host.appendChild(coordinatePanel);
+  const applyCoordinate=document.createElement('button');applyCoordinate.type='button';applyCoordinate.textContent='Fijar punto';applyCoordinate.style.cssText='height:26px;padding:0 8px;border:1px solid #5c789d;border-radius:5px;background:#263b55;color:#eaf3ff;font:600 10px Inter,system-ui,sans-serif';applyCoordinate.addEventListener('click',()=>{const values=coordinateInputs.map(input=>Number(input.value));if(values.every(Number.isFinite)){coordinateEntryPending=new THREE.Vector3(...values);coordinateReadout.textContent='Punto listo · '+values.map(v=>fmt(v)).join(', ');}});coordinatePanel.appendChild(applyCoordinate);const planeGroup=document.createElement('div');planeGroup.style.cssText='display:flex;align-items:center;gap:3px;padding-left:4px;border-left:1px solid #40516a';
+  const planeCaption=document.createElement('span');planeCaption.textContent='Plano';planeCaption.style.cssText='font-size:10px;color:#aebed2;padding:0 3px';planeGroup.appendChild(planeCaption);
+  [['XZ','Plano horizontal XZ'],['XY','Plano XY'],['YZ','Plano YZ']].forEach(([name,title])=>{const button=document.createElement('button');button.type='button';button.textContent=name;button.title=title;button.setAttribute('aria-label',title);button.style.cssText='height:26px;min-width:31px;padding:0 6px;border:1px solid #455c78;border-radius:5px;background:#1b2a3d;color:#cfe0f5;font:700 10px Inter,system-ui,sans-serif';button.addEventListener('click',()=>setWorkPlane(name,true));planeGroup.appendChild(button);coordinatePlaneButtons.push({name,button});});
+  coordinatePanel.appendChild(planeGroup);
+  const axisGroup=document.createElement('div');axisGroup.style.cssText='display:flex;align-items:center;gap:3px;padding-left:4px;border-left:1px solid #40516a';
+  const axisCaption=document.createElement('span');axisCaption.textContent='Bloquear';axisCaption.style.cssText='font-size:10px;color:#aebed2;padding:0 3px';axisGroup.appendChild(axisCaption);
+  [['X','#ef7777'],['Y','#73d99a'],['Z','#78adff']].forEach(([axis,color])=>{const button=document.createElement('button');button.type='button';button.textContent=axis;button.title='Bloquear línea en el eje '+axis;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed','false');button.style.cssText='height:26px;min-width:27px;padding:0 6px;border:1px solid '+color+'66;border-radius:5px;background:#1b2a3d;color:'+color+';font:800 10px Inter,system-ui,sans-serif';button.addEventListener('click',()=>setLineAxisLock(activeAxisLock===axis?null:axis));axisGroup.appendChild(button);axisLockButtons.push({axis,color,button});});
+  coordinatePanel.appendChild(axisGroup);host.appendChild(coordinatePanel);
   defaultCameraPosition=camera.position.clone();
   
   controls.addEventListener('change',updateCube);
@@ -177,9 +184,17 @@ async function startViewport(){
   canvas.addEventListener('pointerup',finishSketch);
   canvas.addEventListener('pointermove',moveSketch);
   canvas.addEventListener('pointercancel',cancelSketch);
+  document.addEventListener('keydown',event=>{
+   if(activeTool!=='line'||event.ctrlKey||event.metaKey||event.altKey)return;
+   if(event.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName))return;
+   const key=event.key.toUpperCase();
+   if(['X','Y','Z'].includes(key)){setLineAxisLock(activeAxisLock===key?null:key);event.preventDefault();}
+   else if(event.key==='Escape'&&activeAxisLock){setLineAxisLock(null);event.preventDefault();}
+  });
   setTool('select');
   document.getElementById('undoButton').addEventListener('click',undoDrawing);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
+  setLineAxisLock(null);
   updateHistoryButtons();
   const drawMenu=document.getElementById('drawToolsPanel'),drawMenuButton=document.getElementById('drawMenuButton');
   drawMenuButton.addEventListener('click',()=>{const open=drawMenu.classList.toggle('open');drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));});
@@ -212,7 +227,32 @@ function setTool(tool){
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
 }
 function cycleWorkPlane(){const order=['XZ','XY','YZ'];setWorkPlane(order[(order.indexOf(activePlane)+1)%order.length],true);}
-function setWorkPlane(name,orientCamera=true){const config=workPlanes[name];if(!config||!groundPlane)return;activePlane=name;groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));if(gridObject){gridObject.rotation.set(0,0,0);if(name==='XY')gridObject.rotation.x=Math.PI/2;else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;gridObject.position.set(0,0,0);}if(cursorMarker)cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);const button=document.getElementById('planeButton');if(button)button.textContent='Plano '+name;if(coordinatePlaneButton)coordinatePlaneButton.textContent='Plano '+name;if(orientCamera&&camera&&controls){const target=controls.target.clone();camera.up.copy(config.v);camera.position.copy(target).addScaledVector(config.normal,150);controls.update();}}
+function setLineAxisLock(axis){
+ activeAxisLock=axis&&['X','Y','Z'].includes(axis)?axis:null;
+ axisLockButtons.forEach(item=>{
+  const active=item.axis===activeAxisLock;
+  item.button.setAttribute('aria-pressed',String(active));
+  item.button.style.background=active?item.color+'26':'#1b2a3d';
+  item.button.style.borderColor=active?item.color:item.color+'66';
+  item.button.style.boxShadow=active?'0 0 0 1px '+item.color+'55':'none';
+ });
+ if(activeAxisLock&&activeTool!=='line'&&coordinateReadout)coordinateReadout.textContent='Eje '+activeAxisLock+' bloqueado para Línea';
+}
+function setWorkPlane(name,orientCamera=true){
+ const config=workPlanes[name];if(!config||!groundPlane)return;
+ activePlane=name;groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
+ if(gridObject){gridObject.rotation.set(0,0,0);if(name==='XY')gridObject.rotation.x=Math.PI/2;else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;gridObject.position.set(0,0,0);}
+ if(cursorMarker)cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);
+ coordinatePlaneButtons.forEach(item=>{const active=item.name===name;item.button.setAttribute('aria-pressed',String(active));item.button.style.background=active?'#31537a':'#1b2a3d';item.button.style.borderColor=active?'#9bc5f4':'#455c78';item.button.style.color=active?'#fff':'#cfe0f5';});
+ if(orientCamera&&camera&&controls){
+  const target=controls.target.clone(),normal=config.normal.clone();
+  camera.up.copy(config.v);
+  const viewDirection=normal.clone().negate(),screenRight=config.v.clone().cross(viewDirection);
+  const side=screenRight.dot(config.u)>=0?1:-1;
+  camera.position.copy(target).addScaledVector(normal,150*side);
+  controls.update();
+ }
+}
 function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
 function planePoint(u,v,offset=0){const config=workPlanes[activePlane];return config.u.clone().multiplyScalar(u).addScaledVector(config.v,v).addScaledVector(config.normal,offset);}
 function pointOnGroundAt(clientX,clientY){
@@ -316,6 +356,33 @@ function resolveSnap(event,raw){
   if(rayT<=0)return null;
   return anchor.clone().addScaledVector(axis,axisT);
  };
+ // Bloqueo explícito de eje para la herramienta Línea. A diferencia del
+ // snap global al origen, esta restricción pasa por el último punto creado,
+ // por lo que permite continuar una línea en X, Y o Z desde cualquier altura.
+ if(activeTool==='line'&&activeAxisLock&&linePoints.length){
+  const anchor=linePoints[linePoints.length-1],axis=new THREE.Vector3(
+   activeAxisLock==='X'?1:0,activeAxisLock==='Y'?1:0,activeAxisLock==='Z'?1:0
+  );
+  const axisPoint=closestPointOnRayToAxis(anchor,axis);
+  const axisScreenLength=pixelDistance(anchor,anchor.clone().addScaledVector(axis,10));
+  if(axisScreenLength<2.5){
+   hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+   if(snapVertexObject)snapVertexObject.visible=false;if(snapEdgeObject)snapEdgeObject.visible=false;
+   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' perpendicular a la vista · gira la cámara';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+   snapKind='axis-lock-hidden';return anchor.clone();
+  }
+  if(axisPoint){
+   setGuide(0,anchor,axis);
+   const axisGuide=inferenceOverlayLines[0],axisColor=activeAxisLock==='X'?'#ef7777':activeAxisLock==='Y'?'#73d99a':'#78adff';
+   if(axisGuide){axisGuide.setAttribute('stroke',axisColor);axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
+   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' bloqueado';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+   if(levelHintEl)levelHintEl.style.display='none';
+   if(snapVertexObject)snapVertexObject.visible=false;if(snapEdgeObject)snapEdgeObject.visible=false;
+   if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+   snapKind='axis-lock';return axisPoint;
+  }
+ }
  const pixelDistance=(a,b)=>{
   const pa=a.clone().project(camera),pb=b.clone().project(camera);
   if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
