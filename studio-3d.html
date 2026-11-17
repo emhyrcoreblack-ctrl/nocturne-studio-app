@@ -177,7 +177,7 @@ async function startViewport(){
   defaultCameraPosition=camera.position.clone();
   
   controls.addEventListener('change',updateCube);
-  // El selector textual de plano fue retirado para mantener limpia la barra.
+  // Los planos se seleccionan directamente desde el panel de coordenadas.
   setWorkPlane('XZ',false);
   const canvas=renderer.domElement;
   canvas.addEventListener('pointerdown',beginSketch);
@@ -226,7 +226,6 @@ function setTool(tool){
  if(controls){controls.enabled=true;controls.enableRotate=(tool==='select');controls.enablePan=(tool==='select');controls.enableZoom=true;if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}}
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
 }
-function cycleWorkPlane(){const order=['XZ','XY','YZ'];setWorkPlane(order[(order.indexOf(activePlane)+1)%order.length],true);}
 function setLineAxisLock(axis){
  activeAxisLock=axis&&['X','Y','Z'].includes(axis)?axis:null;
  axisLockButtons.forEach(item=>{
@@ -371,17 +370,20 @@ function resolveSnap(event,raw){
    if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' perpendicular a la vista · gira la cámara';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
    snapKind='axis-lock-hidden';return anchor.clone();
   }
-  if(axisPoint){
-   setGuide(0,anchor,axis);
-   const axisGuide=inferenceOverlayLines[0],axisColor=activeAxisLock==='X'?'#ef7777':activeAxisLock==='Y'?'#73d99a':'#78adff';
-   if(axisGuide){axisGuide.setAttribute('stroke',axisColor);axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
-   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
-   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' bloqueado';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
-   if(levelHintEl)levelHintEl.style.display='none';
-   if(snapVertexObject)snapVertexObject.visible=false;if(snapEdgeObject)snapEdgeObject.visible=false;
-   if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-   snapKind='axis-lock';return axisPoint;
+  if(!axisPoint){
+   hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' bloqueado · gira un poco la vista';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+   snapKind='axis-lock-unavailable';return anchor.clone();
   }
+  setGuide(0,anchor,axis);
+  const axisGuide=inferenceOverlayLines[0],axisColor=activeAxisLock==='X'?'#ef7777':activeAxisLock==='Y'?'#73d99a':'#78adff';
+  if(axisGuide){axisGuide.setAttribute('stroke',axisColor);axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
+  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' bloqueado';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(snapVertexObject)snapVertexObject.visible=false;if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  snapKind='axis-lock';return axisPoint;
  }
  const pixelDistance=(a,b)=>{
   const pa=a.clone().project(camera),pb=b.clone().project(camera);
