@@ -449,18 +449,27 @@ function resolveSnap(event,raw){
  ];
  let axisCandidate=null,axisCandidatePx=30;
  worldAxes.forEach(item=>{
-  // La proximidad se mide contra la línea del eje proyectada en pantalla,
-  // no contra la distancia 3D entre dos puntos de distinta profundidad.
-  // El punto capturado se obtiene sobre el mismo rayo que usa el cursor.
+  // Los ejes globales parten del origen y sirven como referencias absolutas.
   const point=closestPointOnRayToAxis(worldOrigin,item.axis);
   if(!point)return;
   const px=projectedLineDistance(worldOrigin,item.axis);
   if(px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
-   axisCandidatePx=px;axisCandidate={...item,point,px};
+   axisCandidatePx=px;axisCandidate={...item,anchor:worldOrigin,point,px};
   }
  });
+ // Durante una polilínea también inferimos el eje perpendicular al plano
+ // desde el último vértice. En una vista isométrica, Y puede ser una línea
+ // visible aunque en la vista normal al plano XZ se reduzca a un punto.
+ if(activeTool==='line'&&linePoints.length){
+  const anchor=linePoints[linePoints.length-1],normalAxis=plane.normal.clone().normalize();
+  const point=closestPointOnRayToAxis(anchor,normalAxis),px=projectedLineDistance(anchor,normalAxis);
+  if(point&&px<axisCandidatePx&&nearestVertexPx>=9){
+   const axisName=activePlane==='XZ'?'Y':activePlane==='XY'?'Z':'X';
+   axisCandidatePx=px;axisCandidate={name:axisName,axis:normalAxis,anchor:anchor.clone(),point,px};
+  }
+ }
  if(axisCandidate){
-  hideInferenceOverlay();setGuide(0,worldOrigin,axisCandidate.axis);
+  hideInferenceOverlay();setGuide(0,axisCandidate.anchor||worldOrigin,axisCandidate.axis);
   const axisGuide=inferenceOverlayLines[0];
   if(axisGuide){axisGuide.setAttribute('stroke','#ffd34e');axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
