@@ -178,7 +178,7 @@ async function startViewport(){
    updateCube();
    // En modo Vista, el plano de dibujo y la cuadrícula siguen cada giro de cámara.
    // No se llama a controls.update() desde aquí, así que no genera un bucle de eventos.
-   if(activePlane==='VIEW')setWorkPlane('VIEW',false);
+   if(activePlane==='VIEW'&&activeTool==='select'&&!drawStart&&lineDragStart===null&&shapeTouchDragPointerId===null)setWorkPlane('VIEW',false);
   });
   // Los planos se seleccionan directamente desde el panel de coordenadas.
   setWorkPlane('VIEW',false);
@@ -212,7 +212,6 @@ function setTool(tool){
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
- if(tool!=='select'&&tool!==activeTool&&camera&&controls)setWorkPlane(activePlane,true);
  activeTool=tool;
  if(cursorMarker)cursorMarker.visible=false;
  if(tool!=='line')hideMeasure();
@@ -226,7 +225,20 @@ function setTool(tool){
  activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
  const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
- if(controls){controls.enabled=true;controls.enableRotate=(tool==='select');controls.enablePan=(tool==='select');controls.enableZoom=true;if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}}
+ if(controls){
+  controls.enabled=true;
+  if(tool==='select'){
+   controls.enableDamping=true;controls.enableRotate=true;controls.enablePan=true;controls.enableZoom=true;
+  }else{
+   // Congela la cámara antes de fijar el plano: consume cualquier inercia pendiente
+   // y evita que el plano VIEW cambie entre el primer y el segundo gesto.
+   controls.enableDamping=false;controls.enableRotate=false;controls.enablePan=false;controls.enableZoom=false;
+   controls.update();
+   camera.updateMatrixWorld(true);
+   setWorkPlane(activePlane,activePlane!=='VIEW');
+  }
+  if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}
+ }
  if(tool==='line'&&activeAxisLock)ensureLineAxisVisible();
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
 }function setLineAxisLock(axis){
