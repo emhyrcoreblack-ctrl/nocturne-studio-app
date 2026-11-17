@@ -786,8 +786,9 @@ function moveSketch(event){
   if(lineDragStart&&lineDragPointerId===event.pointerId&&p.distanceTo(lineDragStart)>.02)lineDragMoved=true;
   updateContinuousLine(p);return;
  }
- if(!drawStart||!previewObject)return;
- scene.remove(previewObject);disposePreview(previewObject);previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
+ if(!drawStart)return;
+ if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+ previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
  const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
  const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
