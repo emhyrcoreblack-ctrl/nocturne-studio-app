@@ -334,6 +334,11 @@ function resolveSnap(event,raw){
  // o centro de figura) y conserva su altura/profundidad. El punto de snap es
  // el punto de esa recta más próximo al rayo de la cámara.
  const plane=workPlanes[activePlane],rectNow=renderer.domElement.getBoundingClientRect();
+ const pixelDistance=(a,b)=>{
+  const pa=a.clone().project(camera),pb=b.clone().project(camera);
+  if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
+  return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);
+ };
  let horizontal=null,vertical=null;
  const inferenceReferences=[],inferenceDirections=[];
  const collectInferenceReferences=(world,closed=false)=>{
@@ -400,11 +405,7 @@ function resolveSnap(event,raw){
   if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';
   snapKind='axis-lock';return axisPoint;
  }
- const pixelDistance=(a,b)=>{
-  const pa=a.clone().project(camera),pb=b.clone().project(camera);
-  if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
-  return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);
- };
+
  const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
  const projectedLineDistance=(anchor,axis)=>{
   const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
