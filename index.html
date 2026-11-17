@@ -174,7 +174,12 @@ async function startViewport(){
   host.appendChild(coordinatePanel);
   defaultCameraPosition=camera.position.clone();
   
-  controls.addEventListener('change',updateCube);
+  controls.addEventListener('change',()=>{
+   updateCube();
+   // En modo Vista, el plano de dibujo y la cuadrícula siguen cada giro de cámara.
+   // No se llama a controls.update() desde aquí, así que no genera un bucle de eventos.
+   if(activePlane==='VIEW')setWorkPlane('VIEW',false);
+  });
   // Los planos se seleccionan directamente desde el panel de coordenadas.
   setWorkPlane('VIEW',false);
   const canvas=renderer.domElement;
