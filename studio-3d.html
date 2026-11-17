@@ -727,27 +727,33 @@ function beginSketch(event){
   }
   if(pinchGesture)return;
   if(activeTool==='line'){
-   // Un solo gesto crea cada tramo: pulsar, arrastrar y soltar.
-   const p=pointForSketch(event,true);
-   if(!p){activeTouchPointers.delete(event.pointerId);return;}
-   lineGestureCreatedAnchor=!linePoints.length;
-   lineDragStart=linePoints.length?linePoints[linePoints.length-1].clone():p.clone();
-   lineDragPointerId=event.pointerId;lineDragMoved=false;
-   if(lineGestureCreatedAnchor)linePoints=[lineDragStart.clone()];
-   if(!lineObject){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}
+   if(linePoints.length===0){
+    // Primer gesto: solo posiciona el punto inicial, sin crear geometría.
+    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
+    touchLineGuideActive=true;updateLineStartGuide(event);
+    event.preventDefault();return;
+   }
+   // Segundo gesto: arrastra desde el punto inicial para dibujar el tramo.
+   const p=linePoints[linePoints.length-1].clone();
+   lineGestureCreatedAnchor=false;
+   lineDragStart=p;lineDragPointerId=event.pointerId;lineDragMoved=false;
    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
-   touchLineStart=lineDragStart.clone();touchLineMoved=false;touchLinePointAdded=false;
+   touchLineStart=p.clone();touchLineMoved=false;touchLinePointAdded=false;
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
    touchLineGuideActive=true;updateLineStartGuide(event);
    event.preventDefault();return;
   }
   if(activeTool==='rect'||activeTool==='circle'){
-   // Rectángulo y círculo usan el mismo gesto que Línea.
-   const p=pointForSketch(event,true);
-   if(!p){activeTouchPointers.delete(event.pointerId);return;}
+   if(!drawStart){
+    // Primer gesto: muestra la guía y fija el inicio al soltar.
+    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
+    touchLineGuideActive=true;updateLineStartGuide(event);
+    event.preventDefault();return;
+   }
+   // Segundo gesto: arrastra para definir tamaño y forma.
    shapeTouchDragPointerId=event.pointerId;
    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
-   drawStart=p.clone();previewObject=makeShape(activeTool,drawStart,drawStart,true);
+   previewObject=makeShape(activeTool,drawStart,drawStart,true);
    if(previewObject)scene.add(previewObject);
    event.preventDefault();return;
   }
