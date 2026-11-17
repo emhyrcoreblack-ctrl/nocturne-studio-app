@@ -72,7 +72,7 @@
 <button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
 </div></div>
 <div id="sceneStatus">ESPACIO VACÍO · <span id="activeProjectName">PROYECTO</span></div><div id="measureLabel"></div>
-<div id="helpPanel"><strong>Controles del espacio 3D</strong><p>Arrastra con un dedo para orbitar. Usa dos dedos para acercar o alejar. El cubo permite elegir una perspectiva.</p><button id="closeHelp">Entendido</button></div>
+<div id="helpPanel"><strong>Cómo dibujar</strong><p>Elige Línea, Rectángulo o Círculo y arrastra una sola vez desde el inicio hasta el final. Con Línea, cada arrastre añade un tramo; cambia a Seleccionar para terminar. Vista dibuja sobre la orientación actual de la cámara; Suelo, Frente y Lado fijan planos conocidos. En Seleccionar puedes girar la vista con un dedo.</p><button id="closeHelp">Entendido</button></div>
 <div id="sceneError"><div><strong>No se pudo iniciar el motor 3D</strong><p id="sceneErrorText">Comprueba tu conexión a Internet y vuelve a intentarlo.</p><button id="retry3D" class="primary">Reintentar</button></div></div>
 </main>
 <script>
@@ -115,9 +115,9 @@ let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
-let workPlanes=null,activePlane='XZ',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
+let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
-const lineGuideOffsetPx=58;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
+const lineGuideOffsetPx=40;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
  try{
@@ -163,34 +163,25 @@ async function startViewport(){
   [['X','#ef6868',new THREE.Vector3(68,0,0)],['Y','#63d98a',new THREE.Vector3(0,68,0)],['Z','#65aaff',new THREE.Vector3(0,0,68)]].forEach(([label,color])=>{const el=document.createElement('div');el.textContent=label;el.style.cssText='position:absolute;display:none;transform:translate(-50%,-50%);font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.03em;color:'+color+';text-shadow:0 1px 3px #080d16,0 0 5px #080d16;pointer-events:none;z-index:4';host.appendChild(el);axisLabelEls.push({el});});
   originMarkerEl=document.createElement('div');originMarkerEl.style.cssText='position:absolute;display:none;width:8px;height:8px;transform:translate(-50%,-50%);border:1px solid #dce7f4;border-radius:50%;background:#26384b;box-shadow:0 0 0 2px rgba(8,14,23,.7);pointer-events:none;z-index:4';host.appendChild(originMarkerEl);
   axisLabelEls.forEach((item,i)=>{item.point=[new THREE.Vector3(68,0,0),new THREE.Vector3(0,68,0),new THREE.Vector3(0,0,68)][i];});
-  coordinatePanel=document.createElement('div');coordinatePanel.style.cssText='position:absolute;left:14px;bottom:54px;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:5px;max-width:calc(100% - 28px);padding:7px 9px;border:1px solid #40516a;border-radius:9px;background:rgba(16,23,34,.92);color:#dce7f5;font:11px/1.2 Inter,system-ui,sans-serif;box-shadow:0 3px 12px #0005;pointer-events:auto';
-  coordinateReadout=document.createElement('span');coordinateReadout.textContent='X 0.0  Y 0.0  Z 0.0';coordinateReadout.style.cssText='font-variant-numeric:tabular-nums;letter-spacing:.02em;padding:0 4px;white-space:nowrap';coordinatePanel.appendChild(coordinateReadout);
-  coordinateInputs=[];[['X','#ef7777'],['Y','#73d99a'],['Z','#78adff']].forEach(([axis,color])=>{const wrap=document.createElement('label');wrap.style.cssText='display:flex;align-items:center;gap:3px;color:'+color+';font-weight:700';wrap.textContent=axis;const input=document.createElement('input');input.type='number';input.step='0.1';input.value='0';input.setAttribute('aria-label','Coordenada '+axis);input.style.cssText='width:57px;height:25px;padding:2px 4px;border:1px solid #45566e;border-radius:5px;background:#111a27;color:#edf3fb;font:11px Inter,system-ui,sans-serif';wrap.appendChild(input);coordinatePanel.appendChild(wrap);coordinateInputs.push(input);});
-  const applyCoordinate=document.createElement('button');applyCoordinate.type='button';applyCoordinate.textContent='Fijar punto';applyCoordinate.style.cssText='height:26px;padding:0 8px;border:1px solid #5c789d;border-radius:5px;background:#263b55;color:#eaf3ff;font:600 10px Inter,system-ui,sans-serif';applyCoordinate.addEventListener('click',()=>{const values=coordinateInputs.map(input=>Number(input.value));if(values.every(Number.isFinite)){coordinateEntryPending=new THREE.Vector3(...values);coordinateReadout.textContent='Punto listo · '+values.map(v=>fmt(v)).join(', ');}});coordinatePanel.appendChild(applyCoordinate);const planeGroup=document.createElement('div');planeGroup.style.cssText='display:flex;align-items:center;gap:3px;padding-left:4px;border-left:1px solid #40516a';
-  const planeCaption=document.createElement('span');planeCaption.textContent='Plano';planeCaption.style.cssText='font-size:10px;color:#aebed2;padding:0 3px';planeGroup.appendChild(planeCaption);
-  [['XZ','Plano horizontal XZ'],['XY','Plano XY'],['YZ','Plano YZ']].forEach(([name,title])=>{const button=document.createElement('button');button.type='button';button.textContent=name;button.title=title;button.setAttribute('aria-label',title);button.style.cssText='height:26px;min-width:31px;padding:0 6px;border:1px solid #455c78;border-radius:5px;background:#1b2a3d;color:#cfe0f5;font:700 10px Inter,system-ui,sans-serif';button.addEventListener('click',()=>setWorkPlane(name,true));planeGroup.appendChild(button);coordinatePlaneButtons.push({name,button});});
-  coordinatePanel.appendChild(planeGroup);
-  const axisGroup=document.createElement('div');axisGroup.style.cssText='display:flex;align-items:center;gap:3px;padding-left:4px;border-left:1px solid #40516a';
-  const axisCaption=document.createElement('span');axisCaption.textContent='Bloquear';axisCaption.style.cssText='font-size:10px;color:#aebed2;padding:0 3px';axisGroup.appendChild(axisCaption);
-  [['X','#ef7777'],['Y','#73d99a'],['Z','#78adff']].forEach(([axis,color])=>{const button=document.createElement('button');button.type='button';button.textContent=axis;button.title='Bloquear línea en el eje '+axis;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed','false');button.style.cssText='height:26px;min-width:27px;padding:0 6px;border:1px solid '+color+'66;border-radius:5px;background:#1b2a3d;color:'+color+';font:800 10px Inter,system-ui,sans-serif';button.addEventListener('click',()=>setLineAxisLock(activeAxisLock===axis?null:axis));axisGroup.appendChild(button);axisLockButtons.push({axis,color,button});});
-  coordinatePanel.appendChild(axisGroup);host.appendChild(coordinatePanel);
+  coordinatePanel=document.createElement('div');
+  coordinatePanel.style.cssText='position:absolute;left:14px;bottom:54px;z-index:6;display:flex;align-items:center;gap:6px;max-width:calc(100% - 28px);padding:7px 9px;border:1px solid #40516a;border-radius:9px;background:rgba(16,23,34,.92);color:#dce7f5;font:11px/1.2 Inter,system-ui,sans-serif;box-shadow:0 3px 12px #0005;pointer-events:auto';
+  const planeCaption=document.createElement('span');planeCaption.textContent='Plano';planeCaption.style.cssText='font-size:10px;color:#aebed2;padding:0 3px';coordinatePanel.appendChild(planeCaption);
+  [['VIEW','Vista','Plano según la orientación actual de la cámara'],['XZ','Suelo','Plano XZ · horizontal'],['XY','Frente','Plano XY · frontal'],['YZ','Lado','Plano YZ · lateral']].forEach(([name,label,title])=>{
+   const button=document.createElement('button');button.type='button';button.textContent=label;button.title=title;button.setAttribute('aria-label',title);
+   button.style.cssText='height:30px;min-width:50px;padding:0 8px;border:1px solid #455c78;border-radius:6px;background:#1b2a3d;color:#cfe0f5;font:700 11px Inter,system-ui,sans-serif';
+   button.addEventListener('click',()=>setWorkPlane(name,true));coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
+  });
+  host.appendChild(coordinatePanel);
   defaultCameraPosition=camera.position.clone();
   
   controls.addEventListener('change',updateCube);
   // Los planos se seleccionan directamente desde el panel de coordenadas.
-  setWorkPlane('XZ',false);
+  setWorkPlane('VIEW',false);
   const canvas=renderer.domElement;
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
   canvas.addEventListener('pointermove',moveSketch);
   canvas.addEventListener('pointercancel',cancelSketch);
-  document.addEventListener('keydown',event=>{
-   if(activeTool!=='line'||event.ctrlKey||event.metaKey||event.altKey)return;
-   if(event.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName))return;
-   const key=event.key.toUpperCase();
-   if(['X','Y','Z'].includes(key)){setLineAxisLock(activeAxisLock===key?null:key);event.preventDefault();}
-   else if(event.key==='Escape'&&activeAxisLock){setLineAxisLock(null);event.preventDefault();}
-  });
   setTool('select');
   document.getElementById('undoButton').addEventListener('click',undoDrawing);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
@@ -208,7 +199,7 @@ async function startViewport(){
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
   document.getElementById('gridButton').addEventListener('click',()=>{gridObject.visible=!gridObject.visible;document.getElementById('gridButton').classList.toggle('tool-active',gridObject.visible);});
   document.getElementById('axesButton').addEventListener('click',()=>{axesObject.visible=!axesObject.visible;document.getElementById('axesButton').classList.toggle('tool-active',axesObject.visible);});
-  document.getElementById('fitButton').addEventListener('click',()=>{camera.position.copy(defaultCameraPosition);controls.target.set(0,0,0);controls.update();});
+  document.getElementById('fitButton').addEventListener('click',()=>{if(activeTool!=='select')setTool('select');camera.position.copy(defaultCameraPosition);controls.target.set(0,0,0);controls.update();});
   animate();
  }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;cursorMarker=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
 }
@@ -216,18 +207,24 @@ function setTool(tool){
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
+ if(tool!=='select'&&tool!==activeTool&&camera&&controls)setWorkPlane(activePlane,true);
  activeTool=tool;
  if(cursorMarker)cursorMarker.visible=false;
  if(tool!=='line')hideMeasure();
- const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo'};const glyphs={line:'／',rect:'□',circle:'○'};if(tool!=='select')lastDrawingTool=tool;
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo'},glyphs={line:'／',rect:'□',circle:'○'};
+ if(tool!=='select')lastDrawingTool=tool;
  ['select','line','rect','circle'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
- const activeToggle=document.getElementById('activeToolToggle');activeToggle.hidden=!lastDrawingTool;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:'';activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'';activeToggle.setAttribute('aria-label',activeToggle.title||'Herramienta');activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
- document.getElementById('saveState').textContent=labels[tool];
+ const activeToggle=document.getElementById('activeToolToggle');
+ activeToggle.hidden=!lastDrawingTool;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:'';
+ activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'';
+ activeToggle.setAttribute('aria-label',activeToggle.title||'Herramienta');
+ activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
+ const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar'};
+ document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
  if(controls){controls.enabled=true;controls.enableRotate=(tool==='select');controls.enablePan=(tool==='select');controls.enableZoom=true;if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}}
  if(tool==='line'&&activeAxisLock)ensureLineAxisVisible();
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
-}
-function setLineAxisLock(axis){
+}function setLineAxisLock(axis){
  activeAxisLock=axis&&['X','Y','Z'].includes(axis)?axis:null;
  axisLockButtons.forEach(item=>{
   const active=item.axis===activeAxisLock;
@@ -252,22 +249,40 @@ function ensureLineAxisVisible(){
  controls.update();
 }
 function setWorkPlane(name,orientCamera=true){
- const config=workPlanes[name];if(!config||!groundPlane)return;
+ let config=workPlanes[name];
+ if(name==='VIEW'&&camera){
+  const u=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).normalize();
+  const v=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).normalize();
+  const normal=u.clone().cross(v).normalize();
+  config=workPlanes.VIEW={normal,u,v};
+ }
+ if(!config||!groundPlane)return;
  activePlane=name;groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
- if(gridObject){gridObject.rotation.set(0,0,0);if(name==='XY')gridObject.rotation.x=Math.PI/2;else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;gridObject.position.set(0,0,0);}
+ if(gridObject){
+  gridObject.rotation.set(0,0,0);
+  if(name==='XY')gridObject.rotation.x=Math.PI/2;
+  else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;
+  else if(name==='VIEW'){
+   const gridZ=config.u.clone().cross(config.normal).normalize();
+   gridObject.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(config.u,config.normal,gridZ));
+  }
+  gridObject.position.set(0,0,0);
+ }
  if(cursorMarker)cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);
  coordinatePlaneButtons.forEach(item=>{const active=item.name===name;item.button.setAttribute('aria-pressed',String(active));item.button.style.background=active?'#31537a':'#1b2a3d';item.button.style.borderColor=active?'#9bc5f4':'#455c78';item.button.style.color=active?'#fff':'#cfe0f5';});
  if(orientCamera&&camera&&controls){
-  const target=controls.target.clone(),normal=config.normal.clone();
+  // El centro de la vista queda sobre el plano y la pantalla se alinea con sus ejes.
+  const target=controls.target.clone();
+  target.addScaledVector(config.normal,-target.dot(config.normal));
+  controls.target.copy(target);
+  const backward=config.u.clone().cross(config.v).normalize();
+  const distance=Math.max(5,camera.position.distanceTo(controls.target));
   camera.up.copy(config.v);
-  const viewDirection=normal.clone().negate(),screenRight=config.v.clone().cross(viewDirection);
-  const side=screenRight.dot(config.u)>=0?1:-1;
-  camera.position.copy(target).addScaledVector(normal,150*side);
+  camera.position.copy(target).addScaledVector(backward,distance);
   controls.update();
  }
  if(activeAxisLock&&activeTool==='line')ensureLineAxisVisible();
-}
-function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
+}function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
 function planePoint(u,v,offset=0){const config=workPlanes[activePlane];return config.u.clone().multiplyScalar(u).addScaledVector(config.v,v).addScaledVector(config.normal,offset);}
 function pointOnGroundAt(clientX,clientY){
  const r=renderer.domElement.getBoundingClientRect();
@@ -480,7 +495,7 @@ function resolveSnap(event,raw){
   const anchor=linePoints[linePoints.length-1],normalAxis=plane.normal.clone().normalize();
   const point=closestPointOnRayToAxis(anchor,normalAxis),px=projectedLineDistance(anchor,normalAxis);
   if(point&&px<axisCandidatePx&&nearestVertexPx>=9){
-   const axisName=activePlane==='XZ'?'Y':activePlane==='XY'?'Z':'X';
+   const axisName=activePlane==='XZ'?'Y':activePlane==='XY'?'Z':activePlane==='YZ'?'X':'Vista';
    axisCandidatePx=px;axisCandidate={name:axisName,axis:normalAxis,anchor:anchor.clone(),point,px};
   }
  }
@@ -696,42 +711,29 @@ function beginSketch(event){
   }
   if(pinchGesture)return;
   if(activeTool==='line'){
-   // Primer toque: solo muestra la cruz; el punto inicial se fija al levantar el dedo.
-   if(!linePoints.length){
-    // Primer apoyo táctil: mostrar solo la cruz y seguir el dedo, sin crear geometría.
-    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
-    touchFirstAnchorStart={x:event.clientX,y:event.clientY};touchFirstAnchorMoved=false;
-    touchLineGuideActive=true;
-    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
-    updateLineStartGuide(event);
-    event.preventDefault();return;
-   }
-   const p=pointForSketch(event);if(!p)return;
-   lineGestureCreatedAnchor=false;
-   lineDragStart=linePoints[linePoints.length-1].clone();
+   // Un solo gesto crea cada tramo: pulsar, arrastrar y soltar.
+   const p=pointForSketch(event,true);
+   if(!p){activeTouchPointers.delete(event.pointerId);return;}
+   lineGestureCreatedAnchor=!linePoints.length;
+   lineDragStart=linePoints.length?linePoints[linePoints.length-1].clone():p.clone();
    lineDragPointerId=event.pointerId;lineDragMoved=false;
+   if(lineGestureCreatedAnchor)linePoints=[lineDragStart.clone()];
    if(!lineObject){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}
    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
    touchLineStart=lineDragStart.clone();touchLineMoved=false;touchLinePointAdded=false;
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
-   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-   // La guía de snap debe estar activa desde el primer instante del arrastre,
-   // no después de una espera que puede superar la duración del gesto.
-   touchLineGuideActive=true;
-   updateLineStartGuide(event);
+   touchLineGuideActive=true;updateLineStartGuide(event);
    event.preventDefault();return;
   }
   if(activeTool==='rect'||activeTool==='circle'){
-   if(drawStart){
-    shapeTouchDragPointerId=event.pointerId;
-    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
-    const p=pointForSketch(event)||drawStart.clone();
-    previewObject=makeShape(activeTool,drawStart,p,true);
-    if(previewObject)scene.add(previewObject);
-    event.preventDefault();return;
-   }
-   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};touchFirstAnchorStart={x:event.clientX,y:event.clientY};touchFirstAnchorMoved=false;touchLineGuideActive=true;try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}updateLineStartGuide(event);event.preventDefault();return;
+   // Rectángulo y círculo usan el mismo gesto que Línea.
+   const p=pointForSketch(event,true);
+   if(!p){activeTouchPointers.delete(event.pointerId);return;}
+   shapeTouchDragPointerId=event.pointerId;
+   try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+   drawStart=p.clone();previewObject=makeShape(activeTool,drawStart,drawStart,true);
+   if(previewObject)scene.add(previewObject);
+   event.preventDefault();return;
   }
   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
   if(touchStartTimer)clearTimeout(touchStartTimer);
@@ -739,8 +741,7 @@ function beginSketch(event){
   return;
  }
  beginSketchNow(event);
-}
-function beginSketchNow(event){
+}function beginSketchNow(event){
  if(activeTool==='select'){
   if(event.button!==0)return;
   selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
@@ -952,6 +953,7 @@ function makeShape(type,a,b,preview){
  if(type==='line'){points.push(a.clone(),b.clone());}
  else if(type==='rect'){
   const ca=planeCoords(a),cb=planeCoords(b);
+  if(Math.abs(cb.u-ca.u)<.03||Math.abs(cb.v-ca.v)<.03)return null;
   points.push(planePoint(ca.u,ca.v,.03),planePoint(cb.u,ca.v,.03),planePoint(cb.u,cb.v,.03),planePoint(ca.u,cb.v,.03));
  }else if(type==='circle'){
   const ca=planeCoords(a),cb=planeCoords(b),radius=Math.hypot(cb.u-ca.u,cb.v-ca.v);
@@ -959,8 +961,7 @@ function makeShape(type,a,b,preview){
   for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius,.03));}
  }
  return makeFatStroke(points,preview?0x8ebaff:0xe5efff,preview?.65:1,type!=='line');
-}
-function makeFatStroke(points,color=0xe5efff,opacity=1,closed=false){
+}function makeFatStroke(points,color=0xe5efff,opacity=1,closed=false){
  const api=window.nocturneFatLine;if(!api||!points||points.length<2)return null;
  const coords=[];points.forEach(p=>coords.push(p.x,p.y,p.z));
  if(closed&&points.length>2)coords.push(points[0].x,points[0].y,points[0].z);
@@ -978,8 +979,12 @@ function updateFatStroke(obj,points){
 }
 function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject,...inferenceGuideObjects].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
-function setView(name){const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);const target=controls.target.clone();camera.position.copy(target.add(new THREE.Vector3(...p)));controls.update();}
-function updateAxisIndicators(){if(!camera||!host)return;const r=host.getBoundingClientRect();const place=(el,point)=>{const p=point.clone().project(camera);const visible=p.z>-1&&p.z<1&&p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1;el.style.display=visible?'block':'none';if(visible){el.style.left=((p.x+1)*r.width/2)+'px';el.style.top=((1-p.y)*r.height/2)+'px';}};axisLabelEls.forEach(item=>place(item.el,item.point));if(originMarkerEl)place(originMarkerEl,new THREE.Vector3(0,0,0));}
+function setView(name){
+ if(activeTool!=='select')setTool('select');
+ const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;
+ camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);
+ const target=controls.target.clone();camera.position.copy(target).add(new THREE.Vector3(...p));controls.update();
+}function updateAxisIndicators(){if(!camera||!host)return;const r=host.getBoundingClientRect();const place=(el,point)=>{const p=point.clone().project(camera);const visible=p.z>-1&&p.z<1&&p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1;el.style.display=visible?'block':'none';if(visible){el.style.left=((p.x+1)*r.width/2)+'px';el.style.top=((1-p.y)*r.height/2)+'px';}};axisLabelEls.forEach(item=>place(item.el,item.point));if(originMarkerEl)place(originMarkerEl,new THREE.Vector3(0,0,0));}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);updateAxisIndicators();positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.userData&&o.userData.selectionOriginalColor!==undefined?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
