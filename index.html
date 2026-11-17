@@ -251,35 +251,46 @@ function ensureLineAxisVisible(){
 function setWorkPlane(name,orientCamera=true){
  let config=workPlanes[name];
  if(name==='VIEW'&&camera){
-  const u=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).normalize();
-  const v=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).normalize();
-  const normal=u.clone().cross(v).normalize();
+  // Usa los ejes reales de la matriz mundial de cámara, no su quaternion posiblemente desactualizado.
+  camera.updateMatrixWorld(true);
+  const u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize();
+  const v=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1).normalize();
+  const normal=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,2).normalize();
   config=workPlanes.VIEW={normal,u,v};
  }
  if(!config||!groundPlane)return;
- activePlane=name;groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
+ activePlane=name;
+ groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
  if(gridObject){
-  gridObject.rotation.set(0,0,0);
-  if(name==='XY')gridObject.rotation.x=Math.PI/2;
-  else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;
-  else if(name==='VIEW'){
+  if(name==='VIEW'){
+   // GridHelper está construido en XZ con su normal local en +Y.
+   // Lleva X a la derecha de pantalla, Y hacia la cámara y Z hacia abajo de pantalla.
    const gridZ=config.u.clone().cross(config.normal).normalize();
    gridObject.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(config.u,config.normal,gridZ));
+  }else{
+   gridObject.quaternion.identity();
+   if(name==='XY')gridObject.rotation.x=Math.PI/2;
+   else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;
   }
   gridObject.position.set(0,0,0);
  }
  if(cursorMarker)cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);
- coordinatePlaneButtons.forEach(item=>{const active=item.name===name;item.button.setAttribute('aria-pressed',String(active));item.button.style.background=active?'#31537a':'#1b2a3d';item.button.style.borderColor=active?'#9bc5f4':'#455c78';item.button.style.color=active?'#fff':'#cfe0f5';});
+ coordinatePlaneButtons.forEach(item=>{
+  const active=item.name===name;
+  item.button.setAttribute('aria-pressed',String(active));
+  item.button.style.background=active?'#31537a':'#1b2a3d';
+  item.button.style.borderColor=active?'#9bc5f4':'#455c78';
+  item.button.style.color=active?'#fff':'#cfe0f5';
+ });
  if(orientCamera&&camera&&controls){
-  // El centro de la vista queda sobre el plano y la pantalla se alinea con sus ejes.
   const target=controls.target.clone();
   target.addScaledVector(config.normal,-target.dot(config.normal));
   controls.target.copy(target);
-  const backward=config.u.clone().cross(config.v).normalize();
   const distance=Math.max(5,camera.position.distanceTo(controls.target));
   camera.up.copy(config.v);
-  camera.position.copy(target).addScaledVector(backward,distance);
+  camera.position.copy(target).addScaledVector(config.normal,distance);
   controls.update();
+  camera.updateMatrixWorld(true);
  }
  if(activeAxisLock&&activeTool==='line')ensureLineAxisVisible();
 }function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
