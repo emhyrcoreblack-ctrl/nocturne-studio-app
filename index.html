@@ -224,6 +224,7 @@ function setTool(tool){
  const activeToggle=document.getElementById('activeToolToggle');activeToggle.hidden=!lastDrawingTool;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:'';activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'';activeToggle.setAttribute('aria-label',activeToggle.title||'Herramienta');activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
  document.getElementById('saveState').textContent=labels[tool];
  if(controls){controls.enabled=true;controls.enableRotate=(tool==='select');controls.enablePan=(tool==='select');controls.enableZoom=true;if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}}
+ if(tool==='line'&&activeAxisLock)ensureLineAxisVisible();
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
 }
 function setLineAxisLock(axis){
@@ -236,6 +237,19 @@ function setLineAxisLock(axis){
   item.button.style.boxShadow=active?'0 0 0 1px '+item.color+'55':'none';
  });
  if(activeAxisLock&&activeTool!=='line'&&coordinateReadout)coordinateReadout.textContent='Eje '+activeAxisLock+' bloqueado para Línea';
+ if(activeAxisLock&&activeTool==='line')ensureLineAxisVisible();
+}
+function ensureLineAxisVisible(){
+ if(!activeAxisLock||activeTool!=='line'||!camera||!controls||!workPlanes)return;
+ const axis=new THREE.Vector3(activeAxisLock==='X'?1:0,activeAxisLock==='Y'?1:0,activeAxisLock==='Z'?1:0);
+ const a=new THREE.Vector3(0,0,0).project(camera),b=axis.clone().multiplyScalar(10).project(camera);
+ const pixels=Math.hypot((b.x-a.x)*host.clientWidth*.5,(b.y-a.y)*host.clientHeight*.5);
+ if(pixels>=3)return;
+ const config=workPlanes[activePlane],target=controls.target.clone(),distance=Math.max(5,camera.position.distanceTo(target));
+ const direction=config.normal.clone().add(config.u).add(config.v).normalize();
+ camera.up.set(0,1,0);
+ camera.position.copy(target).addScaledVector(direction,distance);
+ controls.update();
 }
 function setWorkPlane(name,orientCamera=true){
  const config=workPlanes[name];if(!config||!groundPlane)return;
@@ -251,6 +265,7 @@ function setWorkPlane(name,orientCamera=true){
   camera.position.copy(target).addScaledVector(normal,150*side);
   controls.update();
  }
+ if(activeAxisLock&&activeTool==='line')ensureLineAxisVisible();
 }
 function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
 function planePoint(u,v,offset=0){const config=workPlanes[activePlane];return config.u.clone().multiplyScalar(u).addScaledVector(config.v,v).addScaledVector(config.normal,offset);}
