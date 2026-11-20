@@ -504,47 +504,8 @@ function resolveSnap(event,raw){
   line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
   line.setAttribute('visibility','visible');
  };
- // Captura los tres ejes globales, incluso el que es perpendicular al
- // plano activo. Así se puede dibujar sobre Y desde XZ sin cambiar de plano.
- const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=[
-  {name:'X',axis:new THREE.Vector3(1,0,0)},
-  {name:'Y',axis:new THREE.Vector3(0,1,0)},
-  {name:'Z',axis:new THREE.Vector3(0,0,1)}
- ];
- let axisCandidate=null,axisCandidatePx=30;
- worldAxes.forEach(item=>{
-  // Los ejes globales parten del origen y sirven como referencias absolutas.
-  const point=closestPointOnRayToAxis(worldOrigin,item.axis);
-  if(!point)return;
-  const px=projectedLineDistance(worldOrigin,item.axis);
-  if(px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
-   axisCandidatePx=px;axisCandidate={...item,anchor:worldOrigin,point,px};
-  }
- });
- // Durante una polilínea también inferimos el eje perpendicular al plano
- // desde el último vértice. En una vista isométrica, Y puede ser una línea
- // visible aunque en la vista normal al plano XZ se reduzca a un punto.
- if(activeTool==='line'&&linePoints.length){
-  const anchor=linePoints[linePoints.length-1],normalAxis=plane.normal.clone().normalize();
-  const point=closestPointOnRayToAxis(anchor,normalAxis),px=projectedLineDistance(anchor,normalAxis);
-  if(point&&px<axisCandidatePx&&nearestVertexPx>=9){
-   const axisName=activePlane==='XZ'?'Y':activePlane==='XY'?'Z':activePlane==='YZ'?'X':'Vista';
-   axisCandidatePx=px;axisCandidate={name:axisName,axis:normalAxis,anchor:anchor.clone(),point,px};
-  }
- }
- if(axisCandidate){
-  hideInferenceOverlay();setGuide(0,axisCandidate.anchor||worldOrigin,axisCandidate.axis);
-  const axisGuide=inferenceOverlayLines[0];
-  if(axisGuide){axisGuide.setAttribute('stroke','#ffd34e');axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
-  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
-  if(angleHintEl){angleHintEl.textContent='Conexión al eje '+axisCandidate.name;angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
-  if(levelHintEl)levelHintEl.style.display='none';
-  if(snapVertexObject)snapVertexObject.visible=false;
-  if(snapEdgeObject)snapEdgeObject.visible=false;
-  if(snapMarkerEl)snapMarkerEl.style.display='none';
-  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-  snapKind='axis';return axisCandidate.point;
- }
+ // No se realiza captura automática sobre los ejes globales ni sobre la cuadrícula.
+ // Las capturas automáticas se reservan para referencias de geometría existente.
  const considerInference=(reference)=>{
   const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
   if(cameraZ>=-camera.near)return;
