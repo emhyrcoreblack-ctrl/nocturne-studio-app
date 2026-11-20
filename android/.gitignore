@@ -2,3 +2,4 @@
 **/build/
 app/debug.keystore
 local.properties
+app/src/main/assets/vendor/three/
