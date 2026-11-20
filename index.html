@@ -175,9 +175,13 @@ async function startViewport(){
   defaultCameraPosition=camera.position.clone();
   
   controls.addEventListener('change',()=>{
+   // Durante el giro solo se actualiza el cubo: el plano de trabajo no debe
+   // perseguir cada fotograma de OrbitControls ni deformar visualmente la cuadrícula.
    updateCube();
-   // En modo Vista, el plano de dibujo y la cuadrícula siguen cada giro de cámara.
-   // No se llama a controls.update() desde aquí, así que no genera un bucle de eventos.
+  });
+  controls.addEventListener('end',()=>{
+   // Al terminar el movimiento de cámara se captura una única orientación estable
+   // para el plano Vista. Así el plano no cambia mientras la cámara aún está girando.
    if(activePlane==='VIEW'&&activeTool==='select'&&!drawStart&&lineDragStart===null&&shapeTouchDragPointerId===null)setWorkPlane('VIEW',false);
   });
   // Los planos se seleccionan directamente desde el panel de coordenadas.
