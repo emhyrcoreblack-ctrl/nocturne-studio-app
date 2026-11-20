@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#10141c">
+<title>NOCTURNE STUDIO 3D</title>
+<style>
+:root{color-scheme:dark;--bg:#10141c;--panel:#191f2a;--panel2:#202a38;--line:#303c4e;--text:#edf2fa;--muted:#93a0b3;--blue:#8ebaff;--green:#83d8ae}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,input{font:inherit}button{color:inherit;background:#202a38;border:1px solid var(--line);border-radius:9px;padding:10px 14px;cursor:pointer}button:hover{background:#2b3b50;border-color:#526a88}button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#projectScreen{min-height:100%;background:radial-gradient(ellipse at 82% 0%,#24364e 0,transparent 38%),var(--bg)}
+.topbar{height:64px;border-bottom:1px solid #2b3545;display:flex;align-items:center;padding:0 clamp(16px,4vw,54px);gap:14px;background:#121923d9}
+.brand{font-size:13px;font-weight:850;letter-spacing:.13em;white-space:nowrap}.brand em{font-style:normal;color:var(--blue)}.topbar .spacer{flex:1}
+.primary{background:#dceaff;color:#142033;border-color:#dceaff;font-weight:750}.primary:hover{background:#fff;color:#142033}
+.page{width:min(1120px,calc(100% - 36px));margin:0 auto;padding:54px 0 70px}.eyebrow{color:var(--blue);font-size:10px;letter-spacing:.2em;font-weight:800}.page h1{font-size:clamp(34px,6vw,54px);letter-spacing:-.055em;line-height:1.04;margin:12px 0 10px}.intro{color:var(--muted);font-size:15px;max-width:620px;margin:0}
+.sectionhead{display:flex;align-items:center;gap:14px;margin:46px 0 17px}.sectionhead h2{font-size:18px;margin:0}.sectionhead span{color:var(--muted);font-size:12px}
+.projectgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:16px}
+.projectcard{padding:0;overflow:hidden;text-align:left;background:#171f2b;border:1px solid #344155;border-radius:15px;min-height:210px;display:flex;flex-direction:column;transition:transform .16s,border-color .16s}.projectcard:hover{transform:translateY(-2px);border-color:#7097c4}
+.thumb{height:132px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,#344c69,#1a2636 72%);display:grid;place-items:center}
+.project-delete{position:absolute;right:10px;top:10px;z-index:3;width:34px;height:34px;padding:0;display:grid;place-items:center;border:1px solid #ffffff35;border-radius:10px;background:#101925c9;color:#dce7f5;font-size:18px;backdrop-filter:blur(8px);opacity:.92;transition:background .15s,border-color .15s,color .15s}.project-delete:hover{background:#6b2832;border-color:#e58a96;color:#fff}.delete-modal{border-color:#69434b}.delete-modal .danger{background:#a83e4d;border-color:#a83e4d;color:white;font-weight:750}.delete-modal .danger:hover{background:#c64d5d}
+.thumb:before{content:"";position:absolute;width:190%;height:1px;background:#5c7696;transform:rotate(-25deg);opacity:.35;box-shadow:0 30px #5c7696,0 60px #5c7696,0 -30px #5c7696,0 -60px #5c7696}
+.thumb:after{content:"";position:absolute;width:1px;height:190%;background:#5c7696;transform:rotate(25deg);opacity:.28;box-shadow:30px 0 #5c7696,60px 0 #5c7696,-30px 0 #5c7696,-60px 0 #5c7696}
+.thumb svg{position:relative;z-index:1;width:105px;height:85px;filter:drop-shadow(0 12px 16px #0008)}
+.cardinfo{padding:14px 15px;display:flex;align-items:center;gap:10px}.cardinfo strong{display:block;font-size:13px}.cardinfo small{color:var(--muted);font-size:11px}.cardarrow{margin-left:auto;color:var(--blue);font-size:19px}
+.newcard{min-height:210px;border:1px dashed #52647d;background:#141c27;display:grid;place-items:center;text-align:center;padding:22px;gap:9px}.plus{width:42px;height:42px;border:1px solid #57749a;border-radius:12px;display:grid;place-items:center;color:var(--blue);font-size:26px}.newcard strong{font-size:14px}.newcard small{color:var(--muted);max-width:190px}
+.empty{grid-column:1/-1;border:1px dashed var(--line);border-radius:14px;padding:30px;text-align:center;color:var(--muted)}
+.modalback{position:fixed;inset:0;background:#05080dcc;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.modalback.show{display:flex}.modal{width:min(420px,100%);background:#1a2330;border:1px solid #3a4a61;border-radius:17px;padding:23px;box-shadow:0 25px 90px #0009}.modal h2{margin:0 0 5px;font-size:22px}.modal p{margin:0 0 20px;color:var(--muted);font-size:13px}.field{display:grid;gap:7px;margin:15px 0}.field label{font-size:12px;color:#c4cfdf}.field input{width:100%;padding:12px;border-radius:9px;border:1px solid #3b4a60;background:#111923;color:var(--text)}.modalactions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
+#workspace{display:none;position:fixed;inset:0;overflow:hidden;background:#131a25;touch-action:none}#documentHeader{height:66px;position:absolute;inset:0 0 auto 0;z-index:6;background:#1953a3;color:white;display:flex;align-items:center;padding:0 14px;gap:13px;box-shadow:0 2px 8px #0003}#backProjects{position:static;flex:none;width:42px;height:42px;background:transparent;border:0;color:white;font-size:25px;padding:0}#backProjects:hover,#documentHeader button:hover{background:#ffffff20}.document-heading{min-width:0;display:flex;flex-direction:column;line-height:1.2}.document-heading div{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(56vw,440px)}.document-heading small{font-size:12px;color:#d6e4f8;margin-top:4px}.header-actions{margin-left:auto;display:flex;gap:8px}.header-actions button{border:0;background:transparent;color:white;width:38px;height:42px;padding:0;font-size:25px;border-radius:50%}#helpButton{font-weight:800;border:2px solid #ffffffb8;width:30px;height:30px;line-height:24px;font-size:19px}#moreMenu{display:none;position:absolute;right:12px;top:58px;min-width:185px;background:#1d2939;border:1px solid #455a75;border-radius:10px;padding:6px;box-shadow:0 12px 32px #0008}#moreMenu.show{display:grid}#moreMenu button{text-align:left;background:transparent;border:0;border-radius:6px;padding:11px}#editorToolbar{position:absolute;z-index:5;top:66px;left:0;right:0;height:52px;display:flex;align-items:center;gap:5px;padding:0 12px;background:#e9edf2;color:#253448;border-bottom:1px solid #b8c4d2;box-shadow:0 2px 6px #0002}#editorToolbar button{color:#27384c;background:transparent;border:0;border-radius:7px;min-width:39px;height:40px;padding:0 10px;font-size:23px}#editorToolbar button:disabled{opacity:.35;cursor:default}#editorToolbar button{font-size:20px}#editorToolbar button.tool-active{color:#1455a5;background:#d4e4f8}#drawToolsPanel{display:none;position:absolute;top:46px;left:88px;z-index:12;min-width:190px;padding:7px;background:#f7f9fc;border:1px solid #bdc9d7;border-radius:11px;box-shadow:0 12px 28px #14223835;grid-template-columns:1fr;gap:3px}#drawToolsPanel.open{display:grid}#drawToolsPanel button{display:flex;align-items:center;gap:12px;justify-content:flex-start;width:100%;height:42px;padding:0 12px;font-size:19px}#drawToolsPanel button small{font-size:12px;font-weight:600}#drawMenuButton{font-size:23px!important}#drawMenuButton.menu-open{background:#d4e4f8;color:#1455a5}#activeToolToggle{display:inline-grid;place-items:center;width:38px!important;min-width:38px!important;height:38px!important;padding:0!important;border:1px solid #8ca8c8!important;border-radius:10px!important;background:#dce9f8!important;color:#174f91!important;font-size:23px!important;font-weight:600!important;line-height:1;transition:opacity .16s,background .16s,color .16s}#activeToolToggle[aria-pressed="false"]{opacity:.38;background:transparent!important;color:#52657d!important;border-color:#9aa8b8!important}#activeToolToggle[hidden]{display:none!important}@media(max-width:640px){#drawToolsPanel{left:48px;top:43px}.save-state{display:none}}#editorToolbar button.tool-active{color:#1455a5;background:#d4e4f8}#editorToolbar .tool-separator{height:30px;width:1px;background:#c2ccd7;margin:0 5px}.save-state{font-size:11px;color:#647386;margin-left:auto;white-space:nowrap}#viewport{position:absolute;inset:118px 0 0;touch-action:none}#viewport canvas{display:block;width:100%;height:100%;outline:none}#helpPanel{display:none;position:absolute;z-index:8;right:14px;top:75px;width:min(290px,calc(100% - 28px));background:#1c2939;border:1px solid #526985;border-radius:12px;padding:15px;box-shadow:0 12px 32px #0008}#helpPanel.show{display:block}#helpPanel p{font-size:12px;color:#b6c4d7}#helpPanel button{padding:7px 12px} .emptythumb-grid{width:100%;height:100%;background-image:linear-gradient(#6684a733 1px,transparent 1px),linear-gradient(90deg,#6684a733 1px,transparent 1px);background-size:22px 22px;transform:perspective(130px) rotateX(52deg) scale(1.3);transform-origin:center 70%}.emptythumb-label{position:absolute;bottom:10px;left:12px;color:#a8bdd7;font-size:9px;letter-spacing:.14em}
+#backProjects{position:static;flex:none;display:grid;place-items:center;width:38px;height:38px;padding:0;border-radius:11px;background:#ffffff12;border:1px solid #ffffff35;color:#fff;font-size:0;box-shadow:0 2px 8px #001a3a22}#backProjects svg{width:20px;height:20px;display:block}#backProjects:hover{background:#ffffff25}
+.viewcube{position:absolute;right:16px;top:132px;width:106px;height:106px;perspective:450px;display:grid;place-items:center;z-index:4;pointer-events:none}.cube{width:62px;height:62px;position:relative;transform-style:preserve-3d;pointer-events:auto;transition:transform .2s}.face{position:absolute;width:62px;height:62px;padding:2px;display:grid;place-items:center;background:#314761;border:1px solid #a0c4ec;color:#e8f3ff;font-size:9px;font-weight:750;border-radius:2px;opacity:.97}.face:hover{background:#5279a4}.front{transform:translateZ(31px)}.back{transform:rotateY(180deg) translateZ(31px)}.right{transform:rotateY(90deg) translateZ(31px)}.left{transform:rotateY(-90deg) translateZ(31px)}.top{transform:rotateX(90deg) translateZ(31px)}.bottom{transform:rotateX(-90deg) translateZ(31px)}
+#sceneStatus{position:absolute;left:14px;bottom:13px;z-index:3;color:#8f9db0;background:#151e2bd9;border:1px solid #354258;border-radius:9px;padding:7px 10px;font-size:10px;pointer-events:none}#measureLabel{position:absolute;z-index:5;display:none;transform:translate(-50%,-120%);padding:6px 9px;border:1px solid #8ebaff;border-radius:7px;background:#14243aee;color:#f2f7ff;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none;box-shadow:0 3px 12px #0005;font-variant-numeric:tabular-nums}#measureLabel small{display:block;color:#b8cce5;font-size:10px;font-weight:500;margin-top:2px}
+#sceneError{display:none;position:absolute;inset:0;z-index:8;background:#111923f2;place-items:center;padding:25px;text-align:center;color:#dce7f5}#sceneError.show{display:grid}#sceneError div{max-width:360px}#sceneError strong{display:block;font-size:18px;margin-bottom:8px}#sceneError p{color:#9eacbf;font-size:13px}
+@media(max-width:640px){.topbar{height:56px;padding:0 15px}.page{padding-top:38px}.sectionhead{margin-top:34px}.projectgrid{grid-template-columns:1fr}.projectcard{min-height:190px}.thumb{height:116px}.viewcube{right:5px;top:126px;transform:scale(.78);transform-origin:top right}#documentHeader{height:62px;padding:0 9px;gap:8px}.document-heading div{font-size:16px;max-width:58vw}#editorToolbar{top:62px;height:48px;padding:0 7px;gap:2px}#editorToolbar button{min-width:35px;height:38px;font-size:21px}#viewport{inset:110px 0 0}#sceneStatus{left:9px;bottom:9px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<section id="projectScreen">
+<header class="topbar"><div class="brand">NOCTURNE <em>STUDIO</em> 3D</div><div class="spacer"></div><button class="primary" id="newProjectTop">＋ Nuevo proyecto</button></header>
+<div class="page">
+<div class="eyebrow">ESPACIO DE DISEÑO</div>
+<h1>¿Qué vamos a crear<br>hoy?</h1>
+<p class="intro">Tus proyectos, en un solo lugar. Crea un espacio nuevo o continúa donde lo dejaste.</p>
+<div class="sectionhead"><h2>Mis proyectos</h2><span id="projectCount">0 proyectos</span></div>
+<div class="projectgrid" id="projectGrid">
+<button class="projectcard newcard" id="newProjectCard"><span class="plus">＋</span><strong>Crear nuevo proyecto</strong><small>Comienza con un espacio 3D vacío y construye desde cero.</small></button>
+</div>
+</div>
+<div class="modalback" id="deleteProjectModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle"><div class="modal delete-modal" tabindex="-1"><h2 id="deleteModalTitle">¿Eliminar proyecto?</h2><p id="deleteProjectMessage">Esta acción eliminará el proyecto y todo su contenido guardado. No se puede deshacer.</p><div class="modalactions"><button type="button" id="cancelDelete">Cancelar</button><button type="button" class="danger" id="confirmDelete">Eliminar proyecto</button></div></div></div>
+</section>
+<div class="modalback" id="newProjectModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<form class="modal" id="projectForm">
+<h2 id="modalTitle">Nuevo proyecto</h2><p>Prepara tu espacio de trabajo 3D.</p>
+<div class="field"><label for="projectName">Nombre del proyecto</label><input id="projectName" maxlength="60" placeholder="Ej. Diseño de mobiliario" required></div>
+<div class="modalactions"><button type="button" id="cancelCreate">Cancelar</button><button class="primary" type="submit">Crear proyecto</button></div>
+</form>
+</div>
+<main id="workspace">
+<header id="documentHeader">
+<button id="backProjects" aria-label="Volver a proyectos" title="Volver a proyectos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3.5 10.5 8.5-7 8.5 7"/><path d="M5.5 9.5v10h13v-10M9.5 19.5v-6h5v6"/></svg></button>
+<div class="document-heading"><div id="documentTitle">Documento sin título</div><small>Main</small></div>
+<div class="header-actions"><button id="helpButton" title="Ayuda" aria-label="Ayuda">?</button><button id="moreButton" title="Más opciones" aria-label="Más opciones">⋮</button></div>
+<div id="moreMenu"><button id="saveProject">Guardar proyecto</button><button id="closeProject">Volver a proyectos</button></div>
+</header>
+<nav id="editorToolbar" aria-label="Herramientas del espacio">
+<button id="undoButton" title="Deshacer">↶</button><button id="redoButton" title="Rehacer">↷</button><span class="tool-separator"></span>
+<button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><button id="activeToolToggle" type="button" hidden aria-label="Desactivar herramienta activa"></button><div id="drawToolsPanel" role="group" aria-label="Herramientas de dibujo"><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea">／ <small>Línea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button></div><span class="tool-separator"></span>
+<button id="gridButton" class="tool-active" title="Mostrar u ocultar cuadrícula">▦</button><button id="axesButton" class="tool-active" title="Mostrar u ocultar ejes">⌖</button><button id="fitButton" title="Restablecer vista">⟳</button><span class="tool-separator"></span><span class="save-state" id="saveState">Seleccionar</span>
+</nav>
+<div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
+<div class="viewcube"><div class="cube" id="orientationCube">
+<button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
+</div></div>
+<div id="sceneStatus">ESPACIO VACÍO · <span id="activeProjectName">PROYECTO</span></div><div id="measureLabel"></div>
+<div id="helpPanel"><strong>Cómo dibujar</strong><p>Elige Línea, Rectángulo o Círculo y arrastra una sola vez desde el inicio hasta el final. Con Línea, cada arrastre añade un tramo; cambia a Seleccionar para terminar. Vista dibuja sobre la orientación actual de la cámara; Suelo, Frente y Lado fijan planos conocidos. En Seleccionar puedes girar la vista con un dedo.</p><button id="closeHelp">Entendido</button></div>
+<div id="sceneError"><div><strong>No se pudo iniciar el motor 3D</strong><p id="sceneErrorText">Comprueba tu conexión a Internet y vuelve a intentarlo.</p><button id="retry3D" class="primary">Reintentar</button></div></div>
+</main>
+<script>
+(function(){
+ const KEY='nocturne.projects.v1';
+ const screen=document.getElementById('projectScreen'),workspace=document.getElementById('workspace'),grid=document.getElementById('projectGrid'),modal=document.getElementById('newProjectModal'),input=document.getElementById('projectName');
+ let projects=[];
+ try{const stored=JSON.parse(localStorage.getItem(KEY)||'[]');projects=Array.isArray(stored)?stored.filter(p=>p&&typeof p.id==='string'&&typeof p.name==='string'):[];}catch(e){projects=[];}
+
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(projects));}catch(e){}}
+ function safeDate(v){try{return new Intl.DateTimeFormat('es',{day:'numeric',month:'short',year:'numeric'}).format(new Date(v));}catch(e){return 'Reciente';}}
+ function card(p){const b=document.createElement('article');b.className='projectcard';b.setAttribute('role','button');b.tabIndex=0;b.innerHTML='<div class="thumb"><div class="emptythumb-grid"></div><span class="emptythumb-label">ESPACIO 3D</span><button class="project-delete" type="button" aria-label="Eliminar proyecto" title="Eliminar proyecto">⋯</button></div><div class="cardinfo"><div><strong></strong><small></small></div><span class="cardarrow">›</span></div>';b.querySelector('strong').textContent=p.name;b.querySelector('small').textContent='Modificado · '+safeDate(p.updated);const remove=b.querySelector('.project-delete');remove.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openDelete(p.id);});b.addEventListener('click',()=>enter(p.id));b.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===b){e.preventDefault();enter(p.id);}});return b;}
+ function render(){grid.replaceChildren();projects.slice().sort((a,b)=>new Date(b.updated)-new Date(a.updated)).forEach(p=>grid.appendChild(card(p)));if(!projects.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='Todavía no tienes proyectos. Crea uno nuevo para comenzar a diseñar.';grid.appendChild(empty);}const n=document.createElement('button');n.className='projectcard newcard';n.type='button';n.innerHTML='<span class="plus">＋</span><strong>Crear nuevo proyecto</strong><small>Comienza con un espacio 3D vacío y construye desde cero.</small>';n.addEventListener('click',openModal);grid.appendChild(n);document.getElementById('projectCount').textContent=projects.length+' '+(projects.length===1?'proyecto':'proyectos');}
+ function openModal(){modal.classList.add('show');input.value='';setTimeout(()=>input.focus(),40);}
+ function closeModal(){modal.classList.remove('show');}
+ const deleteModal=document.getElementById('deleteProjectModal');let pendingDeleteId=null;
+ function openDelete(id){const p=projects.find(x=>x.id===id);if(!p)return;pendingDeleteId=id;document.getElementById('deleteProjectMessage').textContent='Se eliminará “'+p.name+'” junto con todo su contenido guardado. Esta acción no se puede deshacer.';deleteModal.classList.add('show');document.getElementById('cancelDelete').focus();}
+ function closeDelete(){deleteModal.classList.remove('show');pendingDeleteId=null;}
+ document.getElementById('cancelDelete').addEventListener('click',closeDelete);deleteModal.addEventListener('click',e=>{if(e.target===deleteModal)closeDelete();});
+ document.getElementById('confirmDelete').addEventListener('click',()=>{if(!pendingDeleteId)return;projects=projects.filter(p=>p.id!==pendingDeleteId);save();closeDelete();render();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&deleteModal.classList.contains('show'))closeDelete();});
+ function enter(id){const p=projects.find(x=>x.id===id);if(!p)return;currentId=id;p.updated=new Date().toISOString();save();render();document.getElementById('activeProjectName').textContent=p.name.toUpperCase();document.getElementById('documentTitle').textContent=p.name;screen.style.display='none';workspace.style.display='block';if(window.startViewport)window.startViewport().then(()=>{if(window.loadViewportProject)window.loadViewportProject(id);});else window.dispatchEvent(new Event('nocturne-start-3d'));}
+ let currentId=null;
+ window.nocturneProjectData={get:id=>{const p=projects.find(x=>x.id===id);return p&&p.scene?p.scene:null;},set:(id,data)=>{const p=projects.find(x=>x.id===id);if(p){p.scene=data;p.updated=new Date().toISOString();save();render();}}};
+ document.getElementById('newProjectTop').addEventListener('click',openModal);document.getElementById('newProjectCard').addEventListener('click',openModal);document.getElementById('cancelCreate').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+ document.getElementById('projectForm').addEventListener('submit',e=>{e.preventDefault();const name=input.value.trim();if(!name)return;const p={id:'p-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),name,updated:new Date().toISOString()};projects.push(p);save();closeModal();render();enter(p.id);});
+ document.getElementById('backProjects').addEventListener('click',()=>{if(window.saveViewportProject)window.saveViewportProject();workspace.style.display='none';screen.style.display='block';if(window.stopViewport)window.stopViewport();});
+ document.getElementById('closeProject').addEventListener('click',()=>document.getElementById('backProjects').click());
+ document.getElementById('moreButton').addEventListener('click',()=>document.getElementById('moreMenu').classList.toggle('show'));
+ document.getElementById('saveProject').addEventListener('click',()=>{if(window.saveViewportProject)window.saveViewportProject();save();document.getElementById('saveState').textContent='Guardado';document.getElementById('moreMenu').classList.remove('show');});
+ document.getElementById('helpButton').addEventListener('click',()=>document.getElementById('helpPanel').classList.toggle('show'));
+ document.getElementById('closeHelp').addEventListener('click',()=>document.getElementById('helpPanel').classList.remove('show'));
+ document.getElementById('retry3D').addEventListener('click',()=>{document.getElementById('sceneError').classList.remove('show');if(window.startViewport)window.startViewport().then(()=>{if(window.loadViewportProject)window.loadViewportProject(currentId);});});
+ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))closeModal();});
+ render();
+})();
+</script>
+<script type="module">
+let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
+const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
+let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
+let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
+let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
+const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
+const lineGuideOffsetPx=80;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
+async function startViewport(){
+ if(started){resize();animate();return;}
+ try{
+  THREE=await import('three');workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};
+  const mod=await import('three/addons/controls/OrbitControls.js');
+  const [line2mod,lineGeomMod,lineMatMod]=await Promise.all([import('three/addons/lines/Line2.js'),import('three/addons/lines/LineGeometry.js'),import('three/addons/lines/LineMaterial.js')]);
+  window.nocturneFatLine={Line2:line2mod.Line2,LineGeometry:lineGeomMod.LineGeometry,LineMaterial:lineMatMod.LineMaterial};
+  scene=new THREE.Scene();scene.background=new THREE.Color(0x131a25);
+  // Feedback de snap renderizado dentro de Three.js: no depende de capas DOM
+  // que puedan quedar detrás del canvas o desalinearse en pantallas táctiles.
+  const snapEdgeGeometry=new window.nocturneFatLine.LineGeometry();snapEdgeGeometry.setPositions([0,0,0,1,0,0]);
+  const snapEdgeMaterial=new window.nocturneFatLine.LineMaterial({color:0xe8b94b,linewidth:3.6,worldUnits:false,transparent:true,opacity:.9,depthTest:false,depthWrite:false});
+  snapEdgeMaterial.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
+  snapEdgeObject=new window.nocturneFatLine.Line2(snapEdgeGeometry,snapEdgeMaterial);snapEdgeObject.computeLineDistances();snapEdgeObject.visible=false;snapEdgeObject.renderOrder=10000;scene.add(snapEdgeObject);
+  const snapVertexGeometry=new window.nocturneFatLine.LineGeometry();snapVertexGeometry.setPositions([-0.5,-0.5,0,0.5,-0.5,0,0.5,0.5,0,-0.5,0.5,0,-0.5,-0.5,0]);
+  const snapVertexMaterial=new window.nocturneFatLine.LineMaterial({color:0xe8b94b,linewidth:2.3,worldUnits:false,transparent:true,opacity:.94,depthTest:false,depthWrite:false});
+  snapVertexMaterial.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
+  snapVertexObject=new window.nocturneFatLine.Line2(snapVertexGeometry,snapVertexMaterial);snapVertexObject.computeLineDistances();snapVertexObject.visible=false;snapVertexObject.renderOrder=10001;scene.add(snapVertexObject);
+  // Guías de inferencia con primitivas nativas de Three.js.
+  // No dependen del shader de Line2 ni de su resolución por viewport.
+  inferenceGuideObjects=[];
+  for(let i=0;i<2;i++){
+   const g=new THREE.BufferGeometry();
+   g.setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(1,0,0)]);
+   const m=new THREE.LineBasicMaterial({color:0xe8c45b,transparent:true,opacity:.78,depthTest:false,depthWrite:false});
+   const line=new THREE.Line(g,m);
+   line.visible=false;line.frustumCulled=false;line.renderOrder=10002;
+   scene.add(line);inferenceGuideObjects.push(line);
+  }
+  camera=new THREE.PerspectiveCamera(42,1,.1,2000);camera.position.set(105,82,105);
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
+  inferenceOverlay=document.createElementNS('http://www.w3.org/2000/svg','svg');inferenceOverlay.setAttribute('aria-hidden','true');inferenceOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:24';host.appendChild(inferenceOverlay);inferenceOverlayLines=[];for(let i=0;i<2;i++){const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke','#e8c45b');line.setAttribute('stroke-width','1.4');line.setAttribute('stroke-dasharray','6 5');line.setAttribute('stroke-linecap','round');line.setAttribute('visibility','hidden');inferenceOverlay.appendChild(line);inferenceOverlayLines.push(line);}
+  controls=new mod.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.075;controls.rotateSpeed=.72;controls.zoomSpeed=1;controls.panSpeed=.8;controls.minDistance=5;controls.maxDistance=650;controls.target.set(0,0,0);controls.update();
+  raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);snapMarkerEl=document.createElement('div');snapMarkerEl.style.cssText='position:absolute;display:none;width:13px;height:13px;border:2px solid #39e6b0;background:#39e6b066;box-shadow:0 0 0 2px #0c1725,0 0 12px #39e6b0,0 0 20px #39e6b0;transform:translate(-50%,-50%);pointer-events:none;z-index:1001;border-radius:2px';host.appendChild(snapMarkerEl);edgeHighlightEl=document.createElement('div');edgeHighlightEl.style.cssText='position:absolute;display:none;height:5px;border-radius:5px;background:#62b8ff;box-shadow:0 0 0 1px rgba(8,22,38,.95),0 0 9px #62b8ff,0 0 18px rgba(98,184,255,.9);transform-origin:0 50%;pointer-events:none;z-index:1000';host.appendChild(edgeHighlightEl);levelHintEl=document.createElement('div');levelHintEl.style.cssText='position:absolute;display:none;height:1.5px;min-width:2px;border-radius:2px;background:linear-gradient(90deg,rgba(91,205,170,.18),#69cfae);box-shadow:0 0 3px rgba(91,205,170,.28);transform-origin:0 50%;pointer-events:none;z-index:9';levelHintEl.innerHTML='<span style="position:absolute;right:-3px;top:-2px;width:5px;height:5px;border:1px solid #d4f4e8;background:#69cfae;border-radius:50%;box-shadow:0 0 3px rgba(105,207,174,.35)"></span>';host.appendChild(levelHintEl);angleHintEl=document.createElement('div');angleHintEl.style.cssText='position:absolute;display:none;transform:translate(-50%,-145%);padding:2px 6px;border:1px solid rgba(105,207,174,.72);border-radius:5px;background:rgba(16,34,34,.94);color:#c5e9dc;font-size:10px;font-weight:650;letter-spacing:.01em;white-space:nowrap;pointer-events:none;z-index:19;box-shadow:0 1px 4px #0006;font-variant-numeric:tabular-nums';host.appendChild(angleHintEl);cursorMarker=null;lineGuideEl=document.createElement('div');lineGuideEl.style.cssText='position:absolute;display:none;left:0;top:0;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none;z-index:18';lineGuideEl.innerHTML='<span style="position:absolute;left:8px;top:0;width:1px;height:18px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:0;top:8px;width:18px;height:1px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:6px;top:6px;width:6px;height:6px;border:1px solid #dceaff;background:#24558b;border-radius:1px;box-sizing:border-box"></span>';host.appendChild(lineGuideEl);
+  scene.add(new THREE.HemisphereLight(0xdceaff,0x202938,2));
+  const key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(90,140,100);scene.add(key);
+  const fill=new THREE.DirectionalLight(0x719bd0,.65);fill.position.set(-100,50,-80);scene.add(fill);
+  gridObject=new THREE.GridHelper(200,100,0x43546b,0x263346);gridObject.position.set(0,0,0);scene.add(gridObject);
+  axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
+  // Identificación discreta de los ejes positivos y del origen del sistema mundial.
+  axisLabelEls=[];
+  [['X','#ef6868',new THREE.Vector3(68,0,0)],['Y','#63d98a',new THREE.Vector3(0,68,0)],['Z','#65aaff',new THREE.Vector3(0,0,68)]].forEach(([label,color])=>{const el=document.createElement('div');el.textContent=label;el.style.cssText='position:absolute;display:none;transform:translate(-50%,-50%);font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.03em;color:'+color+';text-shadow:0 1px 3px #080d16,0 0 5px #080d16;pointer-events:none;z-index:4';host.appendChild(el);axisLabelEls.push({el});});
+  originMarkerEl=document.createElement('div');originMarkerEl.style.cssText='position:absolute;display:none;width:8px;height:8px;transform:translate(-50%,-50%);border:1px solid #dce7f4;border-radius:50%;background:#26384b;box-shadow:0 0 0 2px rgba(8,14,23,.7);pointer-events:none;z-index:4';host.appendChild(originMarkerEl);
+  axisLabelEls.forEach((item,i)=>{item.point=[new THREE.Vector3(68,0,0),new THREE.Vector3(0,68,0),new THREE.Vector3(0,0,68)][i];});
+  coordinatePanel=document.createElement('div');
+  coordinatePanel.style.cssText='position:absolute;left:14px;bottom:54px;z-index:6;display:flex;align-items:center;gap:6px;max-width:calc(100% - 28px);padding:7px 9px;border:1px solid #40516a;border-radius:9px;background:rgba(16,23,34,.92);color:#dce7f5;font:11px/1.2 Inter,system-ui,sans-serif;box-shadow:0 3px 12px #0005;pointer-events:auto';
+  const planeCaption=document.createElement('span');planeCaption.textContent='Plano';planeCaption.style.cssText='font-size:10px;color:#aebed2;padding:0 3px';coordinatePanel.appendChild(planeCaption);
+  [['VIEW','Vista','Plano según la orientación actual de la cámara'],['XZ','Suelo','Plano XZ · horizontal'],['XY','Frente','Plano XY · frontal'],['YZ','Lado','Plano YZ · lateral']].forEach(([name,label,title])=>{
+   const button=document.createElement('button');button.type='button';button.textContent=label;button.title=title;button.setAttribute('aria-label',title);
+   button.style.cssText='height:30px;min-width:50px;padding:0 8px;border:1px solid #455c78;border-radius:6px;background:#1b2a3d;color:#cfe0f5;font:700 11px Inter,system-ui,sans-serif';
+   button.addEventListener('click',()=>setWorkPlane(name,true));coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
+  });
+  host.appendChild(coordinatePanel);
+  defaultCameraPosition=camera.position.clone();
+  
+  controls.addEventListener('change',()=>{
+   updateCube();
+   // En modo Vista, el plano de dibujo y la cuadrícula siguen cada giro de cámara.
+   // No se llama a controls.update() desde aquí, así que no genera un bucle de eventos.
+   if(activePlane==='VIEW'&&activeTool==='select'&&!drawStart&&lineDragStart===null&&shapeTouchDragPointerId===null)setWorkPlane('VIEW',false);
+  });
+  // Los planos se seleccionan directamente desde el panel de coordenadas.
+  setWorkPlane('VIEW',false);
+  const canvas=renderer.domElement;
+  canvas.addEventListener('pointerdown',beginSketch);
+  canvas.addEventListener('pointerup',finishSketch);
+  canvas.addEventListener('pointermove',moveSketch);
+  canvas.addEventListener('pointercancel',cancelSketch);
+  setTool('select');
+  document.getElementById('undoButton').addEventListener('click',undoDrawing);
+  document.getElementById('redoButton').addEventListener('click',redoDrawing);
+  setLineAxisLock(null);
+  updateHistoryButtons();
+  const drawMenu=document.getElementById('drawToolsPanel'),drawMenuButton=document.getElementById('drawMenuButton');
+  drawMenuButton.addEventListener('click',()=>{const open=drawMenu.classList.toggle('open');drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));});
+   document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
+  document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
+  document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
+  document.getElementById('rectTool').addEventListener('click',()=>chooseTool('rect'));
+  document.getElementById('circleTool').addEventListener('click',()=>chooseTool('circle'));
+  function chooseTool(tool){setTool(tool);drawMenu.classList.remove('open');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');}
+  observer=new ResizeObserver(resize);observer.observe(host);resize();started=true;errorBox.classList.remove('show');
+  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+  document.getElementById('gridButton').addEventListener('click',()=>{gridObject.visible=!gridObject.visible;document.getElementById('gridButton').classList.toggle('tool-active',gridObject.visible);});
+  document.getElementById('axesButton').addEventListener('click',()=>{axesObject.visible=!axesObject.visible;document.getElementById('axesButton').classList.toggle('tool-active',axesObject.visible);});
+  document.getElementById('fitButton').addEventListener('click',()=>{if(activeTool!=='select')setTool('select');camera.position.copy(defaultCameraPosition);controls.target.set(0,0,0);controls.update();});
+  animate();
+ }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;cursorMarker=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
+}
+function setTool(tool){
+ if(activeTool==='line'&&tool!=='line')finishContinuousLine();
+ if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
+ if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
+ activeTool=tool;
+ if(cursorMarker)cursorMarker.visible=false;
+ if(tool!=='line')hideMeasure();
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo'},glyphs={line:'／',rect:'□',circle:'○'};
+ if(tool!=='select')lastDrawingTool=tool;
+ ['select','line','rect','circle'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
+ const activeToggle=document.getElementById('activeToolToggle');
+ activeToggle.hidden=!lastDrawingTool;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:'';
+ activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'';
+ activeToggle.setAttribute('aria-label',activeToggle.title||'Herramienta');
+ activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
+ const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar'};
+ document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
+ if(controls){
+  controls.enabled=true;
+  if(tool==='select'){
+   controls.enableDamping=true;controls.enableRotate=true;controls.enablePan=true;controls.enableZoom=true;
+  }else{
+   // Congela la cámara antes de fijar el plano: consume cualquier inercia pendiente
+   // y evita que el plano VIEW cambie entre el primer y el segundo gesto.
+   controls.enableDamping=false;controls.enableRotate=false;controls.enablePan=false;controls.enableZoom=false;
+   controls.update();
+   camera.updateMatrixWorld(true);
+   setWorkPlane(activePlane,activePlane!=='VIEW');
+  }
+  if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}
+ }
+ if(tool==='line'&&activeAxisLock)ensureLineAxisVisible();
+ if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
+}function setLineAxisLock(axis){
+ activeAxisLock=axis&&['X','Y','Z'].includes(axis)?axis:null;
+ axisLockButtons.forEach(item=>{
+  const active=item.axis===activeAxisLock;
+  item.button.setAttribute('aria-pressed',String(active));
+  item.button.style.background=active?item.color+'26':'#1b2a3d';
+  item.button.style.borderColor=active?item.color:item.color+'66';
+  item.button.style.boxShadow=active?'0 0 0 1px '+item.color+'55':'none';
+ });
+ if(activeAxisLock&&activeTool!=='line'&&coordinateReadout)coordinateReadout.textContent='Eje '+activeAxisLock+' bloqueado para Línea';
+ if(activeAxisLock&&activeTool==='line')ensureLineAxisVisible();
+}
+function ensureLineAxisVisible(){
+ if(!activeAxisLock||activeTool!=='line'||!camera||!controls||!workPlanes)return;
+ const axis=new THREE.Vector3(activeAxisLock==='X'?1:0,activeAxisLock==='Y'?1:0,activeAxisLock==='Z'?1:0);
+ const a=new THREE.Vector3(0,0,0).project(camera),b=axis.clone().multiplyScalar(10).project(camera);
+ const pixels=Math.hypot((b.x-a.x)*host.clientWidth*.5,(b.y-a.y)*host.clientHeight*.5);
+ if(pixels>=3)return;
+ const config=workPlanes[activePlane],target=controls.target.clone(),distance=Math.max(5,camera.position.distanceTo(target));
+ const direction=config.normal.clone().add(config.u).add(config.v).normalize();
+ camera.up.set(0,1,0);
+ camera.position.copy(target).addScaledVector(direction,distance);
+ controls.update();
+}
+function setWorkPlane(name,orientCamera=true){
+ let config=workPlanes[name];
+ if(name==='VIEW'&&camera){
+  // Usa los ejes reales de la matriz mundial de cámara, no su quaternion posiblemente desactualizado.
+  camera.updateMatrixWorld(true);
+  const u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize();
+  const v=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1).normalize();
+  const normal=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,2).normalize();
+  config=workPlanes.VIEW={normal,u,v};
+ }
+ if(!config||!groundPlane)return;
+ activePlane=name;
+ groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
+ if(gridObject){
+  if(name==='VIEW'){
+   // GridHelper está construido en XZ con su normal local en +Y.
+   // Lleva X a la derecha de pantalla, Y hacia la cámara y Z hacia abajo de pantalla.
+   const gridZ=config.u.clone().cross(config.normal).normalize();
+   gridObject.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(config.u,config.normal,gridZ));
+  }else{
+   gridObject.quaternion.identity();
+   if(name==='XY')gridObject.rotation.x=Math.PI/2;
+   else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;
+  }
+  gridObject.position.set(0,0,0);
+ }
+ if(cursorMarker)cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);
+ coordinatePlaneButtons.forEach(item=>{
+  const active=item.name===name;
+  item.button.setAttribute('aria-pressed',String(active));
+  item.button.style.background=active?'#31537a':'#1b2a3d';
+  item.button.style.borderColor=active?'#9bc5f4':'#455c78';
+  item.button.style.color=active?'#fff':'#cfe0f5';
+ });
+ if(orientCamera&&camera&&controls){
+  const target=controls.target.clone();
+  target.addScaledVector(config.normal,-target.dot(config.normal));
+  controls.target.copy(target);
+  const distance=Math.max(5,camera.position.distanceTo(controls.target));
+  camera.up.copy(config.v);
+  camera.position.copy(target).addScaledVector(config.normal,distance);
+  controls.update();
+  camera.updateMatrixWorld(true);
+ }
+ if(activeAxisLock&&activeTool==='line')ensureLineAxisVisible();
+}function planeCoords(point){const config=workPlanes[activePlane];return {u:point.dot(config.u),v:point.dot(config.v)};}
+function planePoint(u,v,offset=0){const config=workPlanes[activePlane];return config.u.clone().multiplyScalar(u).addScaledVector(config.v,v).addScaledVector(config.normal,offset);}
+function pointOnGroundAt(clientX,clientY){
+ const r=renderer.domElement.getBoundingClientRect();
+ ndc.set(((clientX-r.left)/r.width)*2-1,-((clientY-r.top)/r.height)*2+1);
+ raycaster.setFromCamera(ndc,camera);
+ const p=new THREE.Vector3();
+ return raycaster.ray.intersectPlane(groundPlane,p)?p:null;
+}
+function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
+function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
+function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
+function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
+function placeFeedback(el,event,color){
+ if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
+ if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
+}
+function lineGuideEvent(event){return event.pointerType==='touch'&&(activeTool==='line'||activeTool==='rect'||activeTool==='circle')?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
+function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
+function updateLineStartGuide(event){
+ const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
+ const p=resolveSnap(guide,raw);
+ // Mantiene la lectura XYZ sincronizada también durante el gesto táctil de inicio.
+ if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}
+ if(cursorMarker)cursorMarker.visible=false;
+ if(lineGuideEl){const r=host.getBoundingClientRect();lineGuideEl.style.left=(x-r.left)+'px';lineGuideEl.style.top=(y-r.top)+'px';lineGuideEl.style.display='block';}
+ return p;
+}
+function resolveSnap(event,raw){
+ if(!raw||activeTool==='select'||!renderer||!camera||!raycaster)return raw;
+ const rect=renderer.domElement.getBoundingClientRect();
+ ndc.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1);
+ camera.updateMatrixWorld(true);raycaster.setFromCamera(ndc,camera);
+ let nearestVertex=null,nearestVertexPx=28,nearestEdge=null,nearestEdgePx=32;
+ const ray=raycaster.ray,worldPerPixelAt=(depth)=>2*Math.max(.001,depth)*Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))/Math.max(1,rect.height);
+ const inspectPolyline=(world,closed=false)=>{
+  if(!world.length)return;
+  for(let i=0;i<world.length;i++){
+   const point=world[i],depth=point.clone().sub(ray.origin).dot(ray.direction);
+   if(depth<=0)continue;
+   const px=ray.distanceToPoint(point)/worldPerPixelAt(depth);
+   if(px<nearestVertexPx){nearestVertexPx=px;nearestVertex={point:point.clone(),depth};}
+  }
+  const count=world.length<2?0:(closed?world.length:world.length-1);
+  for(let i=0;i<count;i++){
+   const j=(i+1)%world.length,pointOnRay=new THREE.Vector3(),pointOnSegment=new THREE.Vector3();
+   const distSq=ray.distanceSqToSegment(world[i],world[j],pointOnRay,pointOnSegment);
+   const depth=pointOnSegment.clone().sub(ray.origin).dot(ray.direction);
+   if(depth<=0)continue;
+   const px=Math.sqrt(distSq)/worldPerPixelAt(depth);
+   if(px<nearestEdgePx){nearestEdgePx=px;nearestEdge={start:world[i].clone(),end:world[j].clone(),point:pointOnSegment,depth};}
+  }
+ };
+ // Compara el rayo real de la cámara con los segmentos y vértices guardados.
+ // No depende de estimar la posición de la línea mediante una proyección 2D.
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(!pts.length)continue;
+  obj.updateWorldMatrix(true,false);
+  inspectPolyline(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
+ }
+ if(Array.isArray(linePoints)&&linePoints.length)inspectPolyline(linePoints.map(p=>p.clone()),false);
+ // Inferencia 3D basada en referencias geométricas reales.
+ // Cada guía es una recta que pasa por la referencia (vértice, centro de arista
+ // o centro de figura) y conserva su altura/profundidad. El punto de snap es
+ // el punto de esa recta más próximo al rayo de la cámara.
+ const plane=workPlanes[activePlane],rectNow=renderer.domElement.getBoundingClientRect();
+ const pixelDistance=(a,b)=>{
+  const pa=a.clone().project(camera),pb=b.clone().project(camera);
+  if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
+  return Math.hypot((pa.x-pb.x)*rectNow.width/2,(pa.y-pb.y)*rectNow.height/2);
+ };
+ let horizontal=null,vertical=null;
+ const inferenceReferences=[],inferenceDirections=[];
+ const collectInferenceReferences=(world,closed=false)=>{
+  if(!world.length)return;
+  world.forEach(p=>inferenceReferences.push(p.clone()));
+  const count=world.length>1?(closed?world.length:world.length-1):0;
+  for(let i=0;i<count;i++){
+   const j=(i+1)%world.length,edge=world[j].clone().sub(world[i]),length=edge.length();
+   inferenceReferences.push(world[i].clone().add(world[j]).multiplyScalar(.5));
+   if(length>.001)inferenceDirections.push({
+    anchor:world[i].clone().add(world[j]).multiplyScalar(.5),
+    axis:edge.multiplyScalar(1/length)
+   });
+  }
+  if(closed&&world.length>=3){
+   const center=new THREE.Vector3();
+   world.forEach(p=>center.add(p));
+   inferenceReferences.push(center.multiplyScalar(1/world.length));
+  }
+ };
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(!pts.length)continue;
+  obj.updateWorldMatrix(true,false);
+  collectInferenceReferences(pts.map(p=>obj.localToWorld(p.clone())),!!obj.userData.closed);
+ }
+ if(Array.isArray(linePoints)&&linePoints.length)collectInferenceReferences(linePoints,false);
+ const closestPointOnRayToAxis=(anchor,axis)=>{
+  const d=ray.direction,w=ray.origin.clone().sub(anchor),b=d.dot(axis),d0=d.dot(w),e=axis.dot(w),denom=1-b*b;
+  // Si el eje proyecta prácticamente un punto (paralelo al rayo), no hay
+  // una dirección de alineación visible y se evita un snap ambiguo.
+  if(Math.abs(denom)<1e-7)return null;
+  const rayT=(b*e-d0)/denom,axisT=(e-b*d0)/denom;
+  if(rayT<=0)return null;
+  return anchor.clone().addScaledVector(axis,axisT);
+ };
+ // Bloqueo explícito de eje para la herramienta Línea. A diferencia del
+ // snap global al origen, esta restricción pasa por el último punto creado,
+ // por lo que permite continuar una línea en X, Y o Z desde cualquier altura.
+ if(activeTool==='line'&&activeAxisLock&&linePoints.length){
+  const anchor=linePoints[linePoints.length-1],axis=new THREE.Vector3(
+   activeAxisLock==='X'?1:0,activeAxisLock==='Y'?1:0,activeAxisLock==='Z'?1:0
+  );
+  const axisPoint=closestPointOnRayToAxis(anchor,axis);
+  const axisScreenLength=pixelDistance(anchor,anchor.clone().addScaledVector(axis,10));
+  if(axisScreenLength<2.5){
+   hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+   if(snapVertexObject)snapVertexObject.visible=false;if(snapEdgeObject)snapEdgeObject.visible=false;
+   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' perpendicular a la vista · gira la cámara';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+   snapKind='axis-lock-hidden';return anchor.clone();
+  }
+  if(!axisPoint){
+   hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' bloqueado · gira un poco la vista';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+   snapKind='axis-lock-unavailable';return anchor.clone();
+  }
+  setGuide(0,anchor,axis);
+  const axisGuide=inferenceOverlayLines[0],axisColor=activeAxisLock==='X'?'#ef7777':activeAxisLock==='Y'?'#73d99a':'#78adff';
+  if(axisGuide){axisGuide.setAttribute('stroke',axisColor);axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
+  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' bloqueado';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(snapVertexObject)snapVertexObject.visible=false;if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  snapKind='axis-lock';return axisPoint;
+ }
+
+ const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
+ const projectedLineDistance=(anchor,axis)=>{
+  const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
+  if(a.z < -1 || a.z > 1 || b.z < -1 || b.z > 1)return Infinity;
+  const ax=(a.x+1)*.5*rectNow.width,ay=(1-a.y)*.5*rectNow.height;
+  const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
+  const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
+  if(!Number.isFinite(lenSq)||lenSq<.0001)return Infinity;
+  const t=((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq;
+  const qx=ax+t*dx,qy=ay+t*dy;
+  return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
+ };
+
+ const setGuide=(index,anchor,axis)=>{
+  // La guía se dibuja en coordenadas de pantalla para que siempre ocupe
+  // el viewport, aunque la referencia esté a otra profundidad de cámara.
+  const line=inferenceOverlayLines[index],g=inferenceGuideObjects[index];
+  if(g)g.visible=false;
+  if(!line||!anchor||!axis)return;
+  // Cada inferencia restablece su estilo base; solo el snap al eje usa
+  // la línea amarilla intensa y continua.
+  line.setAttribute('stroke','#e8c45b');
+  line.setAttribute('stroke-width','1.4');
+  line.setAttribute('stroke-dasharray','6 5');
+  inferenceOverlay.setAttribute('viewBox','0 0 '+rectNow.width+' '+rectNow.height);
+  inferenceOverlay.setAttribute('width',String(rectNow.width));
+  inferenceOverlay.setAttribute('height',String(rectNow.height));
+  const origin=anchor.clone().project(camera);
+  // Proyectar un tramo mayor estabiliza la dirección en perspectiva.
+  const next=anchor.clone().addScaledVector(axis.clone().normalize(),10).project(camera);
+  if(origin.z < -1 || origin.z > 1 || !Number.isFinite(origin.x) || !Number.isFinite(origin.y) ||
+     !Number.isFinite(next.x) || !Number.isFinite(next.y)){
+   line.setAttribute('visibility','hidden');return;
+  }
+  const width=rectNow.width,height=rectNow.height;
+  const x=(origin.x+1)*width*.5,y=(1-origin.y)*height*.5;
+  const dx=(next.x-origin.x)*width*.5,dy=-(next.y-origin.y)*height*.5;
+  const len=Math.hypot(dx,dy);
+  if(!Number.isFinite(len)||len<.0001){line.setAttribute('visibility','hidden');return;}
+  const ux=dx/len,uy=dy/len,ts=[];
+  if(Math.abs(ux)>.000001){ts.push((0-x)/ux,(width-x)/ux);}
+  if(Math.abs(uy)>.000001){ts.push((0-y)/uy,(height-y)/uy);}
+  const hits=ts.filter(t=>Number.isFinite(t)&&x+t*ux>=-.5&&x+t*ux<=width+.5&&y+t*uy>=-.5&&y+t*uy<=height+.5).sort((a,b)=>a-b);
+  if(hits.length<2){line.setAttribute('visibility','hidden');return;}
+  line.setAttribute('x1',String(x+hits[0]*ux));
+  line.setAttribute('y1',String(y+hits[0]*uy));
+  line.setAttribute('x2',String(x+hits[hits.length-1]*ux));
+  line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
+  line.setAttribute('visibility','visible');
+ };
+ // Captura los tres ejes globales, incluso el que es perpendicular al
+ // plano activo. Así se puede dibujar sobre Y desde XZ sin cambiar de plano.
+ const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=[
+  {name:'X',axis:new THREE.Vector3(1,0,0)},
+  {name:'Y',axis:new THREE.Vector3(0,1,0)},
+  {name:'Z',axis:new THREE.Vector3(0,0,1)}
+ ];
+ let axisCandidate=null,axisCandidatePx=30;
+ worldAxes.forEach(item=>{
+  // Los ejes globales parten del origen y sirven como referencias absolutas.
+  const point=closestPointOnRayToAxis(worldOrigin,item.axis);
+  if(!point)return;
+  const px=projectedLineDistance(worldOrigin,item.axis);
+  if(px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
+   axisCandidatePx=px;axisCandidate={...item,anchor:worldOrigin,point,px};
+  }
+ });
+ // Durante una polilínea también inferimos el eje perpendicular al plano
+ // desde el último vértice. En una vista isométrica, Y puede ser una línea
+ // visible aunque en la vista normal al plano XZ se reduzca a un punto.
+ if(activeTool==='line'&&linePoints.length){
+  const anchor=linePoints[linePoints.length-1],normalAxis=plane.normal.clone().normalize();
+  const point=closestPointOnRayToAxis(anchor,normalAxis),px=projectedLineDistance(anchor,normalAxis);
+  if(point&&px<axisCandidatePx&&nearestVertexPx>=9){
+   const axisName=activePlane==='XZ'?'Y':activePlane==='XY'?'Z':activePlane==='YZ'?'X':'Vista';
+   axisCandidatePx=px;axisCandidate={name:axisName,axis:normalAxis,anchor:anchor.clone(),point,px};
+  }
+ }
+ if(axisCandidate){
+  hideInferenceOverlay();setGuide(0,axisCandidate.anchor||worldOrigin,axisCandidate.axis);
+  const axisGuide=inferenceOverlayLines[0];
+  if(axisGuide){axisGuide.setAttribute('stroke','#ffd34e');axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
+  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  if(angleHintEl){angleHintEl.textContent='Conexión al eje '+axisCandidate.name;angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(snapVertexObject)snapVertexObject.visible=false;
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  snapKind='axis';return axisCandidate.point;
+ }
+ const considerInference=(reference)=>{
+  const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
+  if(cameraZ>=-camera.near)return;
+  // La inferencia se decide en píxeles contra la recta proyectada de cada eje.
+  // Así la guía responde a la posición real de la cruz en pantalla, no a la
+  // distancia 3D entre el plano de dibujo y una referencia a otra profundidad.
+  const hPoint=closestPointOnRayToAxis(reference,plane.u);
+  const vPoint=closestPointOnRayToAxis(reference,plane.v);
+  if(hPoint){
+   const px=projectedLineDistance(reference,plane.u);
+   if(px<30&&(!horizontal||px<horizontal.px))horizontal={anchor:reference.clone(),point:hPoint,px};
+  }
+  if(vPoint){
+   const px=projectedLineDistance(reference,plane.v);
+   if(px<30&&(!vertical||px<vertical.px))vertical={anchor:reference.clone(),point:vPoint,px};
+  }
+ };
+ inferenceReferences.forEach(considerInference);
+ // Tercera dirección espacial: permite alinear el cursor con una referencia
+ // siguiendo la normal del plano activo, sin obligar a volver al plano base.
+ // Se conserva la prioridad de la captura exacta de vértices y solo se activa
+ // si esta dirección es la inferencia visual más cercana.
+ let depthInference=null;
+ if(activeTool==='line'){
+  inferenceReferences.forEach(reference=>{
+   const point=closestPointOnRayToAxis(reference,plane.normal);
+   if(!point)return;
+   const px=projectedLineDistance(reference,plane.normal);
+   if(px<30&&(!depthInference||px<depthInference.px)){
+    depthInference={anchor:reference.clone(),point,px};
+   }
+  });
+ }
+ // La captura exacta de vértice prevalece; en los demás casos, la inferencia
+ // devuelve el punto de ajuste sobre la recta 3D de la referencia.
+ if(nearestVertex&&nearestVertexPx<9){
+  // Al capturar exactamente un vértice, la referencia también debe generar
+  // sus dos ejes de inferencia; antes este caso ocultaba todas las guías.
+  hideInferenceOverlay();
+  setGuide(0,nearestVertex.point,plane.u);
+  setGuide(1,nearestVertex.point,plane.v);
+ }else if(depthInference&&(!horizontal&&!vertical||depthInference.px<Math.min(horizontal?horizontal.px:Infinity,vertical?vertical.px:Infinity))){
+  // La guía de profundidad ocupa el canal principal; no se muestran varias
+  // guías superpuestas que puedan confundir la dirección de captura.
+  hideInferenceOverlay();
+  setGuide(0,depthInference.anchor,plane.normal);
+  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(angleHintEl)angleHintEl.style.display='none';
+  snapKind='inference';return depthInference.point;
+ }else if(horizontal||vertical){
+  hideInferenceOverlay();const span=500;
+  if(horizontal){
+   setGuide(0,horizontal.anchor,plane.u);
+  }else if(inferenceGuideObjects[0])inferenceGuideObjects[0].visible=false;
+  if(vertical){
+   setGuide(1,vertical.anchor,plane.v);
+  }else if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  const chosen=!vertical||(horizontal&&horizontal.px<=vertical.px)?horizontal:vertical;
+  if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';
+  snapKind='inference';return chosen.point;
+ }else{
+  hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+ }
+ if(nearestVertex){
+  snapKind='vertex';
+  // Si el vértice queda dentro del radio de captura pero no del radio
+  // prioritario de 9 px, también debe mostrar sus guías amarillas.
+  // La prioridad de inferencia horizontal/vertical ya se resolvió arriba.
+  if(!inferenceGuideObjects.some(g=>g.visible)){
+   setGuide(0,nearestVertex.point,plane.u);
+   setGuide(1,nearestVertex.point,plane.v);
+  }
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapVertexObject){
+   const size=worldPerPixelAt(nearestVertex.depth)*14;
+   const c=nearestVertex.point,half=size*.5;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[c.clone().sub(right).sub(up),c.clone().add(right).sub(up),c.clone().add(right).add(up),c.clone().sub(right).add(up),c.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();
+   snapVertexObject.visible=true;
+  }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  return nearestVertex.point;
+ }
+ if(nearestEdge){
+  snapKind='edge';
+  if(snapVertexObject)snapVertexObject.visible=false;
+  if(snapEdgeObject){
+   snapEdgeObject.geometry.setPositions([nearestEdge.start.x,nearestEdge.start.y,nearestEdge.start.z,nearestEdge.end.x,nearestEdge.end.y,nearestEdge.end.z]);
+   snapEdgeObject.computeLineDistances();snapEdgeObject.visible=true;
+  }
+  if(inferenceGuideObjects.length>=1){
+   const direction=nearestEdge.end.clone().sub(nearestEdge.start).normalize(),span=160,c=nearestEdge.point;
+   const a=c.clone().addScaledVector(direction,-span),b=c.clone().addScaledVector(direction,span),g=inferenceGuideObjects[0];
+   g.geometry.setFromPoints([a,b]);g.geometry.computeBoundingSphere();g.visible=true;
+   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+  }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  return nearestEdge.point;
+ }
+
+ if(snapVertexObject)snapVertexObject.visible=false;
+ if(snapEdgeObject)snapEdgeObject.visible=false;
+ inferenceGuideObjects.forEach(g=>g.visible=false);
+
+ if(snapMarkerEl)snapMarkerEl.style.display='none';
+ if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+ // Guías ortogonales del plano activo, conservando la altura/profundidad
+ // del punto inicial. Es esencial si el primer punto se capturó en el eje
+ // perpendicular al plano (por ejemplo Y mientras se dibuja en XZ).
+ if(activeTool==='line'&&linePoints.length){
+  const lineStart=linePoints[linePoints.length-1],origin=planeCoords(lineStart),current=planeCoords(raw);
+  const normalOffset=lineStart.dot(plane.normal);
+  const candidates=[
+   {point:planePoint(current.u,origin.v,normalOffset),angle:current.u-origin.u>=0?0:180},
+   {point:planePoint(origin.u,current.v,normalOffset),angle:current.v-origin.v>=0?90:270}
+  ];
+  let best=null,bestPx=2.5;
+  for(const candidate of candidates){
+   const depth=candidate.point.clone().sub(ray.origin).dot(ray.direction);
+   if(depth<=0)continue;
+   const px=ray.distanceToPoint(candidate.point)/worldPerPixelAt(depth);
+   if(px<bestPx){bestPx=px;best=candidate;}
+  }
+  if(best){
+   const p0=lineStart,p1=best.point;
+   if(levelHintEl){
+    const r=host.getBoundingClientRect(),v0=p0.clone().project(camera),v1=p1.clone().project(camera);
+    const x0=r.left+(v0.x+1)*r.width/2,y0=r.top+(1-v0.y)*r.height/2,x1=r.left+(v1.x+1)*r.width/2,y1=r.top+(1-v1.y)*r.height/2;
+    const dx=x1-x0,dy=y1-y0,len=Math.hypot(dx,dy),mx=(x0+x1)/2,my=(y0+y1)/2;
+    levelHintEl.style.left=(x0-r.left)+'px';levelHintEl.style.top=(y0-r.top)+'px';
+    levelHintEl.style.width=Math.max(2,len)+'px';levelHintEl.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';
+    levelHintEl.style.display=len>2?'block':'none';
+    if(angleHintEl){angleHintEl.textContent=best.angle+'°';angleHintEl.style.left=(mx-r.left)+'px';angleHintEl.style.top=(my-r.top)+'px';angleHintEl.style.display='block';}
+   }
+   snapKind='level';return p1;
+  }
+ }
+ // Inferencias paralela y perpendicular respecto a aristas existentes.
+ // La perpendicular se calcula dentro del plano activo: así la relación es
+ // determinista y el punto resultante permanece en el plano de dibujo.
+ if(activeTool==='line'&&inferenceDirections.length){
+  let relation=null;
+  inferenceDirections.forEach(item=>{
+   const parallelPoint=closestPointOnRayToAxis(item.anchor,item.axis);
+   if(parallelPoint){
+    const px=projectedLineDistance(item.anchor,item.axis);
+    if(px<20&&(!relation||px<relation.px))relation={...item,point:parallelPoint,px,kind:'parallel'};
+   }
+   const projectedAxis=item.axis.clone().addScaledVector(plane.normal,-item.axis.dot(plane.normal));
+   if(projectedAxis.lengthSq()<1e-8)return;
+   projectedAxis.normalize();
+   const perpendicularAxis=plane.normal.clone().cross(projectedAxis).normalize();
+   const perpendicularPoint=closestPointOnRayToAxis(item.anchor,perpendicularAxis);
+   if(perpendicularPoint){
+    const px=projectedLineDistance(item.anchor,perpendicularAxis);
+    if(px<20&&(!relation||px<relation.px))relation={anchor:item.anchor,axis:perpendicularAxis,point:perpendicularPoint,px,kind:'perpendicular'};
+   }
+  });
+  if(relation){
+   hideInferenceOverlay();setGuide(0,relation.anchor,relation.axis);
+   if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
+   if(levelHintEl)levelHintEl.style.display='none';
+   if(angleHintEl){
+    angleHintEl.textContent=relation.kind==='parallel'?'Paralela':'Perpendicular';
+    angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';
+    angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';
+    angleHintEl.style.display='block';
+   }
+   snapKind=relation.kind;return relation.point;
+  }
+ }
+ if(levelHintEl)levelHintEl.style.display='none';
+ if(angleHintEl)angleHintEl.style.display='none';
+ snapKind=null;return raw;
+}
+function beginSketch(event){
+ if(activeTool==='select'){beginSketchNow(event);return;}
+ if(event.pointerType==='touch'){
+  activeTouchPointers.add(event.pointerId);
+  if(activeTouchPointers.size>=2){
+   pinchGesture=true;touchLineGuideActive=false;hideLineGuide();hideSnapFeedback();touchPendingEvent=null;
+   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+   if(lineGestureCreatedAnchor){linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
+   else if(lineObject&&linePoints.length>1)updateFatStroke(lineObject,linePoints);
+   lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;shapeTouchDragPointerId=null;
+   touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;drawStart=null;
+   if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+   return;
+  }
+  if(pinchGesture)return;
+  if(activeTool==='line'){
+   if(linePoints.length===0){
+    // Primer gesto: solo posiciona el punto inicial, sin crear geometría.
+    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
+    touchLineGuideActive=true;updateLineStartGuide(event);
+    event.preventDefault();return;
+   }
+   // Segundo gesto: arrastra desde el punto inicial para dibujar el tramo.
+   const p=linePoints[linePoints.length-1].clone();
+   lineGestureCreatedAnchor=false;
+   lineDragStart=p;lineDragPointerId=event.pointerId;lineDragMoved=false;
+   try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+   touchLineStart=p.clone();touchLineMoved=false;touchLinePointAdded=false;
+   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
+   touchLineGuideActive=true;updateLineStartGuide(event);
+   event.preventDefault();return;
+  }
+  if(activeTool==='rect'||activeTool==='circle'){
+   if(!drawStart){
+    // Primer gesto: muestra la guía y fija el inicio al soltar.
+    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
+    touchLineGuideActive=true;updateLineStartGuide(event);
+    event.preventDefault();return;
+   }
+   // Segundo gesto: arrastra para definir tamaño y forma.
+   shapeTouchDragPointerId=event.pointerId;
+   try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+   previewObject=makeShape(activeTool,drawStart,drawStart,true);
+   if(previewObject)scene.add(previewObject);
+   event.preventDefault();return;
+  }
+  touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
+  if(touchStartTimer)clearTimeout(touchStartTimer);
+  touchStartTimer=setTimeout(()=>{touchStartTimer=null;if(activeTouchPointers.size===1&&!pinchGesture&&touchPendingEvent){const pending=touchPendingEvent;touchPendingEvent=null;beginSketchNow(pending);}},180);
+  return;
+ }
+ beginSketchNow(event);
+}function beginSketchNow(event){
+ if(activeTool==='select'){
+  if(event.button!==0)return;
+  selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
+ }
+ if(event.pointerType!=='touch'&&event.button!==0)return;
+ const p=pointForSketch(event,true);if(!p)return;
+ event.preventDefault();
+ if(activeTool==='line'){
+  try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+  lineGestureCreatedAnchor=!linePoints.length;
+  lineDragStart=linePoints.length?linePoints[linePoints.length-1].clone():p.clone();
+  lineDragPointerId=event.pointerId;lineDragMoved=false;
+  if(lineGestureCreatedAnchor)linePoints=[lineDragStart.clone()];
+  if(!lineObject){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}
+  return;
+ }
+ try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+ drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
+}
+function moveSketch(event){
+ if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
+  const p=pointForSketch(event);if(!p)return;
+  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+  previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
+  const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
+  const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
+  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
+  else updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+  event.preventDefault();return;
+ }
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!drawStart){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;if(touchLineGuideActive)updateLineStartGuide(event);return;}
+ if(event.pointerType==='touch'&&shapeTouchDragPointerId!==null&&event.pointerId!==shapeTouchDragPointerId)return;
+ if(event.pointerType==='touch'&&activeTool==='line'){
+  if(touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;}
+  if(touchLineGuideActive){if(linePoints.length===0&&touchFirstAnchorStart&&Math.hypot(event.clientX-touchFirstAnchorStart.x,event.clientY-touchFirstAnchorStart.y)>8)touchFirstAnchorMoved=true;updateLineStartGuide(event);}
+ }
+ else if(event.pointerType==='touch'&&touchLineGuideActive){updateLineStartGuide(event);return;}
+ else if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
+ const p=pointForSketch(event);if(!p)return;
+ if(cursorMarker)cursorMarker.visible=false;
+ if(activeTool==='line'&&linePoints.length){
+  if(lineDragStart&&lineDragPointerId===event.pointerId&&p.distanceTo(lineDragStart)>.02)lineDragMoved=true;
+  updateContinuousLine(p);return;
+ }
+ if(!drawStart)return;
+ if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+ previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
+ const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
+ const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
+ if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
+ else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+}
+function cancelLineGesture(){
+ if(lineGestureCreatedAnchor){linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
+ else if(lineObject){if(linePoints.length>1)updateFatStroke(lineObject,linePoints);else{scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
+ lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;
+}
+function cancelSketch(event){
+ hideSnapFeedback();hideLineGuide();
+ if(event.pointerType==='touch'){
+  activeTouchPointers.delete(event.pointerId);shapeTouchDragPointerId=null;
+  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+  touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
+  if(activeTouchPointers.size===0){cancelLineGesture();pinchGesture=false;}
+ }else if(lineDragPointerId===event.pointerId){cancelLineGesture();}
+ if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}
+}
+function finalizeShapeAtPoint(p){
+ if(!drawStart)return false;
+ if(previewObject){scene.remove(previewObject);disposePreview(previewObject);}
+ const start=drawStart.clone(),end=p?p.clone():drawStart.clone();
+ const obj=makeShape(activeTool,start,end,false);
+ previewObject=null;drawStart=null;
+ if(!obj)return false;
+ scene.add(obj);drawnObjects.push(obj);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
+ const a=planeCoords(start),b=planeCoords(end),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
+ updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);
+ saveViewportProject();recordDrawingHistory();return true;
+}
+function finishSketch(event){
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
+  const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY),p=raw?resolveSnap(guide,raw):drawStart.clone();
+  const completed=finalizeShapeAtPoint(p);
+  shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+  hideSnapFeedback();hideLineGuide();
+  if(completed)return;
+ }
+ if(event.pointerType==='touch'){
+  if((activeTool==='rect'||activeTool==='circle')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;hideSnapFeedback();hideLineGuide();return;}
+  // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
+  if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
+   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+   const p=pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);
+   if(p){linePoints=[p.clone()];saveViewportProject();recordDrawingHistory();}
+   activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+   hideSnapFeedback();hideLineGuide();return;
+  }
+  if(shapeTouchDragPointerId!==null&&shapeTouchDragPointerId!==event.pointerId){activeTouchPointers.delete(event.pointerId);return;}
+  activeTouchPointers.delete(event.pointerId);
+  if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;hideLineGuide();}return;}
+  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
+  touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+ }
+ if(activeTool==='select'){
+  const down=selectionPointerDown;selectionPointerDown=null;
+  if(down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
+   const picked=findSelectableObject(event.clientX,event.clientY);
+   setSelectedObject(picked);
+  }
+  return;
+ }
+ hideSnapFeedback();hideLineGuide();
+ if(activeTool==='line'&&lineDragStart&&lineDragPointerId===event.pointerId){
+  const p=pointForSketch(event);
+  if(lineDragMoved&&p&&p.distanceTo(lineDragStart)>.02){
+   if(linePoints.length===0)linePoints=[lineDragStart.clone()];
+   if(p.distanceTo(linePoints[linePoints.length-1])>.02)linePoints.push(p.clone());
+   if(lineObject)updateFatStroke(lineObject,linePoints);
+   saveViewportProject();recordDrawingHistory();
+  }else if(lineGestureCreatedAnchor){
+   linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}
+  }else if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);}
+  lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;
+  hideSnapFeedback();hideLineGuide();return;
+ }
+ if(event.pointerType==='touch'&&activeTouchPointers.size>0)return;
+ if(event.pointerType==='touch'&&shapeTouchDragPointerId!==event.pointerId)return;
+ if(shapeTouchDragPointerId===event.pointerId)shapeTouchDragPointerId=null;
+ if(activeTool==='line'||!drawStart)return;
+ const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY),p=raw?resolveSnap(guide,raw):drawStart;
+ finalizeShapeAtPoint(p);
+}
+function findSelectableObject(clientX,clientY){
+ if(!camera||!drawnObjects.length)return null;
+ camera.updateMatrixWorld(true);
+ const rect=renderer.domElement.getBoundingClientRect();
+ let best=null,bestPixels=14,bestDepth=Infinity;
+ const px=(clientX-rect.left),py=(clientY-rect.top);
+ const projected=new THREE.Vector3();
+ const segmentDistance=(p,a,b)=>{
+  const dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy;
+  const t=len?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/len,0,1):0;
+  return {distance:Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy)),depth:a.z+(b.z-a.z)*t};
+ };
+ for(const obj of drawnObjects){
+  const pts=obj&&obj.userData&&Array.isArray(obj.userData.controlPoints)?obj.userData.controlPoints:[];
+  if(pts.length<2)continue;
+  obj.updateWorldMatrix(true,false);
+  const screen=pts.map(point=>{
+   projected.copy(point);obj.localToWorld(projected);projected.project(camera);
+   return {x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};
+  });
+  const count=obj.userData.closed?screen.length:screen.length-1;
+  for(let i=0;i<count;i++){
+   const a=screen[i],b=screen[(i+1)%screen.length];
+   if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;
+   const hit=segmentDistance({x:px,y:py},a,b);
+   if(hit.depth< -1||hit.depth>1)continue;
+   if(hit.distance<bestPixels||(Math.abs(hit.distance-bestPixels)<.25&&hit.depth<bestDepth)){
+    best=obj;bestPixels=hit.distance;bestDepth=hit.depth;
+   }
+  }
+ }
+ return best;
+}
+function setSelectedObject(obj){
+ if(selectedObject===obj)return;
+ if(selectedObject&&selectedObject.material&&selectedObject.userData.selectionOriginalColor!==undefined){
+  selectedObject.material.color.setHex(selectedObject.userData.selectionOriginalColor);
+  selectedObject.material.needsUpdate=true;
+ }
+ selectedObject=obj||null;
+ if(selectedObject&&selectedObject.material&&selectedObject.material.color){
+  if(selectedObject.userData.selectionOriginalColor===undefined)selectedObject.userData.selectionOriginalColor=selectedObject.material.color.getHex();
+  selectedObject.material.color.setHex(0x39bfff);
+  selectedObject.material.needsUpdate=true;
+ }
+}
+function disposePreview(obj){if(!obj)return;if(obj.geometry)obj.geometry.dispose();if(obj.material){if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material.dispose();}}
+function fmt(n){return (Math.round(n*10)/10).toFixed(1);}
+function updateMeasureAt(value,hint,point){measureValue=value;measureHint=hint||'';measureAnchor=point?point.clone():null;positionMeasure();}
+function positionMeasure(){const el=document.getElementById('measureLabel');if(!el||!measureAnchor||!camera)return;const q=measureAnchor.clone().project(camera);if(q.z>1||q.z< -1){el.style.display='none';return;}el.replaceChildren();const main=document.createElement('span');main.textContent=measureValue;el.appendChild(main);if(measureHint){const sub=document.createElement('small');sub.textContent=measureHint;el.appendChild(sub);}el.style.left=(host.offsetLeft+(q.x+1)*.5*host.clientWidth)+'px';el.style.top=(host.offsetTop+(1-q.y)*.5*host.clientHeight)+'px';el.style.display='block';}
+function hideMeasure(){measureAnchor=null;const el=document.getElementById('measureLabel');if(el)el.style.display='none';}
+function shapeMeasure(type,p){if(type==='rect')return fmt(Math.abs(p.x-drawStart.x))+' × '+fmt(Math.abs(p.z-drawStart.z))+' cm';if(type==='circle')return 'Ø '+fmt(Math.hypot(p.x-drawStart.x,p.z-drawStart.z)*2)+' cm';return '—';}
+function updateContinuousLine(cursor,fromPoint){
+ if(!linePoints.length)return;
+ const pts=linePoints.map(p=>p.clone());
+ if(cursor&&(!pts.length||pts[pts.length-1].distanceTo(cursor)>.001))pts.push(cursor.clone());
+ if(pts.length<2)return;
+ if(!lineObject){lineObject=makeFatStroke(pts,0xe5efff,1,false);if(lineObject)scene.add(lineObject);}else updateFatStroke(lineObject,pts);
+ const start=linePoints[linePoints.length-1],delta=(cursor||pts[pts.length-1]).clone().sub(start),plane=workPlanes[activePlane];
+ const du=delta.dot(plane.u),dv=delta.dot(plane.v),normal=delta.dot(plane.normal);
+ const planarDistance=Math.hypot(du,dv),distance=delta.length();
+ const angle=(Math.atan2(dv,du)*180/Math.PI+360)%360;
+ const elevation=Math.atan2(normal,planarDistance)*180/Math.PI;
+ const mid=start.clone().addScaledVector(delta,.5).addScaledVector(plane.normal,.08);
+ if(Math.abs(normal)<.001){
+  updateMeasureAt('Ángulo: '+fmt(angle)+'°','Longitud: '+fmt(distance)+' cm',mid);
+ }else if(planarDistance<.001){
+  updateMeasureAt('Longitud: '+fmt(distance)+' cm','Dirección perpendicular · Elevación: '+(normal<0?'−':'+')+'90°',mid);
+ }else{
+  updateMeasureAt('Longitud: '+fmt(distance)+' cm','Ángulo: '+fmt(angle)+'° · Elevación: '+fmt(elevation)+'°',mid);
+ }
+}
+function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);drawnObjects.push(lineObject);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
+function makeShape(type,a,b,preview){
+ const points=[];
+ if(type==='line'){points.push(a.clone(),b.clone());}
+ else if(type==='rect'){
+  const ca=planeCoords(a),cb=planeCoords(b);
+  if(Math.abs(cb.u-ca.u)<.03||Math.abs(cb.v-ca.v)<.03)return null;
+  points.push(planePoint(ca.u,ca.v,.03),planePoint(cb.u,ca.v,.03),planePoint(cb.u,cb.v,.03),planePoint(ca.u,cb.v,.03));
+ }else if(type==='circle'){
+  const ca=planeCoords(a),cb=planeCoords(b),radius=Math.hypot(cb.u-ca.u,cb.v-ca.v);
+  if(radius<.03)return null;
+  for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius,.03));}
+ }
+ return makeFatStroke(points,preview?0x8ebaff:0xe5efff,preview?.65:1,type!=='line');
+}function makeFatStroke(points,color=0xe5efff,opacity=1,closed=false){
+ const api=window.nocturneFatLine;if(!api||!points||points.length<2)return null;
+ const coords=[];points.forEach(p=>coords.push(p.x,p.y,p.z));
+ if(closed&&points.length>2)coords.push(points[0].x,points[0].y,points[0].z);
+ const geometry=new api.LineGeometry();geometry.setPositions(coords);
+ const material=new api.LineMaterial({color,linewidth:3.2,worldUnits:false,transparent:opacity<1,opacity,depthTest:true});
+ material.resolution.set(Math.max(1,host.clientWidth),Math.max(1,host.clientHeight));
+ const obj=new api.Line2(geometry,material);obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());obj.userData.closed=closed;return obj;
+}
+function updateFatStroke(obj,points){
+ if(!obj||!window.nocturneFatLine)return;
+ const coords=[];points.forEach(p=>coords.push(p.x,p.y,p.z));
+ if(obj.userData.closed&&points.length>2)coords.push(points[0].x,points[0].y,points[0].z);
+ obj.geometry.dispose();obj.geometry=new window.nocturneFatLine.LineGeometry();obj.geometry.setPositions(coords);
+ obj.computeLineDistances();obj.userData.controlPoints=points.map(p=>p.clone());
+}
+function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject,...inferenceGuideObjects].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
+function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
+function setView(name){
+ if(activeTool!=='select')setTool('select');
+ const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;
+ camera.up=(name==='top'||name==='bottom')?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);
+ const target=controls.target.clone();camera.position.copy(target).add(new THREE.Vector3(...p));controls.update();
+}function updateAxisIndicators(){if(!camera||!host)return;const r=host.getBoundingClientRect();const place=(el,point)=>{const p=point.clone().project(camera);const visible=p.z>-1&&p.z<1&&p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1;el.style.display=visible?'block':'none';if(visible){el.style.left=((p.x+1)*r.width/2)+'px';el.style.top=((1-p.y)*r.height/2)+'px';}};axisLabelEls.forEach(item=>place(item.el,item.point));if(originMarkerEl)place(originMarkerEl,new THREE.Vector3(0,0,0));}
+function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);updateAxisIndicators();positionMeasure();}};tick();}
+function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
+function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.userData&&o.userData.selectionOriginalColor!==undefined?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
+function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.userData&&o.userData.selectionOriginalColor!==undefined?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
+function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
+function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
+function commitDrawingHistory(){if(!activeProjectId)return;if(historyProjectId!==activeProjectId){resetDrawingHistory();return;}const state=captureDrawingState(),serialized=JSON.stringify(state);if(drawingHistoryIndex>0&&JSON.stringify(drawingHistory[drawingHistoryIndex-1])===serialized){drawingHistory.splice(drawingHistoryIndex,1);drawingHistoryIndex--;}else if(drawingHistoryIndex>=0){drawingHistory[drawingHistoryIndex]=state;}else{recordDrawingHistory();return;}updateHistoryButtons();}
+function recordDrawingHistory(){if(restoringHistory||!activeProjectId)return;if(historyProjectId!==activeProjectId){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;}const state=captureDrawingState(),serialized=JSON.stringify(state);if(drawingHistoryIndex>=0&&JSON.stringify(drawingHistory[drawingHistoryIndex])===serialized){updateHistoryButtons();return;}drawingHistory=drawingHistory.slice(0,drawingHistoryIndex+1);drawingHistory.push(state);drawingHistoryIndex=drawingHistory.length-1;updateHistoryButtons();}
+function applyDrawingHistory(index){if(index<0||index>=drawingHistory.length||!activeProjectId)return;restoringHistory=true;drawingHistoryIndex=index;window.nocturneProjectData.set(activeProjectId,JSON.parse(JSON.stringify(drawingHistory[index])));loadViewportProject(activeProjectId,false);restoringHistory=false;updateHistoryButtons();}
+function undoDrawing(){if(drawingHistoryIndex>0)applyDrawingHistory(drawingHistoryIndex-1);}
+function redoDrawing(){if(drawingHistoryIndex<drawingHistory.length-1)applyDrawingHistory(drawingHistoryIndex+1);}
+window.saveViewportProject=saveViewportProject;window.loadViewportProject=loadViewportProject;window.startViewport=startViewport;window.stopViewport=stopViewport;window.addEventListener('nocturne-start-3d',startViewport);
+</script>
+</body>
+</html>
