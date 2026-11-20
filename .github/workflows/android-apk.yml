@@ -53,6 +53,10 @@ jobs:
           fi
           test -s android/app/debug.keystore
 
+      - name: Vendor pinned Three.js modules for offline runtime
+        working-directory: android
+        run: bash scripts/vendor-three.sh
+
       - name: Build installable APK
         working-directory: android
         run: gradle assembleDebug --no-daemon
