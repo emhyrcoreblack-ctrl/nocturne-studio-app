@@ -169,7 +169,7 @@ async function startViewport(){
   [['VIEW','Vista','Plano según la orientación actual de la cámara'],['XZ','Suelo','Plano XZ · horizontal'],['XY','Frente','Plano XY · frontal'],['YZ','Lado','Plano YZ · lateral']].forEach(([name,label,title])=>{
    const button=document.createElement('button');button.type='button';button.textContent=label;button.title=title;button.setAttribute('aria-label',title);
    button.style.cssText='height:30px;min-width:50px;padding:0 8px;border:1px solid #455c78;border-radius:6px;background:#1b2a3d;color:#cfe0f5;font:700 11px Inter,system-ui,sans-serif';
-   button.addEventListener('click',()=>setWorkPlane(name,true,true));coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
+   button.addEventListener('click',()=>setWorkPlane(name,name!=='VIEW',name==='VIEW'));coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
   });
   host.appendChild(coordinatePanel);
   defaultCameraPosition=camera.position.clone();
@@ -267,12 +267,18 @@ function ensureLineAxisVisible(){
 function setWorkPlane(name,orientCamera=true,recaptureView=false){
  let config=workPlanes[name];
  if(name==='VIEW'&&camera&&(!config||recaptureView)) {
-  // Usa los ejes reales de la matriz mundial de cámara, no su quaternion posiblemente desactualizado.
+  // "Vista" selecciona el plano principal más frontal a la cámara, nunca un
+  // plano oblicuo arbitrario. La geometría queda contenida en XY, XZ o YZ.
   camera.updateMatrixWorld(true);
-  const u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize();
-  const v=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1).normalize();
-  const normal=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,2).normalize();
-  config=workPlanes.VIEW={normal,u,v};
+  const viewDirection=camera.position.clone().sub(controls?controls.target:new THREE.Vector3()).normalize();
+  const candidates=['XZ','XY','YZ'];
+  let best='XZ',bestAlignment=-1;
+  candidates.forEach(key=>{
+   const alignment=Math.abs(viewDirection.dot(workPlanes[key].normal));
+   if(alignment>bestAlignment+1e-8){best=key;bestAlignment=alignment;}
+  });
+  const source=workPlanes[best];
+  config=workPlanes.VIEW={normal:source.normal.clone(),u:source.u.clone(),v:source.v.clone(),sourcePlane:best};
  }
  if(!config||!groundPlane)return;
  activePlane=name;
