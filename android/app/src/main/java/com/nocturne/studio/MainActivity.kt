@@ -61,8 +61,7 @@ class MainActivity : Activity() {
                     request: WebResourceRequest
                 ): Boolean {
                     val host = request.url.host ?: return true
-                    return host != "appassets.androidplatform.net" &&
-                        host != "cdn.jsdelivr.net"
+                    return host != "appassets.androidplatform.net"
                 }
             }
         }
