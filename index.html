@@ -121,7 +121,7 @@ const lineGuideOffsetPx=80;let drawingHistory=[],drawingHistoryIndex=-1,historyP
 async function startViewport(){
  if(started){resize();animate();return;}
  try{
-  THREE=await import('three');workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};
+  THREE=await import('three');workPlanes={XZ:{normal:new THREE.Vector3(0,-1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};
   const mod=await import('three/addons/controls/OrbitControls.js');
   const [line2mod,lineGeomMod,lineMatMod]=await Promise.all([import('three/addons/lines/Line2.js'),import('three/addons/lines/LineGeometry.js'),import('three/addons/lines/LineMaterial.js')]);
   window.nocturneFatLine={Line2:line2mod.Line2,LineGeometry:lineGeomMod.LineGeometry,LineMaterial:lineMatMod.LineMaterial};
