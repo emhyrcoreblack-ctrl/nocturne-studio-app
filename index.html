@@ -117,7 +117,7 @@ let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=nu
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
 let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
-const lineGuideOffsetPx=80;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
+// Las coordenadas táctiles se usan tal como las entrega el navegador: el punto debe quedar donde se levanta el dedo.let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
  try{
@@ -327,7 +327,7 @@ function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
 }
-function lineGuideEvent(event){return event.pointerType==='touch'&&(activeTool==='line'||activeTool==='rect'||activeTool==='circle')?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
+function lineGuideEvent(event){return event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
