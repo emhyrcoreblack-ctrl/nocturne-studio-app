@@ -517,9 +517,11 @@ function resolveSnap(event,raw){
  for(const candidate of globalAxisCandidates){
   const axisPoint=closestPointOnRayToAxis(new THREE.Vector3(),candidate.axis);
   if(!axisPoint)continue;
-  const screenLength=projectedLineDistance(new THREE.Vector3(),candidate.axis);
+  const originNdc=new THREE.Vector3(0,0,0).project(camera);
+  const axisNdc=candidate.axis.clone().multiplyScalar(10).project(camera);
+  const screenLength=Math.hypot((axisNdc.x-originNdc.x)*rectNow.width*.5,(axisNdc.y-originNdc.y)*rectNow.height*.5);
   const px=projectedLineDistance(new THREE.Vector3(),candidate.axis);
-  if(!Number.isFinite(px)||screenLength<2.5||px>13)continue;
+  if(!Number.isFinite(px)||!Number.isFinite(screenLength)||screenLength<2.5||px>13)continue;
   if(!nearestGlobalAxis||px<nearestGlobalAxis.px){
    nearestGlobalAxis={...candidate,point:axisPoint,px};
   }
