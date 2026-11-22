@@ -397,15 +397,16 @@ function resolveSnap(event,raw){
  let horizontal=null,vertical=null;
  const inferenceReferences=[],inferenceDirections=[];
  const collectInferenceReferences=(world,closed=false)=>{
-  if(!world.length)return;
+  if(!world.length||world.some(p=>Math.abs(p.clone().sub(planeOrigin).dot(plane.normal))>.051))return;
   world.forEach(p=>inferenceReferences.push(p.clone()));
   const count=world.length>1?(closed?world.length:world.length-1):0;
   for(let i=0;i<count;i++){
    const j=(i+1)%world.length,edge=world[j].clone().sub(world[i]),length=edge.length();
    inferenceReferences.push(world[i].clone().add(world[j]).multiplyScalar(.5));
-   if(length>.001)inferenceDirections.push({
+   const planarEdge=edge.clone().addScaledVector(plane.normal,-edge.dot(plane.normal));
+   if(length>.001&&planarEdge.lengthSq()>1e-8)inferenceDirections.push({
     anchor:world[i].clone().add(world[j]).multiplyScalar(.5),
-    axis:edge.multiplyScalar(1/length)
+    axis:planarEdge.normalize()
    });
   }
   if(closed&&world.length>=3){
