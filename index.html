@@ -515,6 +515,9 @@ function resolveSnap(event,raw){
  ];
  let nearestGlobalAxis=null;
  for(const candidate of globalAxisCandidates){
+  // Solo capturar ejes contenidos en el plano activo. El eje perpendicular
+  // cruza el plano únicamente en el origen y no debe atraer puntos fuera del plano.
+  if(Math.abs(candidate.axis.dot(plane.normal))>1e-6)continue;
   const axisPoint=closestPointOnRayToAxis(new THREE.Vector3(),candidate.axis);
   if(!axisPoint)continue;
   const originNdc=new THREE.Vector3(0,0,0).project(camera);
@@ -526,7 +529,9 @@ function resolveSnap(event,raw){
    nearestGlobalAxis={...candidate,point:axisPoint,px};
   }
  }
- if(nearestGlobalAxis){
+ // Una referencia geométrica real siempre tiene prioridad sobre un eje global.
+ // Evita que una línea o figura cercana sea sustituida por un punto del eje.
+ if(nearestGlobalAxis&&!nearestVertex&&!nearestEdge){
   hideInferenceOverlay();
   setGuide(0,new THREE.Vector3(),nearestGlobalAxis.axis);
   if(inferenceOverlayLines[0]){
