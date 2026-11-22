@@ -170,6 +170,23 @@
 #workspaceTabs .workspace-tab{min-width:42px;padding:0 12px;font-size:18px}
 #workspaceBottom{height:34px!important}
 @media(max-width:640px){#editorToolbar{top:56px;height:46px;padding:0 6px;gap:2px}#editorToolbar button{flex-basis:34px;width:34px;min-width:34px;height:34px}#editorToolbar #sketchConstraintCard .sketch-constraint-grid button{flex-basis:30px;width:30px;min-width:30px;height:30px;min-height:30px}#viewport{inset:102px 0 34px!important}}
+
+/* Paleta de croquis: ventana de herramientas con iconos, agrupada y táctil */
+#drawToolsPanel{display:none;position:absolute;z-index:30;top:112px;left:50%;transform:translateX(-50%);width:min(430px,calc(100vw - 20px));max-height:min(76vh,680px);overflow:auto;padding:12px;background:#111d2b;border:1px solid #40536b;border-radius:14px;box-shadow:0 18px 48px #000a;grid-template-columns:1fr;gap:12px;color:#e7eef8}
+#drawToolsPanel.open{display:grid}
+#drawToolsPanel .palette-head{display:flex;align-items:center;justify-content:space-between;padding:0 2px 7px;border-bottom:1px solid #30435a;font-size:11px;letter-spacing:.14em;color:#a9bdd5}
+#drawToolsPanel .palette-head button{width:34px;height:32px;padding:0;border:0;background:#23364b;color:#e8f1fb;font-size:23px;border-radius:8px}
+#drawToolsPanel .palette-group{display:grid;gap:8px}
+#drawToolsPanel .palette-group>span{font-size:10px;font-weight:800;letter-spacing:.12em;color:#8fa5bf}
+#drawToolsPanel .palette-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+#drawToolsPanel .palette-grid button{height:54px;min-width:0;padding:0;border:1px solid #344a63;border-radius:9px;background:#1a2a3d;color:#e4edf8;font-size:25px;display:grid;place-items:center;touch-action:manipulation}
+#drawToolsPanel .palette-grid button:active{background:#294766}
+#drawToolsPanel .palette-grid button:disabled{opacity:.28;cursor:default}
+#drawToolsPanel .palette-grid button[aria-pressed="true"]{background:#234b73;border-color:#75aee8;color:#fff}
+#drawMenuButton.menu-open{background:#234b73!important;color:#fff!important}
+/* Las herramientas del croquis viven dentro de la paleta, no duplicadas en la barra */
+#editorToolbar #selectTool,#editorToolbar #lineTool,#editorToolbar #rectTool,#editorToolbar #circleTool,#editorToolbar #sketchConstraintCard{display:none!important}
+@media(max-width:640px){#drawToolsPanel{top:106px;width:calc(100vw - 16px);max-height:calc(100dvh - 122px);padding:10px}#drawToolsPanel .palette-grid button{height:50px}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -211,7 +228,43 @@
 <button title="Extruir · próximamente" aria-label="Extruir" disabled>▱</button><button title="Revolución · próximamente" aria-label="Revolución" disabled>◉</button><button title="Barrido · próximamente" aria-label="Barrido" disabled>〰</button><button title="Loft · próximamente" aria-label="Loft" disabled>◇</button><button title="Redondeo · próximamente" aria-label="Redondeo" disabled>⌒</button><button title="Chaflán · próximamente" aria-label="Chaflán" disabled>／</button><span class="tool-separator"></span>
 <button id="fitButton" title="Restablecer vista" aria-label="Restablecer vista">⟳</button><button id="activeToolToggle" type="button" hidden aria-label="Herramienta activa"></button><button id="gridButton" type="button" hidden aria-label="Cuadrícula"></button><button id="axesButton" type="button" hidden aria-label="Ejes"></button><span class="save-state" id="saveState" aria-live="polite">Seleccionar</span>
 </nav>
-<div id="drawToolsPanel" aria-hidden="true"></div>
+<div id="drawToolsPanel" aria-hidden="true" role="dialog" aria-label="Herramientas de croquis">
+ <div class="palette-head"><strong>CROQUIS</strong><button type="button" data-palette-close title="Cerrar" aria-label="Cerrar">×</button></div>
+ <div class="palette-group"><span>GEOMETRÍA</span><div class="palette-grid">
+  <button type="button" data-palette-tool="select" title="Seleccionar" aria-label="Seleccionar">⌖</button>
+  <button type="button" data-palette-tool="line" title="Línea / Polilínea" aria-label="Línea o polilínea">／</button>
+  <button type="button" data-palette-tool="rect" title="Rectángulo" aria-label="Rectángulo">▭</button>
+  <button type="button" data-palette-tool="circle" title="Círculo" aria-label="Círculo">○</button>
+  <button type="button" disabled title="Arco · próximamente" aria-label="Arco">⌒</button>
+  <button type="button" disabled title="Punto · próximamente" aria-label="Punto">·</button>
+  <button type="button" disabled title="Polígono · próximamente" aria-label="Polígono">⬡</button>
+  <button type="button" disabled title="Spline · próximamente" aria-label="Spline">∿</button>
+ </div></div>
+ <div class="palette-group"><span>RESTRICCIONES</span><div class="palette-grid">
+  <button type="button" data-palette-constraint="horizontal" title="Horizontal" aria-label="Horizontal">↔</button>
+  <button type="button" data-palette-constraint="vertical" title="Vertical" aria-label="Vertical">↕</button>
+  <button type="button" data-palette-constraint="parallel" title="Paralela" aria-label="Paralela">∥</button>
+  <button type="button" data-palette-constraint="perpendicular" title="Perpendicular" aria-label="Perpendicular">⊥</button>
+  <button type="button" data-palette-constraint="coincident" title="Coincidente" aria-label="Coincidente">◇</button>
+  <button type="button" data-palette-constraint="fixed" title="Fijar" aria-label="Fijar">⌖</button>
+  <button type="button" data-palette-constraint="unlock" title="Desbloquear" aria-label="Desbloquear">⌑</button>
+  <button type="button" disabled title="Tangencia · próximamente" aria-label="Tangencia">◔</button>
+ </div></div>
+ <div class="palette-group"><span>COTAS</span><div class="palette-grid">
+  <button type="button" disabled title="Cota lineal · próximamente" aria-label="Cota lineal">↔</button>
+  <button type="button" disabled title="Radio · próximamente" aria-label="Radio">R</button>
+  <button type="button" disabled title="Diámetro · próximamente" aria-label="Diámetro">Ø</button>
+  <button type="button" disabled title="Ángulo · próximamente" aria-label="Ángulo">∠</button>
+ </div></div>
+ <div class="palette-group"><span>OPERACIONES 3D</span><div class="palette-grid">
+  <button type="button" disabled title="Extruir · próximamente" aria-label="Extruir">▱</button>
+  <button type="button" disabled title="Revolución · próximamente" aria-label="Revolución">◉</button>
+  <button type="button" disabled title="Barrido · próximamente" aria-label="Barrido">〰</button>
+  <button type="button" disabled title="Loft · próximamente" aria-label="Loft">◇</button>
+  <button type="button" disabled title="Redondeo · próximamente" aria-label="Redondeo">⌒</button>
+  <button type="button" disabled title="Chaflán · próximamente" aria-label="Chaflán">／</button>
+ </div></div>
+</div>
 <aside id="featurePanel" aria-label="Árbol del proyecto">
  <div class="panel-heading"><span>ÁRBOL DEL PROYECTO</span><span>⌄</span></div>
  <div class="panel-section">
@@ -484,9 +537,14 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   setLineAxisLock(null);
   updateHistoryButtons();
   const drawMenuButton=document.getElementById('drawMenuButton');
-  function chooseTool(tool){setTool(tool);}
-  drawMenuButton.addEventListener('click',()=>chooseTool(activeTool==='line'?'select':'line'));
-  document.getElementById('bottomSketch').addEventListener('click',()=>chooseTool('line'));
+  const drawToolsPanel=document.getElementById('drawToolsPanel');
+  const toggleDrawPalette=()=>{const open=!drawToolsPanel.classList.contains('open');drawToolsPanel.classList.toggle('open',open);drawToolsPanel.setAttribute('aria-hidden',String(!open));drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));};
+  const closeDrawPalette=()=>{drawToolsPanel.classList.remove('open');drawToolsPanel.setAttribute('aria-hidden','true');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');};
+  function chooseTool(tool){setTool(tool);closeDrawPalette();}
+  drawMenuButton.addEventListener('click',toggleDrawPalette);
+  document.getElementById('bottomSketch').addEventListener('click',toggleDrawPalette);
+  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('[data-palette-tool]');if(toolButton){const tool=toolButton.dataset.paletteTool;const target=document.getElementById(({select:'selectTool',line:'lineTool',rect:'rectTool',circle:'circleTool'})[tool]);if(target)target.click();closeDrawPalette();return;}const constraint=event.target.closest('[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDrawPalette();});
   document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
@@ -625,13 +683,14 @@ function lineGuideEvent(event){return event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function positionTouchCursor(event){
  if(!lineGuideEl||!event)return;
- const r=host.getBoundingClientRect(),offset=event.pointerType==='touch'?56:0;
- const x=event.clientX-r.left,y=Math.max(12,event.clientY-r.top-offset);
+ const r=host.getBoundingClientRect();
+ // El centro visual de la cruz coincide con el mismo pixel que pointOnGroundAt() proyecta.
+ const x=event.clientX-r.left,y=event.clientY-r.top;
  lineGuideEl.style.left=x+'px';lineGuideEl.style.top=y+'px';lineGuideEl.style.display='block';
 }
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
- // La geometría y el snap usan el toque real; solo el cursor visual se eleva.
+ // Cursor, punto de inicio y geometría comparten la misma coordenada táctil.
  const p=resolveSnap(guide,raw);
  if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}
  if(cursorMarker)cursorMarker.visible=false;
