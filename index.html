@@ -349,23 +349,30 @@ function resolveSnap(event,raw){
  ndc.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1);
  camera.updateMatrixWorld(true);raycaster.setFromCamera(ndc,camera);
  let nearestVertex=null,nearestVertexPx=28,nearestEdge=null,nearestEdgePx=32;
- const ray=raycaster.ray,worldPerPixelAt=(depth)=>2*Math.max(.001,depth)*Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))/Math.max(1,rect.height);
+ const ray=raycaster.ray,plane=workPlanes[activePlane],planeOrigin=new THREE.Vector3(),worldPerPixelAt=(depth)=>2*Math.max(.001,depth)*Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))/Math.max(1,rect.height);
  const inspectPolyline=(world,closed=false)=>{
   if(!world.length)return;
   for(let i=0;i<world.length;i++){
-   const point=world[i],depth=point.clone().sub(ray.origin).dot(ray.direction);
+   const point=world[i],planeDistance=point.clone().sub(planeOrigin).dot(plane.normal);
+   if(Math.abs(planeDistance)>.051)continue;
+   const snappedPoint=point.clone().addScaledVector(plane.normal,-planeDistance);
+   const depth=snappedPoint.clone().sub(ray.origin).dot(ray.direction);
    if(depth<=0)continue;
-   const px=ray.distanceToPoint(point)/worldPerPixelAt(depth);
-   if(px<nearestVertexPx){nearestVertexPx=px;nearestVertex={point:point.clone(),depth};}
+   const px=ray.distanceToPoint(snappedPoint)/worldPerPixelAt(depth);
+   if(px<nearestVertexPx){nearestVertexPx=px;nearestVertex={point:snappedPoint,depth};}
   }
   const count=world.length<2?0:(closed?world.length:world.length-1);
   for(let i=0;i<count;i++){
-   const j=(i+1)%world.length,pointOnRay=new THREE.Vector3(),pointOnSegment=new THREE.Vector3();
-   const distSq=ray.distanceSqToSegment(world[i],world[j],pointOnRay,pointOnSegment);
+   const j=(i+1)%world.length;
+   const da=world[i].clone().sub(planeOrigin).dot(plane.normal),db=world[j].clone().sub(planeOrigin).dot(plane.normal);
+   if(Math.abs(da)>.051||Math.abs(db)>.051)continue;
+   const a=world[i].clone().addScaledVector(plane.normal,-da),b=world[j].clone().addScaledVector(plane.normal,-db);
+   const pointOnRay=new THREE.Vector3(),pointOnSegment=new THREE.Vector3();
+   const distSq=ray.distanceSqToSegment(a,b,pointOnRay,pointOnSegment);
    const depth=pointOnSegment.clone().sub(ray.origin).dot(ray.direction);
    if(depth<=0)continue;
    const px=Math.sqrt(distSq)/worldPerPixelAt(depth);
-   if(px<nearestEdgePx){nearestEdgePx=px;nearestEdge={start:world[i].clone(),end:world[j].clone(),point:pointOnSegment,depth};}
+   if(px<nearestEdgePx){nearestEdgePx=px;nearestEdge={start:a,end:b,point:pointOnSegment,depth};}
   }
  };
  // Compara el rayo real de la cámara con los segmentos y vértices guardados.
@@ -430,6 +437,10 @@ function resolveSnap(event,raw){
   const anchor=linePoints[linePoints.length-1],axis=new THREE.Vector3(
    activeAxisLock==='X'?1:0,activeAxisLock==='Y'?1:0,activeAxisLock==='Z'?1:0
   );
+  if(Math.abs(axis.dot(plane.normal))>1e-6){
+   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' no pertenece al plano '+(plane.sourcePlane||activePlane);angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+   snapKind='axis-lock-incompatible';return raw.clone();
+  }
   const axisPoint=closestPointOnRayToAxis(anchor,axis);
   const axisScreenLength=pixelDistance(anchor,anchor.clone().addScaledVector(axis,10));
   if(axisScreenLength<2.5){
@@ -582,21 +593,6 @@ function resolveSnap(event,raw){
   }
  };
  inferenceReferences.forEach(considerInference);
- // Tercera dirección espacial: permite alinear el cursor con una referencia
- // siguiendo la normal del plano activo, sin obligar a volver al plano base.
- // Se conserva la prioridad de la captura exacta de vértices y solo se activa
- // si esta dirección es la inferencia visual más cercana.
- let depthInference=null;
- if(activeTool==='line'){
-  inferenceReferences.forEach(reference=>{
-   const point=closestPointOnRayToAxis(reference,plane.normal);
-   if(!point)return;
-   const px=projectedLineDistance(reference,plane.normal);
-   if(px<30&&(!depthInference||px<depthInference.px)){
-    depthInference={anchor:reference.clone(),point,px};
-   }
-  });
- }
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve el punto de ajuste sobre la recta 3D de la referencia.
  if(nearestVertex&&nearestVertexPx<9){
@@ -605,15 +601,6 @@ function resolveSnap(event,raw){
   hideInferenceOverlay();
   setGuide(0,nearestVertex.point,plane.u);
   setGuide(1,nearestVertex.point,plane.v);
- }else if(depthInference&&(!horizontal&&!vertical||depthInference.px<Math.min(horizontal?horizontal.px:Infinity,vertical?vertical.px:Infinity))){
-  // La guía de profundidad ocupa el canal principal; no se muestran varias
-  // guías superpuestas que puedan confundir la dirección de captura.
-  hideInferenceOverlay();
-  setGuide(0,depthInference.anchor,plane.normal);
-  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
-  if(levelHintEl)levelHintEl.style.display='none';
-  if(angleHintEl)angleHintEl.style.display='none';
-  snapKind='inference';return depthInference.point;
  }else if(horizontal||vertical){
   hideInferenceOverlay();const span=500;
   if(horizontal){
