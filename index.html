@@ -325,14 +325,14 @@ function applySketchConstraint(type){
  if(type==='fixed'){meta.fixed=true;saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Geometría fijada.');return;}
  let c=null;
  if(type==='horizontal'||type==='vertical'){if(n<2)return;c={type,a:0};}
- else if(type==='parallel'||type==='perpendicular'){if(n<3){setSketchConstraintHint('Esta relación necesita al menos dos segmentos consecutivos.');return;}c={type,a:0,b:1};}
- else if(type==='coincident'){if(n<3){setSketchConstraintHint('Se necesitan al menos tres puntos para cerrar los extremos.');return;}c={type,a:0,b:n-1};}
+ else if(type==='parallel'||type==='perpendicular'){if(meta.type!=='polyline'||n<3){setSketchConstraintHint('Selecciona una polilínea con al menos dos segmentos.');return;}c={type,a:0,b:1};}
+ else if(type==='coincident'){if(meta.type!=='polyline'||obj.userData.closed||n<3){setSketchConstraintHint('Esta relación solo se aplica a polilíneas abiertas.');return;}c={type,a:0,b:n-1};}
  if(!c)return;
  if(meta.constraints.some(x=>x.enabled!==false&&x.type===c.type&&x.a===c.a&&x.b===c.b)){setSketchConstraintHint('Esta restricción ya existe.');return;}
  if((type==='horizontal'&&meta.constraints.some(x=>x.enabled!==false&&x.type==='vertical'&&x.a===c.a))||(type==='vertical'&&meta.constraints.some(x=>x.enabled!==false&&x.type==='horizontal'&&x.a===c.a))){setSketchConstraintHint('Conflicto: el mismo segmento no puede ser horizontal y vertical.');return;}
  c.id='c-'+(++sketchEntitySequence).toString(36);c.enabled=true;meta.constraints.push(c);
  const result=solveSketchConstraints(obj);if(!result.ok){meta.constraints.pop();setSketchConstraintHint(result.reason);return;}
- saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Restricción aplicada: '+({horizontal:'horizontal',vertical:'vertical',parallel:'paralela',perpendicular:'perpendicular',coincident:'coincidencia'}[type])+'.');
+ saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Restricción aplicada: '+({horizontal:'horizontal al primer segmento',vertical:'vertical al primer segmento',parallel:'paralela entre los dos primeros segmentos',perpendicular:'perpendicular entre los dos primeros segmentos',coincident:'coincidencia de extremos'}[type])+'.');
 }
 function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el)el.textContent=message;}
 function refreshSketchConstraintControls(){
@@ -340,7 +340,7 @@ function refreshSketchConstraintControls(){
  const obj=selectedObject,meta=obj?sketchMetaForObject(obj):null,n=obj?(obj.userData.controlPoints||[]).length:0;
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
-  button.disabled=!obj||(meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&n<3)||(type==='coincident'&&n<3);
+  button.disabled=!obj||(meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
   button.classList.toggle('active',!!(meta&&type==='fixed'&&meta.fixed));
  });
  setSketchConstraintHint(!obj?'Selecciona una geometría para aplicar relaciones geométricas.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
