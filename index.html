@@ -216,7 +216,7 @@
  </div>
 </aside>
 <div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
-<div id="floatingViewControls"><button id="viewFitFloat" title="Ajustar vista">⌗</button><button id="viewRotateFloat" title="Vista isométrica">⟳</button><button id="viewAxesFloat" title="Ejes">⌖</button></div>
+
 <div id="workspaceBottom"><div id="workspaceTabs"><button class="workspace-tab active" id="partStudioTab">Part Studio 1　⌄</button><button class="workspace-tab" id="assemblyTab" disabled>Assembly 1　⌄</button></div><div id="featureActions"><button title="Croquis" id="bottomSketch">✎</button><span class="feature-sep"></span><button title="Extruir (próximamente)" disabled>▱</button><button title="Revolución (próximamente)" disabled>◉</button><button title="Barrido (próximamente)" disabled>〰</button><button title="Loft (próximamente)" disabled>◇</button><span class="feature-sep"></span><button title="Redondeo (próximamente)" disabled>⌒</button><button title="Chaflán (próximamente)" disabled>／</button><button title="Medir" id="bottomMeasure">↔</button></div></div>
 <div class="viewcube"><div class="cube" id="orientationCube">
 <button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
@@ -321,11 +321,7 @@ function addReferencePlane(label,color,rotation,position){
  const mesh=new THREE.Mesh(geometry,material);mesh.rotation.set(rotation[0],rotation[1],rotation[2]);mesh.position.set(position[0],position[1],position[2]);mesh.renderOrder=1;referencePlaneGroup.add(mesh);
  const border=new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color,transparent:true,opacity:.72,depthWrite:false}));
  border.rotation.copy(mesh.rotation);border.position.copy(mesh.position);border.renderOrder=2;referencePlaneGroup.add(border);
- const canvas=document.createElement("canvas");canvas.width=256;canvas.height=80;
- const ctx=canvas.getContext("2d");ctx.fillStyle="#ffffff";ctx.font="bold 34px system-ui";ctx.textAlign="center";ctx.fillText(label,128,52);
- const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
- const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:false}));
- sprite.scale.set(25,7.8,1);sprite.position.set(position[0],position[1],position[2]);sprite.position.add(new THREE.Vector3(0,0,1.2));sprite.renderOrder=4;referencePlaneGroup.add(sprite);
+ // Se conservan los planos geométricos sin rótulos superpuestos en el origen.
 }
 addReferencePlane("FRONT",0x3b82c4,[0,0,0],[0,0,0.12]);
 addReferencePlane("RIGHT",0x21a8a0,[0,Math.PI/2,0],[0.12,0,0]);
@@ -336,16 +332,7 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   [['X','#ef6868',new THREE.Vector3(68,0,0)],['Y','#63d98a',new THREE.Vector3(0,68,0)],['Z','#65aaff',new THREE.Vector3(0,0,68)]].forEach(([label,color])=>{const el=document.createElement('div');el.textContent=label;el.style.cssText='position:absolute;display:none;transform:translate(-50%,-50%);font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.03em;color:'+color+';text-shadow:0 1px 3px #080d16,0 0 5px #080d16;pointer-events:none;z-index:4';host.appendChild(el);axisLabelEls.push({el});});
   originMarkerEl=document.createElement('div');originMarkerEl.style.cssText='position:absolute;display:none;width:8px;height:8px;transform:translate(-50%,-50%);border:1px solid #dce7f4;border-radius:50%;background:#26384b;box-shadow:0 0 0 2px rgba(8,14,23,.7);pointer-events:none;z-index:4';host.appendChild(originMarkerEl);
   axisLabelEls.forEach((item,i)=>{item.point=[new THREE.Vector3(68,0,0),new THREE.Vector3(0,68,0),new THREE.Vector3(0,0,68)][i];});
-  coordinatePanel=document.createElement('div');
-  coordinatePanel.id='planeSelectorPanel';coordinatePanel.style.display='none';
-  coordinatePanel.style.cssText='position:absolute;left:14px;bottom:54px;z-index:6;display:flex;align-items:center;gap:6px;max-width:calc(100% - 28px);padding:7px 9px;border:1px solid #40516a;border-radius:9px;background:rgba(16,23,34,.92);color:#dce7f5;font:11px/1.2 Inter,system-ui,sans-serif;box-shadow:0 3px 12px #0005;pointer-events:auto';
-  const planeCaption=document.createElement('span');planeCaption.textContent='Plano';planeCaption.style.cssText='font-size:10px;color:#aebed2;padding:0 3px';coordinatePanel.appendChild(planeCaption);
-  [['VIEW','Vista','Plano según la orientación actual de la cámara'],['XZ','Suelo','Plano XZ · horizontal'],['XY','Frente','Plano XY · frontal'],['YZ','Lado','Plano YZ · lateral']].forEach(([name,label,title])=>{
-   const button=document.createElement('button');button.type='button';button.textContent=label;button.title=title;button.setAttribute('aria-label',title);
-   button.style.cssText='height:30px;min-width:50px;padding:0 8px;border:1px solid #455c78;border-radius:6px;background:#1b2a3d;color:#cfe0f5;font:700 11px Inter,system-ui,sans-serif';
-   button.addEventListener('click',()=>setWorkPlane(name,name!=='VIEW',name==='VIEW'));coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
-  });
-  host.appendChild(coordinatePanel);
+  // Selector flotante de planos retirado de la interfaz; el plano inicial sigue siendo VIEW.
   defaultCameraPosition=camera.position.clone();
   
   controls.addEventListener('change',()=>{
