@@ -31,6 +31,53 @@
 #sceneStatus{position:absolute;left:14px;bottom:13px;z-index:3;color:#8f9db0;background:#151e2bd9;border:1px solid #354258;border-radius:9px;padding:7px 10px;font-size:10px;pointer-events:none}#measureLabel{position:absolute;z-index:5;display:none;transform:translate(-50%,-120%);padding:6px 9px;border:1px solid #8ebaff;border-radius:7px;background:#14243aee;color:#f2f7ff;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none;box-shadow:0 3px 12px #0005;font-variant-numeric:tabular-nums}#measureLabel small{display:block;color:#b8cce5;font-size:10px;font-weight:500;margin-top:2px}
 #sceneError{display:none;position:absolute;inset:0;z-index:8;background:#111923f2;place-items:center;padding:25px;text-align:center;color:#dce7f5}#sceneError.show{display:grid}#sceneError div{max-width:360px}#sceneError strong{display:block;font-size:18px;margin-bottom:8px}#sceneError p{color:#9eacbf;font-size:13px}
 @media(max-width:640px){.topbar{height:56px;padding:0 15px}.page{padding-top:38px}.sectionhead{margin-top:34px}.projectgrid{grid-template-columns:1fr}.projectcard{min-height:190px}.thumb{height:116px}.viewcube{right:5px;top:126px;transform:scale(.78);transform-origin:top right}#documentHeader{height:62px;padding:0 9px;gap:8px}.document-heading div{font-size:16px;max-width:58vw}#editorToolbar{top:62px;height:48px;padding:0 7px;gap:2px}#editorToolbar button{min-width:35px;height:38px;font-size:21px}#viewport{inset:110px 0 0}#sceneStatus{left:9px;bottom:9px}}
+
+/* Workspace tipo CAD: árbol de diseño, lienzo central e inspector */
+#documentHeader{background:#173f70}
+.header-actions #treeToggle,.header-actions #propertiesToggle{font-size:17px;width:36px;height:36px;border-radius:9px;border:1px solid #ffffff38;background:#ffffff12}
+#editorToolbar{background:#f4f6f9;border-bottom-color:#c8d1dc}
+#featurePanel,#inspectorPanel{position:absolute;z-index:4;top:118px;bottom:0;background:#f7f9fc;color:#26364a;border-color:#d4dce6;box-shadow:0 2px 8px #101a2b12;overflow:auto}
+#featurePanel{left:0;width:246px;border-right:1px solid #d4dce6}
+#inspectorPanel{right:0;width:268px;border-left:1px solid #d4dce6}
+.panel-heading{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;border-bottom:1px solid #dce3eb;font-size:11px;font-weight:800;letter-spacing:.09em;color:#5c6c80}
+.panel-section{padding:12px 10px;border-bottom:1px solid #e0e6ed}
+.panel-kicker{padding:0 7px 8px;color:#8290a1;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.tree-row{display:flex;align-items:center;gap:8px;width:100%;min-height:34px;padding:6px 9px;border:0;border-radius:6px;background:transparent;color:#34465c;text-align:left;font-size:12px}
+.tree-row:hover{background:#e8eef6}
+.tree-row.active{background:#dce9f8;color:#174f91;font-weight:700}
+.tree-icon{width:17px;text-align:center;color:#66809e;font-size:14px}
+.tree-indent{padding-left:23px}
+.tree-children{display:grid;gap:2px;margin-top:3px}
+#featureObjects{display:grid;gap:2px}
+.inspector-card{padding:11px 12px;border:1px solid #dce3eb;border-radius:8px;background:#fff;margin-bottom:9px}
+.inspector-card strong{display:block;font-size:12px;color:#26384d;margin-bottom:7px}
+.inspector-card p{margin:0;color:#718096;font-size:11px;line-height:1.5}
+.inspector-value{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #edf1f5;font-size:11px}
+.inspector-value:last-child{border-bottom:0}
+.inspector-value span:first-child{color:#7b899a}
+.inspector-value span:last-child{color:#30445c;font-weight:650;text-align:right}
+#viewport{inset:118px 268px 0 246px;background:#131a25}
+#workspace.hide-tree #featurePanel{display:none}
+#workspace.hide-tree #viewport{left:0}
+#workspace.hide-inspector #inspectorPanel{display:none}
+#workspace.hide-inspector #viewport{right:0}
+#sceneStatus{background:#172333e8}
+@media(max-width:850px){
+ #viewport{inset:110px 0 0}
+ #featurePanel,#inspectorPanel{display:none;top:110px;bottom:0;width:min(84vw,310px);box-shadow:0 12px 35px #07111f55}
+ #featurePanel{left:0;border-right:1px solid #cbd5e1}
+ #inspectorPanel{right:0;border-left:1px solid #cbd5e1}
+ #workspace.show-tree #featurePanel{display:block}
+ #workspace.show-inspector #inspectorPanel{display:block}
+ #workspace.hide-tree #viewport,#workspace.hide-inspector #viewport{left:0;right:0}
+ #documentHeader{gap:5px}
+ .header-actions{gap:4px}
+ .header-actions #treeToggle,.header-actions #propertiesToggle{width:32px;height:34px;font-size:15px}
+}
+@media(min-width:851px){
+ #workspace.show-tree #featurePanel,#workspace.show-inspector #inspectorPanel{display:block}
+}
+
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -59,7 +106,7 @@
 <header id="documentHeader">
 <button id="backProjects" aria-label="Volver a proyectos" title="Volver a proyectos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3.5 10.5 8.5-7 8.5 7"/><path d="M5.5 9.5v10h13v-10M9.5 19.5v-6h5v6"/></svg></button>
 <div class="document-heading"><div id="documentTitle">Documento sin título</div><small>Main</small></div>
-<div class="header-actions"><button id="helpButton" title="Ayuda" aria-label="Ayuda">?</button><button id="moreButton" title="Más opciones" aria-label="Más opciones">⋮</button></div>
+<div class="header-actions"><button id="treeToggle" title="Árbol del proyecto" aria-label="Mostrar árbol del proyecto">☷</button><button id="propertiesToggle" title="Propiedades" aria-label="Mostrar propiedades">▤</button><button id="helpButton" title="Ayuda" aria-label="Ayuda">?</button><button id="moreButton" title="Más opciones" aria-label="Más opciones">⋮</button></div>
 <div id="moreMenu"><button id="saveProject">Guardar proyecto</button><button id="closeProject">Volver a proyectos</button></div>
 </header>
 <nav id="editorToolbar" aria-label="Herramientas del espacio">
@@ -67,6 +114,30 @@
 <button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><button id="activeToolToggle" type="button" hidden aria-label="Desactivar herramienta activa"></button><div id="drawToolsPanel" role="group" aria-label="Herramientas de dibujo"><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea">／ <small>Línea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button></div><span class="tool-separator"></span>
 <button id="gridButton" class="tool-active" title="Mostrar u ocultar cuadrícula">▦</button><button id="axesButton" class="tool-active" title="Mostrar u ocultar ejes">⌖</button><button id="fitButton" title="Restablecer vista">⟳</button><span class="tool-separator"></span><span class="save-state" id="saveState">Seleccionar</span>
 </nav>
+<aside id="featurePanel" aria-label="Árbol del proyecto">
+ <div class="panel-heading"><span>ÁRBOL DEL PROYECTO</span><span>⌄</span></div>
+ <div class="panel-section">
+  <button class="tree-row active" type="button"><span class="tree-icon">▾</span><strong id="treeProjectName">Proyecto</strong></button>
+  <div class="tree-children">
+   <button class="tree-row tree-indent" type="button"><span class="tree-icon">▰</span>Part Studio 1</button>
+   <button class="tree-row tree-indent" type="button"><span class="tree-icon">▾</span>Croquis</button>
+   <div id="featureObjects" class="tree-children tree-indent"><div class="tree-row"><span class="tree-icon">◇</span><span>Sin geometría todavía</span></div></div>
+  </div>
+ </div>
+ <div class="panel-section"><div class="panel-kicker">Vistas y referencias</div><div class="tree-row"><span class="tree-icon">▦</span>Cuadrícula</div><div class="tree-row"><span class="tree-icon">⌖</span>Ejes globales</div></div>
+</aside>
+<aside id="inspectorPanel" aria-label="Propiedades del diseño">
+ <div class="panel-heading"><span>PROPIEDADES</span><span>⋯</span></div>
+ <div class="panel-section">
+  <div class="inspector-card"><strong>Selección actual</strong><p id="inspectorSelection">Ningún elemento seleccionado. Elige una geometría en el lienzo o en el árbol.</p></div>
+  <div class="inspector-card"><strong>Documento</strong>
+   <div class="inspector-value"><span>Elementos</span><span id="inspectorCount">0</span></div>
+   <div class="inspector-value"><span>Herramienta</span><span id="inspectorTool">Seleccionar</span></div>
+   <div class="inspector-value"><span>Plano activo</span><span id="inspectorPlane">Vista</span></div>
+  </div>
+  <div class="inspector-card"><strong>Consejo</strong><p>Trabaja sobre un plano definido. Usa el árbol para localizar tus geometrías y el panel para revisar la selección.</p></div>
+ </div>
+</aside>
 <div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
 <div class="viewcube"><div class="cube" id="orientationCube">
 <button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
@@ -103,6 +174,8 @@
  document.getElementById('closeProject').addEventListener('click',()=>document.getElementById('backProjects').click());
  document.getElementById('moreButton').addEventListener('click',()=>document.getElementById('moreMenu').classList.toggle('show'));
  document.getElementById('saveProject').addEventListener('click',()=>{if(window.saveViewportProject)window.saveViewportProject();save();document.getElementById('saveState').textContent='Guardado';document.getElementById('moreMenu').classList.remove('show');});
+ document.getElementById('treeToggle').addEventListener('click',()=>{const mobile=matchMedia('(max-width:850px)').matches;workspace.classList.toggle(mobile?'show-tree':'hide-tree');if(mobile)workspace.classList.remove('show-inspector');});
+ document.getElementById('propertiesToggle').addEventListener('click',()=>{const mobile=matchMedia('(max-width:850px)').matches;workspace.classList.toggle(mobile?'show-inspector':'hide-inspector');if(mobile)workspace.classList.remove('show-tree');});
  document.getElementById('helpButton').addEventListener('click',()=>document.getElementById('helpPanel').classList.toggle('show'));
  document.getElementById('closeHelp').addEventListener('click',()=>document.getElementById('helpPanel').classList.remove('show'));
  document.getElementById('retry3D').addEventListener('click',()=>{document.getElementById('sceneError').classList.remove('show');if(window.startViewport)window.startViewport().then(()=>{if(window.loadViewportProject)window.loadViewportProject(currentId);});});
@@ -213,6 +286,7 @@ function setTool(tool){
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
  activeTool=tool;
+ refreshWorkspacePanels();
  if(cursorMarker)cursorMarker.visible=false;
  if(tool!=='line')hideMeasure();
  const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo'},glyphs={line:'／',rect:'□',circle:'○'};
@@ -283,6 +357,7 @@ function setWorkPlane(name,orientCamera=true,recaptureView=false){
  }
  if(!config||!groundPlane)return;
  activePlane=name;
+ refreshWorkspacePanels();
  groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
  if(gridObject){
   if(name==='VIEW'){
@@ -890,7 +965,7 @@ function finalizeShapeAtPoint(p){
  const obj=makeShape(activeTool,start,end,false);
  previewObject=null;drawStart=null;
  if(!obj)return false;
- scene.add(obj);drawnObjects.push(obj);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
+ scene.add(obj);drawnObjects.push(obj);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
  const a=planeCoords(start),b=planeCoords(end),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
  updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);
  saveViewportProject();recordDrawingHistory();return true;
@@ -981,6 +1056,22 @@ function findSelectableObject(clientX,clientY){
  }
  return best;
 }
+function refreshWorkspacePanels(){
+ const list=document.getElementById('featureObjects');if(!list)return;
+ const projectName=document.getElementById('documentTitle')?.textContent||'Proyecto';
+ const treeName=document.getElementById('treeProjectName');if(treeName)treeName.textContent=projectName;
+ const count=document.getElementById('inspectorCount');if(count)count.textContent=String(drawnObjects.length);
+ const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo'}[activeTool]||activeTool);
+ const plane=document.getElementById('inspectorPlane');if(plane)plane.textContent=({VIEW:'Vista',XZ:'Suelo · XZ',XY:'Frente · XY',YZ:'Lado · YZ'}[activePlane]||activePlane);
+ const selection=document.getElementById('inspectorSelection');
+ if(selection){
+  if(!selectedObject)selection.textContent='Ningún elemento seleccionado. Elige una geometría en el lienzo o en el árbol.';
+  else{const pts=selectedObject.userData.controlPoints||[];selection.textContent=(selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos';}
+ }
+ list.replaceChildren();
+ if(!drawnObjects.length){const empty=document.createElement('div');empty.className='tree-row';empty.innerHTML='<span class="tree-icon">◇</span><span>Sin geometría todavía</span>';list.appendChild(empty);}
+ drawnObjects.forEach((obj,i)=>{const row=document.createElement('button');row.type='button';row.className='tree-row'+(selectedObject===obj?' active':'');row.innerHTML='<span class="tree-icon">'+(obj.userData.closed?'□':'／')+'</span><span>'+(obj.userData.closed?'Perfil':'Trazo')+' '+(i+1)+'</span>';row.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});list.appendChild(row);});
+}
 function setSelectedObject(obj){
  if(selectedObject===obj)return;
  if(selectedObject&&selectedObject.material&&selectedObject.userData.selectionOriginalColor!==undefined){
@@ -988,6 +1079,7 @@ function setSelectedObject(obj){
   selectedObject.material.needsUpdate=true;
  }
  selectedObject=obj||null;
+ refreshWorkspacePanels();
  if(selectedObject&&selectedObject.material&&selectedObject.material.color){
   if(selectedObject.userData.selectionOriginalColor===undefined)selectedObject.userData.selectionOriginalColor=selectedObject.material.color.getHex();
   selectedObject.material.color.setHex(0x39bfff);
@@ -1020,7 +1112,7 @@ function updateContinuousLine(cursor,fromPoint){
   updateMeasureAt('Longitud: '+fmt(distance)+' cm','Ángulo: '+fmt(angle)+'° · Elevación: '+fmt(elevation)+'°',mid);
  }
 }
-function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);drawnObjects.push(lineObject);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
+function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function makeShape(type,a,b,preview){
  const points=[];
  if(type==='line'){points.push(a.clone(),b.clone());}
@@ -1061,7 +1153,7 @@ function setView(name){
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls)controls.update();if(renderer&&scene&&camera){renderer.render(scene,camera);updateAxisIndicators();positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
 function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.userData&&o.userData.selectionOriginalColor!==undefined?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';if(resetHistory)resetDrawingHistory();}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';refreshWorkspacePanels();if(resetHistory)resetDrawingHistory();}
 function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.userData&&o.userData.selectionOriginalColor!==undefined?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
