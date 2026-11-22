@@ -907,7 +907,8 @@ function resolveSnap(event,raw){
  snapKind=null;return raw;
 }
 function beginSketch(event){
- if(activeTool==='select'){beginSketchNow(event);return;}
+ // Registrar los dedos antes de despachar la herramienta: Seleccionar también
+ // necesita reconocer el gesto de cámara de dos dedos.
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);touchGesturePoints.set(event.pointerId,{x:event.clientX,y:event.clientY});
   if(activeTouchPointers.size>=2){
@@ -918,8 +919,11 @@ function beginSketch(event){
    lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;shapeTouchDragPointerId=null;
    touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;drawStart=null;
    if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
-   return;
+   event.preventDefault();return;
   }
+ }
+ if(activeTool==='select'){beginSketchNow(event);return;}
+ if(event.pointerType==='touch'){
   if(pinchGesture)return;
   if(activeTool==='line'){
    if(linePoints.length===0){
