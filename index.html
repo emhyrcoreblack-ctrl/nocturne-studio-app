@@ -57,10 +57,6 @@
 .inspector-value span:first-child{color:#7b899a}
 .inspector-value span:last-child{color:#30445c;font-weight:650;text-align:right}
 #viewport{inset:118px 268px 0 246px;background:#131a25}
-#workspace.hide-tree #featurePanel{display:none}
-#workspace.hide-tree #viewport{left:0}
-#workspace.hide-inspector #inspectorPanel{display:none}
-#workspace.hide-inspector #viewport{right:0}
 #sceneStatus{background:#172333e8}
 @media(max-width:850px){
  #viewport{inset:110px 0 0}
@@ -69,7 +65,6 @@
  #inspectorPanel{right:0;border-left:1px solid #cbd5e1}
  #workspace.show-tree #featurePanel{display:block}
  #workspace.show-inspector #inspectorPanel{display:block}
- #workspace.hide-tree #viewport,#workspace.hide-inspector #viewport{left:0;right:0}
  #documentHeader{gap:5px}
  .header-actions{gap:4px}
  .header-actions #treeToggle,.header-actions #propertiesToggle{width:32px;height:34px;font-size:15px}
@@ -93,7 +88,6 @@
 #viewport{inset:106px 0 76px!important;background:#f7f9fc}
 #featurePanel{top:112px;bottom:78px;left:8px;width:min(290px,84vw);border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 28px #172b4430;z-index:9}
 #inspectorPanel{display:none!important}
-#workspace.hide-tree #viewport,#workspace.hide-inspector #viewport{left:0;right:0}
 #workspace:not(.show-tree) #featurePanel{display:none}
 .viewcube{top:112px;right:8px;transform:scale(.86);transform-origin:top right}
 #sceneStatus{left:10px;bottom:84px;background:#ffffffdf;color:#506176;border:1px solid #d5dde7}
@@ -108,8 +102,6 @@
 #featureActions button{height:34px;min-width:35px;padding:0 8px;background:transparent;border:0;border-radius:6px;color:#52647a;font-size:18px;flex:none}
 #featureActions button:disabled{opacity:.28}
 #featureActions .feature-sep{height:22px;width:1px;background:#d0d9e3;flex:none;margin:0 3px}
-#floatingViewControls{position:absolute;z-index:5;right:10px;bottom:91px;display:flex;gap:5px}
-#floatingViewControls button{width:33px;height:33px;padding:0;border:1px solid #c8d3df;border-radius:8px;background:#ffffffeb;color:#40556e;box-shadow:0 2px 6px #1d35521c}
 @media(max-width:640px){
  #documentHeader{height:56px}
  #editorToolbar{top:56px;height:46px}
@@ -118,7 +110,6 @@
  #featurePanel{top:108px;bottom:80px}
  #workspaceBottom{height:76px}
  #sceneStatus{bottom:83px;left:7px;font-size:9px}
- #floatingViewControls{bottom:88px;right:7px}
  .document-heading div{font-size:14px;max-width:48vw}
  .header-actions #treeToggle{width:30px}
  #editorToolbar button{min-width:34px;padding:0 7px}
@@ -143,15 +134,12 @@
 #measureLabel{background:#142236!important;color:#e4edf8!important;border-color:#4d82bd!important}
 #helpPanel{background:#111b28!important;color:#e0e8f2!important;border-color:#34465d!important}
 #helpPanel p{color:#aebdd0!important}
-#floatingViewControls{bottom:45px!important}
-#floatingViewControls button{background:#142236ee!important;color:#d9e5f3!important;border-color:#344b65!important}
 .viewcube .face{background:#172b43!important;color:#d8e7f7!important;border-color:#45617e!important}
 #sceneError{background:#0b111a!important;color:#e2eaf4!important}
 @media(max-width:640px){
  #viewport{inset:102px 0 34px!important}
  #workspaceBottom{height:34px!important}
  #workspaceTabs{height:34px!important}
- #floatingViewControls{bottom:44px!important}
  #sceneStatus{bottom:42px!important}
  #featurePanel{background:#111b28!important}
 }
@@ -486,14 +474,9 @@ function pointOnGroundAt(clientX,clientY){
  const p=new THREE.Vector3();
  return raycaster.ray.intersectPlane(groundPlane,p)?p:null;
 }
-function pointOnGround(event){return pointOnGroundAt(event.clientX,event.clientY);}
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
 function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
 function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
-function placeFeedback(el,event,color){
- if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
- if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
-}
 function lineGuideEvent(event){return event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function positionTouchCursor(event){
@@ -1177,7 +1160,6 @@ function fmt(n){return (Math.round(n*10)/10).toFixed(1);}
 function updateMeasureAt(value,hint,point){measureValue=value;measureHint=hint||'';measureAnchor=point?point.clone():null;positionMeasure();}
 function positionMeasure(){const el=document.getElementById('measureLabel');if(!el||!measureAnchor||!camera)return;const q=measureAnchor.clone().project(camera);if(q.z>1||q.z< -1){el.style.display='none';return;}el.replaceChildren();const main=document.createElement('span');main.textContent=measureValue;el.appendChild(main);if(measureHint){const sub=document.createElement('small');sub.textContent=measureHint;el.appendChild(sub);}el.style.left=(host.offsetLeft+(q.x+1)*.5*host.clientWidth)+'px';el.style.top=(host.offsetTop+(1-q.y)*.5*host.clientHeight)+'px';el.style.display='block';}
 function hideMeasure(){measureAnchor=null;const el=document.getElementById('measureLabel');if(el)el.style.display='none';}
-function shapeMeasure(type,p){if(type==='rect')return fmt(Math.abs(p.x-drawStart.x))+' × '+fmt(Math.abs(p.z-drawStart.z))+' cm';if(type==='circle')return 'Ø '+fmt(Math.hypot(p.x-drawStart.x,p.z-drawStart.z)*2)+' cm';return '—';}
 function updateContinuousLine(cursor,fromPoint){
  if(!linePoints.length)return;
  const pts=linePoints.map(p=>p.clone());
