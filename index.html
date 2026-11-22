@@ -148,6 +148,26 @@
  #sceneStatus{bottom:42px!important}
  #featurePanel{background:#111b28!important}
 }
+
+/* Corrección móvil: permitir abrir el inspector desde el encabezado */
+@media(max-width:850px){
+ #propertiesToggle{display:inline-flex!important;align-items:center;justify-content:center}
+ #workspace.show-inspector #inspectorPanel{
+  display:block!important;position:absolute;z-index:12;top:112px;bottom:78px;right:8px;
+  width:min(310px,84vw);border:1px solid #34465d;border-radius:10px;
+  background:#111b28;color:#e0e8f2;box-shadow:0 12px 35px #07111f88;overflow:auto
+ }
+ #workspace.show-inspector #inspectorPanel .inspector-card{
+  background:#172536;border-color:#34465d;color:#e0e8f2
+ }
+ #workspace.show-inspector #inspectorPanel .inspector-card strong{color:#e0e8f2}
+ #workspace.show-inspector #inspectorPanel .inspector-card p,
+ #workspace.show-inspector #inspectorPanel .inspector-value span:first-child{color:#aebdd0}
+ #workspace.show-inspector #inspectorPanel .inspector-value span:last-child{color:#e0e8f2}
+}
+@media(max-width:640px){
+ #workspace.show-inspector #inspectorPanel{bottom:42px}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
