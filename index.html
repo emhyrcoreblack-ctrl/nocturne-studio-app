@@ -150,6 +150,26 @@
 }
 
 
+
+/* Barra CAD compacta: herramientas en secuencia, solo iconos */
+#editorToolbar{display:flex!important;align-items:center;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap;gap:3px;padding:0 9px;scrollbar-width:none;overscroll-behavior-x:contain}
+#editorToolbar::-webkit-scrollbar{display:none}
+#editorToolbar button{flex:0 0 36px;width:36px;min-width:36px;height:36px;padding:0!important;display:inline-grid;place-items:center;border:1px solid transparent!important;border-radius:7px!important;background:transparent!important;color:#c7d5e5!important;font-size:19px!important;line-height:1}
+#editorToolbar button:hover{background:#263a51!important;border-color:#405873!important}
+#editorToolbar button.tool-active{background:#24476b!important;border-color:#4b80b5!important;color:#fff!important}
+#editorToolbar button:disabled{opacity:.27!important}
+#editorToolbar .tool-separator{display:block;flex:0 0 1px;width:1px;height:25px;background:#34465b;margin:0 3px}
+#editorToolbar #sketchConstraintCard{display:flex;align-items:center;flex:0 0 auto}
+#editorToolbar #sketchConstraintCard .sketch-constraint-grid{display:flex;align-items:center;gap:2px;margin:0}
+#editorToolbar #sketchConstraintCard .sketch-constraint-grid button{flex:0 0 32px;width:32px;min-width:32px;height:32px;min-height:32px;padding:0!important;border:1px solid transparent;border-radius:6px;background:transparent;color:#bdcde0;font-size:17px}
+#editorToolbar #sketchConstraintCard .sketch-constraint-grid button:hover:not(:disabled){background:#263a51}
+#editorToolbar #sketchConstraintCard .sketch-constraint-grid button.active{background:#24476b;color:#fff;border-color:#4b80b5}
+#editorToolbar #sketchConstraintCard .sketch-constraint-grid button:disabled{opacity:.25}
+#drawToolsPanel{display:none!important}
+#saveState{display:none!important}
+#workspaceTabs .workspace-tab{min-width:42px;padding:0 12px;font-size:18px}
+#workspaceBottom{height:34px!important}
+@media(max-width:640px){#editorToolbar{top:56px;height:46px;padding:0 6px;gap:2px}#editorToolbar button{flex-basis:34px;width:34px;min-width:34px;height:34px}#editorToolbar #sketchConstraintCard .sketch-constraint-grid button{flex-basis:30px;width:30px;min-width:30px;height:30px;min-height:30px}#viewport{inset:102px 0 34px!important}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -181,12 +201,17 @@
 <div class="header-actions"><button id="treeToggle" title="Árbol del proyecto" aria-label="Mostrar árbol del proyecto">☷</button><button id="propertiesToggle" title="Propiedades" aria-label="Mostrar propiedades">▤</button><button id="helpButton" title="Ayuda" aria-label="Ayuda">?</button><button id="moreButton" title="Más opciones" aria-label="Más opciones">⋮</button></div>
 <div id="moreMenu"><button id="saveProject">Guardar proyecto</button><button id="closeProject">Volver a proyectos</button></div>
 </header>
-<nav id="editorToolbar" aria-label="Herramientas del espacio">
-<button id="undoButton" title="Deshacer">↶</button><button id="redoButton" title="Rehacer">↷</button><span class="tool-separator"></span>
-<button id="drawMenuButton" title="Herramientas de dibujo" aria-label="Abrir herramientas de dibujo" aria-expanded="false">✎</button><button id="activeToolToggle" type="button" hidden aria-label="Desactivar herramienta activa"></button><span class="tool-separator"></span>
-<button id="gridButton" class="tool-active" title="Mostrar u ocultar cuadrícula">▦</button><button id="axesButton" class="tool-active" title="Mostrar u ocultar ejes">⌖</button><button id="fitButton" title="Restablecer vista">⟳</button><span class="tool-separator"></span><span class="save-state" id="saveState">Seleccionar</span>
+<nav id="editorToolbar" aria-label="Herramientas CAD">
+<button id="undoButton" title="Deshacer" aria-label="Deshacer">↶</button><button id="redoButton" title="Rehacer" aria-label="Rehacer">↷</button><span class="tool-separator"></span>
+<button id="drawMenuButton" title="Activar croquis" aria-label="Activar croquis">✎</button><button id="selectTool" class="tool-active" title="Seleccionar" aria-label="Seleccionar">⌖</button><button id="lineTool" title="Línea" aria-label="Línea">／</button><button id="rectTool" title="Rectángulo" aria-label="Rectángulo">▭</button><button id="circleTool" title="Círculo" aria-label="Círculo">○</button><button title="Arco · próximamente" aria-label="Arco" disabled>⌒</button><button title="Punto · próximamente" aria-label="Punto" disabled>·</button><span class="tool-separator"></span>
+<div id="sketchConstraintCard"><span id="sketchConstraintHint" hidden>Selecciona una geometría</span><div class="sketch-constraint-grid">
+<button title="Horizontal" aria-label="Horizontal" data-sketch-constraint="horizontal">↔</button><button title="Vertical" aria-label="Vertical" data-sketch-constraint="vertical">↕</button><button title="Paralela" aria-label="Paralela" data-sketch-constraint="parallel">∥</button><button title="Perpendicular" aria-label="Perpendicular" data-sketch-constraint="perpendicular">⊥</button><button title="Coincidente" aria-label="Coincidente" data-sketch-constraint="coincident">◇</button><button title="Fijar" aria-label="Fijar" data-sketch-constraint="fixed">⌖</button><button title="Desbloquear" aria-label="Desbloquear" data-sketch-constraint="unlock">⌑</button><button title="Tangencia · próximamente" aria-label="Tangencia" disabled>◔</button>
+</div></div><span class="tool-separator"></span>
+<button title="Cota lineal · próximamente" aria-label="Cota lineal" disabled>↔</button><button title="Radio · próximamente" aria-label="Radio" disabled>R</button><button title="Diámetro · próximamente" aria-label="Diámetro" disabled>Ø</button><button title="Ángulo · próximamente" aria-label="Ángulo" disabled>∠</button><span class="tool-separator"></span>
+<button title="Extruir · próximamente" aria-label="Extruir" disabled>▱</button><button title="Revolución · próximamente" aria-label="Revolución" disabled>◉</button><button title="Barrido · próximamente" aria-label="Barrido" disabled>〰</button><button title="Loft · próximamente" aria-label="Loft" disabled>◇</button><button title="Redondeo · próximamente" aria-label="Redondeo" disabled>⌒</button><button title="Chaflán · próximamente" aria-label="Chaflán" disabled>／</button><span class="tool-separator"></span>
+<button id="fitButton" title="Restablecer vista" aria-label="Restablecer vista">⟳</button><span class="save-state" id="saveState" aria-live="polite">Seleccionar</span>
 </nav>
-<div id="drawToolsPanel" role="group" aria-label="Herramientas de croquis 2D"><div class="draw-section-title">Geometría 2D</div><button id="selectTool" class="tool-active" title="Seleccionar">⌖ <small>Seleccionar</small></button><button id="lineTool" title="Dibujar línea y polilínea">／ <small>Línea / Polilínea</small></button><button id="rectTool" title="Dibujar rectángulo">□ <small>Rectángulo</small></button><button id="circleTool" title="Dibujar círculo">○ <small>Círculo</small></button><div class="draw-section-title">Restricciones del croquis</div><div class="inspector-card" id="sketchConstraintCard"><p id="sketchConstraintHint">Selecciona una geometría para aplicar relaciones geométricas.</p><div class="sketch-constraint-grid"><button type="button" data-sketch-constraint="horizontal">Horizontal</button><button type="button" data-sketch-constraint="vertical">Vertical</button><button type="button" data-sketch-constraint="parallel">Paralela</button><button type="button" data-sketch-constraint="perpendicular">Perpendicular</button><button type="button" data-sketch-constraint="coincident">Cerrar extremos</button><button type="button" data-sketch-constraint="fixed">Fijar</button><button type="button" data-sketch-constraint="unlock">Desbloquear</button></div></div></div>
+<div id="drawToolsPanel" aria-hidden="true"></div>
 <aside id="featurePanel" aria-label="Árbol del proyecto">
  <div class="panel-heading"><span>ÁRBOL DEL PROYECTO</span><span>⌄</span></div>
  <div class="panel-section">
@@ -212,7 +237,7 @@
 </aside>
 <div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
 
-<div id="workspaceBottom"><div id="workspaceTabs"><button class="workspace-tab active" id="partStudioTab">Part Studio 1　⌄</button><button class="workspace-tab" id="assemblyTab" disabled>Assembly 1　⌄</button></div><div id="featureActions"><button title="Croquis" id="bottomSketch">✎</button><span class="feature-sep"></span><button title="Extruir (próximamente)" disabled>▱</button><button title="Revolución (próximamente)" disabled>◉</button><button title="Barrido (próximamente)" disabled>〰</button><button title="Loft (próximamente)" disabled>◇</button><span class="feature-sep"></span><button title="Redondeo (próximamente)" disabled>⌒</button><button title="Chaflán (próximamente)" disabled>／</button><button title="Medir" id="bottomMeasure">↔</button></div></div>
+<div id="workspaceBottom"><div id="workspaceTabs"><button class="workspace-tab active" id="partStudioTab" title="Part Studio 1" aria-label="Part Studio 1">▣</button><button class="workspace-tab" id="assemblyTab" title="Assembly 1" aria-label="Assembly 1" disabled>⬡</button></div><div id="featureActions"><button title="Croquis" id="bottomSketch">✎</button><span class="feature-sep"></span><button title="Extruir (próximamente)" disabled>▱</button><button title="Revolución (próximamente)" disabled>◉</button><button title="Barrido (próximamente)" disabled>〰</button><button title="Loft (próximamente)" disabled>◇</button><span class="feature-sep"></span><button title="Redondeo (próximamente)" disabled>⌒</button><button title="Chaflán (próximamente)" disabled>／</button><button title="Medir" id="bottomMeasure">↔</button></div></div>
 <div class="viewcube"><div class="cube" id="orientationCube">
 <button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
 </div></div>
@@ -458,16 +483,15 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
   setLineAxisLock(null);
   updateHistoryButtons();
-  const drawMenu=document.getElementById('drawToolsPanel'),drawMenuButton=document.getElementById('drawMenuButton');
-  const toggleDrawMenu=()=>{const open=drawMenu.classList.toggle('open');drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));};
-  drawMenuButton.addEventListener('click',toggleDrawMenu);
-  document.getElementById('bottomSketch').addEventListener('click',toggleDrawMenu);
-   document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
+  const drawMenuButton=document.getElementById('drawMenuButton');
+  function chooseTool(tool){setTool(tool);}
+  drawMenuButton.addEventListener('click',()=>chooseTool(activeTool==='line'?'select':'line'));
+  document.getElementById('bottomSketch').addEventListener('click',()=>chooseTool('line'));
+  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
   document.getElementById('rectTool').addEventListener('click',()=>chooseTool('rect'));
   document.getElementById('circleTool').addEventListener('click',()=>chooseTool('circle'));
-  function chooseTool(tool){setTool(tool);drawMenu.classList.remove('open');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');}
   observer=new ResizeObserver(resize);observer.observe(host);resize();started=true;errorBox.classList.remove('show');
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
   document.getElementById('gridButton').addEventListener('click',()=>{gridObject.visible=!gridObject.visible;document.getElementById('gridButton').classList.toggle('tool-active',gridObject.visible);});
@@ -499,7 +523,7 @@ function setTool(tool){
   // TrackballControls usa noRotate/noZoom/noPan (no las propiedades de OrbitControls).
   // El giro queda anulado por completo; el zoom táctil de dos dedos sigue habilitado.
   controls.noRotate=tool!=='select';
-  controls.noZoom=false;
+  controls.noZoom=tool!=='select';
   controls.noPan=true;
   if(tool!=='select'){
    controls.update();
