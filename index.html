@@ -257,7 +257,7 @@ const host=document.getElementById('viewport'),errorBox=document.getElementById(
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
 let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
-const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
+const activeTouchPointers=new Set(),touchGesturePoints=new Map();let pinchGesture=false,twoFingerCameraGesture=null,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 // Las coordenadas táctiles se usan tal como las entrega el navegador: el punto debe quedar donde se levanta el dedo.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -906,10 +906,24 @@ function resolveSnap(event,raw){
  if(angleHintEl)angleHintEl.style.display='none';
  snapKind=null;return raw;
 }
+function beginTwoFingerCameraGesture(){
+ if(!camera||!controls||touchGesturePoints.size<2)return;
+ const pts=[...touchGesturePoints.values()].slice(0,2);
+ twoFingerCameraGesture={distance:Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)),centerX:(pts[0].x+pts[1].x)/2,centerY:(pts[0].y+pts[1].y)/2};controls.noZoom=true;controls.noPan=true;
+}
+function updateTwoFingerCameraGesture(event){
+ if(!pinchGesture||!twoFingerCameraGesture||touchGesturePoints.size<2||!camera||!controls)return;
+ touchGesturePoints.set(event.pointerId,{x:event.clientX,y:event.clientY});
+ const pts=[...touchGesturePoints.values()].slice(0,2),distance=Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)),centerX=(pts[0].x+pts[1].x)/2,centerY=(pts[0].y+pts[1].y)/2;
+ const dx=centerX-twoFingerCameraGesture.centerX,dy=centerY-twoFingerCameraGesture.centerY,target=controls.target,viewDirection=camera.getWorldDirection(new THREE.Vector3()),right=viewDirection.clone().cross(camera.up).normalize();
+ const yaw=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-dx*.006),pitch=new THREE.Quaternion().setFromAxisAngle(right,-dy*.006),rotation=pitch.multiply(yaw),offset=camera.position.clone().sub(target).applyQuaternion(rotation);
+ offset.multiplyScalar(twoFingerCameraGesture.distance/distance);offset.setLength(THREE.MathUtils.clamp(offset.length(),controls.minDistance,controls.maxDistance));
+ camera.up.applyQuaternion(rotation).normalize();camera.position.copy(target).add(offset);camera.lookAt(target);camera.updateMatrixWorld(true);twoFingerCameraGesture={distance,centerX,centerY};controls.update();
+}
+function endTwoFingerCameraGesture(){twoFingerCameraGesture=null;if(controls){controls.noZoom=false;controls.noPan=true;controls.update();}}
 function beginSketch(event){
- if(activeTool==='select'){beginSketchNow(event);return;}
  if(event.pointerType==='touch'){
-  activeTouchPointers.add(event.pointerId);
+  activeTouchPointers.add(event.pointerId);touchGesturePoints.set(event.pointerId,{x:event.clientX,y:event.clientY});
   if(activeTouchPointers.size>=2){
    pinchGesture=true;touchLineGuideActive=false;hideLineGuide();hideSnapFeedback();touchPendingEvent=null;
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
@@ -921,6 +935,7 @@ function beginSketch(event){
    return;
   }
   if(pinchGesture)return;
+  if(activeTool==='select'){beginSketchNow(event);return;}
   if(activeTool==='line'){
    if(linePoints.length===0){
     // Primer gesto: solo posiciona el punto inicial, sin crear geometría.
@@ -979,7 +994,8 @@ function beginSketch(event){
  drawStart=p;previewObject=makeShape(activeTool,p,p,true);if(previewObject)scene.add(previewObject);
 }
 function moveSketch(event){
- if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch'&&pinchGesture){updateTwoFingerCameraGesture(event);return;}
+ if(event.pointerType==='touch'&&activeTouchPointers.size>=2)return;
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
   const p=pointForSketch(event);if(!p)return;
   positionTouchCursor(event);
@@ -1021,7 +1037,7 @@ function cancelLineGesture(){
 function cancelSketch(event){
  hideSnapFeedback();hideLineGuide();
  if(event.pointerType==='touch'){
-  activeTouchPointers.delete(event.pointerId);shapeTouchDragPointerId=null;
+  activeTouchPointers.delete(event.pointerId);touchGesturePoints.delete(event.pointerId);shapeTouchDragPointerId=null;
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
   if(activeTouchPointers.size===0){cancelLineGesture();pinchGesture=false;}
@@ -1059,8 +1075,8 @@ function finishSketch(event){
    hideSnapFeedback();hideLineGuide();return;
   }
   if(shapeTouchDragPointerId!==null&&shapeTouchDragPointerId!==event.pointerId){activeTouchPointers.delete(event.pointerId);return;}
-  activeTouchPointers.delete(event.pointerId);
-  if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;hideLineGuide();}return;}
+  activeTouchPointers.delete(event.pointerId);touchGesturePoints.delete(event.pointerId);
+  if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;endTwoFingerCameraGesture();touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;hideLineGuide();}return;}
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
  }
