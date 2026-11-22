@@ -260,6 +260,28 @@ let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,le
 const activeTouchPointers=new Set();const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 // Las coordenadas táctiles se usan tal como las entrega el navegador: el punto debe quedar donde se levanta el dedo.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
+let sketchEntitySequence=0;
+const SKETCH_SCHEMA_VERSION=1;
+function createSketchDefinition(type,points,planeName=activePlane,parameters={}){
+ const plane=workPlanes&&workPlanes[planeName]?planeName:(workPlanes&&workPlanes[activePlane]?activePlane:'XZ');
+ const id='sk-'+Date.now().toString(36)+'-'+(++sketchEntitySequence).toString(36);
+ return {schema:SKETCH_SCHEMA_VERSION,id,type,plane,parameters:{...parameters},constraints:[],dimensions:[],construction:false,fixed:false};
+}
+function normalizeSketchDefinition(meta,closed,points){
+ if(meta&&typeof meta==='object'&&meta.schema===SKETCH_SCHEMA_VERSION&&typeof meta.id==='string')
+  return {...meta,parameters:{...(meta.parameters||{})},constraints:Array.isArray(meta.constraints)?meta.constraints:[],dimensions:Array.isArray(meta.dimensions)?meta.dimensions:[]};
+ return createSketchDefinition(closed?'profile':'polyline',points,'XZ',{legacy:true});
+}
+function sketchMetaForObject(obj){if(!obj)return null;const points=obj.userData.controlPoints||[];obj.userData.sketch=normalizeSketchDefinition(obj.userData.sketch,obj.userData.closed,points);return obj.userData.sketch;}
+function serializeSketchObject(obj){const meta=sketchMetaForObject(obj);return {closed:!!obj.userData.closed,color:obj.userData&&obj.userData.selectionOriginalColor!==undefined?obj.userData.selectionOriginalColor:(obj.material&&obj.material.color?obj.material.color.getHex():0xe5efff),points:(obj.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z]),sketch:meta?JSON.parse(JSON.stringify(meta)):null};}
+function attachSketchDefinition(obj,type,start,end){
+ if(!obj)return obj;const a=planeCoords(start),b=planeCoords(end);let parameters={};
+ if(type==='line')parameters={length:start.distanceTo(end),angle:Math.atan2(b.v-a.v,b.u-a.u)};
+ else if(type==='rect')parameters={width:Math.abs(b.u-a.u),height:Math.abs(b.v-a.v)};
+ else if(type==='circle')parameters={radius:Math.hypot(b.u-a.u,b.v-a.v),center:[start.x,start.y,start.z]};
+ obj.userData.sketch=createSketchDefinition(type,obj.userData.controlPoints||[],activePlane,parameters);return obj;
+}
+function sketchConstraintSummary(obj){const m=sketchMetaForObject(obj);if(!m)return 'Sin definición paramétrica';const active=m.constraints.filter(c=>c&&c.enabled!==false).length;return active+' restricciones · '+m.dimensions.length+' cotas';}
 async function startViewport(){
  if(started){resize();animate();return;}
  try{
@@ -1065,6 +1087,7 @@ function finalizeShapeAtPoint(p){
  const obj=makeShape(activeTool,start,end,false);
  previewObject=null;drawStart=null;
  if(!obj)return false;
+ attachSketchDefinition(obj,activeTool,start,end);
  scene.add(obj);drawnObjects.push(obj);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
  const a=planeCoords(start),b=planeCoords(end),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
  updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':'Radio: '+fmt(d)+' cm',anchor);
@@ -1166,11 +1189,11 @@ function refreshWorkspacePanels(){
  const selection=document.getElementById('inspectorSelection');
  if(selection){
   if(!selectedObject)selection.textContent='Ningún elemento seleccionado. Elige una geometría en el lienzo o en el árbol.';
-  else{const pts=selectedObject.userData.controlPoints||[];selection.textContent=(selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos';}
+  else{const pts=selectedObject.userData.controlPoints||[],meta=sketchMetaForObject(selectedObject);selection.textContent=(meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polyline'?'Polilínea':selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos · '+sketchConstraintSummary(selectedObject);}
  }
  list.replaceChildren();
  if(!drawnObjects.length){const empty=document.createElement('div');empty.className='tree-row';empty.innerHTML='<span class="tree-icon">◇</span><span>Sin geometría todavía</span>';list.appendChild(empty);}
- drawnObjects.forEach((obj,i)=>{const row=document.createElement('button');row.type='button';row.className='tree-row'+(selectedObject===obj?' active':'');row.innerHTML='<span class="tree-icon">'+(obj.userData.closed?'□':'／')+'</span><span>'+(obj.userData.closed?'Perfil':'Trazo')+' '+(i+1)+'</span>';row.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});list.appendChild(row);});
+ drawnObjects.forEach((obj,i)=>{const row=document.createElement('button');row.type='button';row.className='tree-row'+(selectedObject===obj?' active':'');const meta=sketchMetaForObject(obj);const label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';row.innerHTML='<span class="tree-icon">'+(obj.userData.closed?'□':'／')+'</span><span>'+label+' '+(i+1)+'</span>';row.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});list.appendChild(row);});
 }
 function setSelectedObject(obj){
  if(selectedObject===obj)return;
@@ -1211,7 +1234,7 @@ function updateContinuousLine(cursor,fromPoint){
   updateMeasureAt('Longitud: '+fmt(distance)+' cm','Ángulo: '+fmt(angle)+'° · Elevación: '+fmt(elevation)+'°',mid);
  }
 }
-function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
+function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);lineObject.userData.sketch=createSketchDefinition('polyline',linePoints,activePlane,{segmentCount:linePoints.length-1});drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function makeShape(type,a,b,preview){
  const points=[];
  if(type==='line'){points.push(a.clone(),b.clone());}
@@ -1251,9 +1274,9 @@ function setView(name){
 }function updateAxisIndicators(){if(!camera||!host)return;const r=host.getBoundingClientRect();const place=(el,point)=>{const p=point.clone().project(camera);const visible=p.z>-1&&p.z<1&&p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1;el.style.display=visible?'block':'none';if(visible){el.style.left=((p.x+1)*r.width/2)+'px';el.style.top=((1-p.y)*r.height/2)+'px';}};axisLabelEls.forEach(item=>place(item.el,item.point));if(originMarkerEl)place(originMarkerEl,new THREE.Vector3(0,0,0));}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls){controls.update();}if(renderer&&scene&&camera){renderer.render(scene,camera);updateAxisIndicators();positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
-function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.userData&&o.userData.selectionOriginalColor!==undefined?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])}));window.nocturneProjectData.set(activeProjectId,{objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';refreshWorkspacePanels();if(resetHistory)resetDrawingHistory();}
-function captureDrawingState(){return {objects:drawnObjects.map(o=>({closed:!!o.userData.closed,color:o.userData&&o.userData.selectionOriginalColor!==undefined?o.userData.selectionOriginalColor:(o.material&&o.material.color?o.material.color.getHex():0xe5efff),points:(o.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z])})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
+function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(serializeSketchObject);window.nocturneProjectData.set(activeProjectId,{schema:SKETCH_SCHEMA_VERSION,objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;obj.userData.sketch=normalizeSketchDefinition(item.sketch,!!item.closed,pts);scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';refreshWorkspacePanels();if(resetHistory)resetDrawingHistory();}
+function captureDrawingState(){return {schema:SKETCH_SCHEMA_VERSION,objects:drawnObjects.map(serializeSketchObject),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
 function commitDrawingHistory(){if(!activeProjectId)return;if(historyProjectId!==activeProjectId){resetDrawingHistory();return;}const state=captureDrawingState(),serialized=JSON.stringify(state);if(drawingHistoryIndex>0&&JSON.stringify(drawingHistory[drawingHistoryIndex-1])===serialized){drawingHistory.splice(drawingHistoryIndex,1);drawingHistoryIndex--;}else if(drawingHistoryIndex>=0){drawingHistory[drawingHistoryIndex]=state;}else{recordDrawingHistory();return;}updateHistoryButtons();}
