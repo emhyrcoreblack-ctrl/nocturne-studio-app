@@ -352,7 +352,7 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
    cameraRollLastAngle=angle;
    if(Math.abs(delta)<.0005)return;
    const viewAxis=controls.target.clone().sub(camera.position).normalize();
-   camera.up.applyAxisAngle(viewAxis,delta).normalize();
+   camera.up.applyAxisAngle(viewAxis,-delta).normalize();
    camera.lookAt(controls.target);
    controls.update();
   });
