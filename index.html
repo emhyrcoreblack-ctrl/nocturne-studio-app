@@ -504,8 +504,59 @@ function resolveSnap(event,raw){
   line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
   line.setAttribute('visibility','visible');
  };
- // No se realiza captura automática sobre los ejes globales ni sobre la cuadrícula.
- // Las capturas automáticas se reservan para referencias de geometría existente.
+ // Captura precisa sobre los tres ejes globales. La cuadrícula no participa
+ // en el cálculo: solo se consideran las rectas X, Y y Z que pasan por el origen.
+ // El punto se obtiene de la distancia mínima entre el rayo de cámara y cada eje,
+ // no proyectando el cursor sobre la cuadrícula.
+ const globalAxisCandidates=[
+  {name:'X',axis:new THREE.Vector3(1,0,0),color:'#ef7777'},
+  {name:'Y',axis:new THREE.Vector3(0,1,0),color:'#73d99a'},
+  {name:'Z',axis:new THREE.Vector3(0,0,1),color:'#78adff'}
+ ];
+ let nearestGlobalAxis=null;
+ for(const candidate of globalAxisCandidates){
+  const axisPoint=closestPointOnRayToAxis(new THREE.Vector3(),candidate.axis);
+  if(!axisPoint)continue;
+  const screenLength=projectedLineDistance(new THREE.Vector3(),candidate.axis);
+  const px=projectedLineDistance(new THREE.Vector3(),candidate.axis);
+  if(!Number.isFinite(px)||screenLength<2.5||px>13)continue;
+  if(!nearestGlobalAxis||px<nearestGlobalAxis.px){
+   nearestGlobalAxis={...candidate,point:axisPoint,px};
+  }
+ }
+ if(nearestGlobalAxis){
+  hideInferenceOverlay();
+  setGuide(0,new THREE.Vector3(),nearestGlobalAxis.axis);
+  if(inferenceOverlayLines[0]){
+   inferenceOverlayLines[0].setAttribute('stroke',nearestGlobalAxis.color);
+   inferenceOverlayLines[0].setAttribute('stroke-width','2.8');
+   inferenceOverlayLines[0].setAttribute('stroke-dasharray','none');
+  }
+  if(inferenceOverlayLines[1])inferenceOverlayLines[1].setAttribute('visibility','hidden');
+  if(snapVertexObject){
+   const depth=nearestGlobalAxis.point.clone().sub(ray.origin).dot(ray.direction);
+   const size=worldPerPixelAt(depth>0?depth:1)*13,half=size*.5,c=nearestGlobalAxis.point;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[c.clone().sub(right).sub(up),c.clone().add(right).sub(up),c.clone().add(right).add(up),c.clone().sub(right).add(up),c.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();snapVertexObject.visible=true;
+  }
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(angleHintEl){
+   angleHintEl.textContent='Eje '+nearestGlobalAxis.name;
+   angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';
+   angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';
+   angleHintEl.style.display='block';
+  }
+  snapKind='global-axis-'+nearestGlobalAxis.name.toLowerCase();
+  return nearestGlobalAxis.point;
+ }
+ if(snapVertexObject)snapVertexObject.visible=false;
+ if(angleHintEl)angleHintEl.style.display='none';
  const considerInference=(reference)=>{
   const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
   if(cameraZ>=-camera.near)return;
