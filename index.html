@@ -335,13 +335,19 @@ function placeFeedback(el,event,color){
 }
 function lineGuideEvent(event){return event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
+function positionTouchCursor(event){
+ if(!lineGuideEl||!event)return;
+ const r=host.getBoundingClientRect(),offset=event.pointerType==='touch'?56:0;
+ const x=event.clientX-r.left,y=Math.max(12,event.clientY-r.top-offset);
+ lineGuideEl.style.left=x+'px';lineGuideEl.style.top=y+'px';lineGuideEl.style.display='block';
+}
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
+ // La geometría y el snap usan el toque real; solo el cursor visual se eleva.
  const p=resolveSnap(guide,raw);
- // Mantiene la lectura XYZ sincronizada también durante el gesto táctil de inicio.
  if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}
  if(cursorMarker)cursorMarker.visible=false;
- if(lineGuideEl){const r=host.getBoundingClientRect();lineGuideEl.style.left=(x-r.left)+'px';lineGuideEl.style.top=(y-r.top)+'px';lineGuideEl.style.display='block';}
+ positionTouchCursor(event);
  return p;
 }
 function resolveSnap(event,raw){
@@ -831,6 +837,7 @@ function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
   const p=pointForSketch(event);if(!p)return;
+  positionTouchCursor(event);
   if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
   previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
   const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
