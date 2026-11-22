@@ -67,3 +67,5 @@ jobs:
 # Redeploy corrected CAD snap detection without live-preview self-snapping.
 
 # Publish matrix refresh and stronger on-screen CAD snap feedback.
+
+# Fresh deployment trigger to avoid reusing artifacts from a previous failed attempt.
