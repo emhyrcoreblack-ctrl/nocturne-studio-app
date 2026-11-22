@@ -398,7 +398,7 @@ function resolveSnap(event,raw){
  const inferenceReferences=[],inferenceDirections=[];
  const collectInferenceReferences=(world,closed=false)=>{
   if(!world.length||world.some(p=>Math.abs(p.clone().sub(planeOrigin).dot(plane.normal))>.051))return;
-  world.forEach(p=>inferenceReferences.push(p.clone()));
+  world.forEach(p=>inferenceReferences.push(p.clone().addScaledVector(plane.normal,-p.clone().sub(planeOrigin).dot(plane.normal))));
   const count=world.length>1?(closed?world.length:world.length-1):0;
   for(let i=0;i<count;i++){
    const j=(i+1)%world.length,edge=world[j].clone().sub(world[i]),length=edge.length();
@@ -1000,11 +1000,11 @@ function makeShape(type,a,b,preview){
  else if(type==='rect'){
   const ca=planeCoords(a),cb=planeCoords(b);
   if(Math.abs(cb.u-ca.u)<.03||Math.abs(cb.v-ca.v)<.03)return null;
-  points.push(planePoint(ca.u,ca.v,.03),planePoint(cb.u,ca.v,.03),planePoint(cb.u,cb.v,.03),planePoint(ca.u,cb.v,.03));
+  points.push(planePoint(ca.u,ca.v),planePoint(cb.u,ca.v),planePoint(cb.u,cb.v),planePoint(ca.u,cb.v));
  }else if(type==='circle'){
   const ca=planeCoords(a),cb=planeCoords(b),radius=Math.hypot(cb.u-ca.u,cb.v-ca.v);
   if(radius<.03)return null;
-  for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius,.03));}
+  for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius));}
  }
  return makeFatStroke(points,preview?0x8ebaff:0xe5efff,preview?.65:1,type!=='line');
 }function makeFatStroke(points,color=0xe5efff,opacity=1,closed=false){
