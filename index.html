@@ -468,15 +468,23 @@ function resolveSnap(event,raw){
 
  const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
  const projectedLineDistance=(anchor,axis)=>{
-  const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
-  if(a.z < -1 || a.z > 1 || b.z < -1 || b.z > 1)return Infinity;
+  const a=anchor.clone().project(camera);
+  if(a.z < -1 || a.z > 1)return Infinity;
   const ax=(a.x+1)*.5*rectNow.width,ay=(1-a.y)*.5*rectNow.height;
-  const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
-  const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
-  if(!Number.isFinite(lenSq)||lenSq<.0001)return Infinity;
-  const t=((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq;
-  const qx=ax+t*dx,qy=ay+t*dy;
-  return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
+  let best=Infinity;
+  // La recta es infinita: comprobar ambos sentidos evita perder la captura
+  // cuando el semieje positivo queda detrás de la cámara o fuera del recorte.
+  for(const sign of [-1,1]){
+   const b=anchor.clone().addScaledVector(axis,sign*10).project(camera);
+   if(b.z < -1 || b.z > 1)continue;
+   const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
+   const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
+   if(!Number.isFinite(lenSq)||lenSq<.0001)continue;
+   const t=Math.max(0,Math.min(1,((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq));
+   const qx=ax+t*dx,qy=ay+t*dy;
+   best=Math.min(best,Math.hypot(pointerPx.x-qx,pointerPx.y-qy));
+  }
+  return best;
  };
 
  const setGuide=(index,anchor,axis)=>{
@@ -533,8 +541,12 @@ function resolveSnap(event,raw){
   const axisPoint=closestPointOnRayToAxis(new THREE.Vector3(),candidate.axis);
   if(!axisPoint)continue;
   const originNdc=new THREE.Vector3(0,0,0).project(camera);
-  const axisNdc=candidate.axis.clone().multiplyScalar(10).project(camera);
-  const screenLength=Math.hypot((axisNdc.x-originNdc.x)*rectNow.width*.5,(axisNdc.y-originNdc.y)*rectNow.height*.5);
+  const axisNdcPositive=candidate.axis.clone().multiplyScalar(10).project(camera);
+  const axisNdcNegative=candidate.axis.clone().multiplyScalar(-10).project(camera);
+  const screenLength=Math.max(
+   axisNdcPositive.z>=-1&&axisNdcPositive.z<=1?Math.hypot((axisNdcPositive.x-originNdc.x)*rectNow.width*.5,(axisNdcPositive.y-originNdc.y)*rectNow.height*.5):0,
+   axisNdcNegative.z>=-1&&axisNdcNegative.z<=1?Math.hypot((axisNdcNegative.x-originNdc.x)*rectNow.width*.5,(axisNdcNegative.y-originNdc.y)*rectNow.height*.5):0
+  );
   const px=projectedLineDistance(new THREE.Vector3(),candidate.axis);
   const projectedPoint=axisPoint.clone().project(camera);
   const pointPx=Math.hypot(
