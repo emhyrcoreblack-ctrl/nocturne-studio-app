@@ -117,11 +117,11 @@ let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=nu
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
 let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
 const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
-const lineGuideOffsetPx=80;let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
+// Las coordenadas táctiles se usan tal como las entrega el navegador: el punto debe quedar donde se levanta el dedo.let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
  if(started){resize();animate();return;}
  try{
-  THREE=await import('three');workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};
+  THREE=await import('three');workPlanes={XZ:{normal:new THREE.Vector3(0,1,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,0,-1)},XY:{normal:new THREE.Vector3(0,0,1),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)},YZ:{normal:new THREE.Vector3(1,0,0),u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1)}};
   const mod=await import('three/addons/controls/OrbitControls.js');
   const [line2mod,lineGeomMod,lineMatMod]=await Promise.all([import('three/addons/lines/Line2.js'),import('three/addons/lines/LineGeometry.js'),import('three/addons/lines/LineMaterial.js')]);
   window.nocturneFatLine={Line2:line2mod.Line2,LineGeometry:lineGeomMod.LineGeometry,LineMaterial:lineMatMod.LineMaterial};
@@ -169,19 +169,18 @@ async function startViewport(){
   [['VIEW','Vista','Plano según la orientación actual de la cámara'],['XZ','Suelo','Plano XZ · horizontal'],['XY','Frente','Plano XY · frontal'],['YZ','Lado','Plano YZ · lateral']].forEach(([name,label,title])=>{
    const button=document.createElement('button');button.type='button';button.textContent=label;button.title=title;button.setAttribute('aria-label',title);
    button.style.cssText='height:30px;min-width:50px;padding:0 8px;border:1px solid #455c78;border-radius:6px;background:#1b2a3d;color:#cfe0f5;font:700 11px Inter,system-ui,sans-serif';
-   button.addEventListener('click',()=>setWorkPlane(name,true));coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
+   button.addEventListener('click',()=>setWorkPlane(name,name!=='VIEW',name==='VIEW'));coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
   });
   host.appendChild(coordinatePanel);
   defaultCameraPosition=camera.position.clone();
   
   controls.addEventListener('change',()=>{
+   // La cámara solo cambia el punto de observación. El plano de trabajo y los
+   // ejes globales permanecen fijos hasta que el usuario seleccione otro plano.
    updateCube();
-   // En modo Vista, el plano de dibujo y la cuadrícula siguen cada giro de cámara.
-   // No se llama a controls.update() desde aquí, así que no genera un bucle de eventos.
-   if(activePlane==='VIEW')setWorkPlane('VIEW',false);
   });
   // Los planos se seleccionan directamente desde el panel de coordenadas.
-  setWorkPlane('VIEW',false);
+  setWorkPlane('VIEW',false,true);
   const canvas=renderer.domElement;
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
@@ -212,7 +211,6 @@ function setTool(tool){
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
- if(tool!=='select'&&tool!==activeTool&&camera&&controls)setWorkPlane(activePlane,true);
  activeTool=tool;
  if(cursorMarker)cursorMarker.visible=false;
  if(tool!=='line')hideMeasure();
@@ -226,7 +224,20 @@ function setTool(tool){
  activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
  const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
- if(controls){controls.enabled=true;controls.enableRotate=(tool==='select');controls.enablePan=(tool==='select');controls.enableZoom=true;if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}}
+ if(controls){
+  controls.enabled=true;
+  if(tool==='select'){
+   controls.enableDamping=true;controls.enableRotate=true;controls.enablePan=true;controls.enableZoom=true;
+  }else{
+   // Congela la cámara antes de fijar el plano: consume cualquier inercia pendiente
+   // y evita que el plano VIEW cambie entre el primer y el segundo gesto.
+   controls.enableDamping=false;controls.enableRotate=false;controls.enablePan=false;controls.enableZoom=false;
+   controls.update();
+   camera.updateMatrixWorld(true);
+   setWorkPlane(activePlane,activePlane!=='VIEW');
+  }
+  if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}
+ }
  if(tool==='line'&&activeAxisLock)ensureLineAxisVisible();
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
 }function setLineAxisLock(axis){
@@ -253,15 +264,21 @@ function ensureLineAxisVisible(){
  camera.position.copy(target).addScaledVector(direction,distance);
  controls.update();
 }
-function setWorkPlane(name,orientCamera=true){
+function setWorkPlane(name,orientCamera=true,recaptureView=false){
  let config=workPlanes[name];
- if(name==='VIEW'&&camera){
-  // Usa los ejes reales de la matriz mundial de cámara, no su quaternion posiblemente desactualizado.
+ if(name==='VIEW'&&camera&&(!config||recaptureView)) {
+  // "Vista" selecciona el plano principal más frontal a la cámara, nunca un
+  // plano oblicuo arbitrario. La geometría queda contenida en XY, XZ o YZ.
   camera.updateMatrixWorld(true);
-  const u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).normalize();
-  const v=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1).normalize();
-  const normal=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,2).normalize();
-  config=workPlanes.VIEW={normal,u,v};
+  const viewDirection=camera.position.clone().sub(controls?controls.target:new THREE.Vector3()).normalize();
+  const candidates=['XZ','XY','YZ'];
+  let best='XZ',bestAlignment=-1;
+  candidates.forEach(key=>{
+   const alignment=Math.abs(viewDirection.dot(workPlanes[key].normal));
+   if(alignment>bestAlignment+1e-8){best=key;bestAlignment=alignment;}
+  });
+  const source=workPlanes[best];
+  config=workPlanes.VIEW={normal:source.normal.clone(),u:source.u.clone(),v:source.v.clone(),sourcePlane:best};
  }
  if(!config||!groundPlane)return;
  activePlane=name;
@@ -315,7 +332,7 @@ function placeFeedback(el,event,color){
  if(!el||!event)return;const r=host.getBoundingClientRect();el.style.left=(event.clientX-r.left)+'px';el.style.top=(event.clientY-r.top)+'px';el.style.display='block';
  if(el===snapMarkerEl){el.style.borderColor=color;el.style.background=color+'33';el.style.boxShadow='0 0 0 2px #0c1725,0 0 10px '+color;}
 }
-function lineGuideEvent(event){return event.pointerType==='touch'&&(activeTool==='line'||activeTool==='rect'||activeTool==='circle')?{clientX:event.clientX,clientY:event.clientY-lineGuideOffsetPx,pointerType:event.pointerType,pointerId:event.pointerId}:event;}
+function lineGuideEvent(event){return event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
@@ -332,23 +349,30 @@ function resolveSnap(event,raw){
  ndc.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1);
  camera.updateMatrixWorld(true);raycaster.setFromCamera(ndc,camera);
  let nearestVertex=null,nearestVertexPx=28,nearestEdge=null,nearestEdgePx=32;
- const ray=raycaster.ray,worldPerPixelAt=(depth)=>2*Math.max(.001,depth)*Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))/Math.max(1,rect.height);
+ const ray=raycaster.ray,plane=workPlanes[activePlane],planeOrigin=new THREE.Vector3(),worldPerPixelAt=(depth)=>2*Math.max(.001,depth)*Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))/Math.max(1,rect.height);
  const inspectPolyline=(world,closed=false)=>{
   if(!world.length)return;
   for(let i=0;i<world.length;i++){
-   const point=world[i],depth=point.clone().sub(ray.origin).dot(ray.direction);
+   const point=world[i],planeDistance=point.clone().sub(planeOrigin).dot(plane.normal);
+   if(Math.abs(planeDistance)>.051)continue;
+   const snappedPoint=point.clone().addScaledVector(plane.normal,-planeDistance);
+   const depth=snappedPoint.clone().sub(ray.origin).dot(ray.direction);
    if(depth<=0)continue;
-   const px=ray.distanceToPoint(point)/worldPerPixelAt(depth);
-   if(px<nearestVertexPx){nearestVertexPx=px;nearestVertex={point:point.clone(),depth};}
+   const px=ray.distanceToPoint(snappedPoint)/worldPerPixelAt(depth);
+   if(px<nearestVertexPx){nearestVertexPx=px;nearestVertex={point:snappedPoint,depth};}
   }
   const count=world.length<2?0:(closed?world.length:world.length-1);
   for(let i=0;i<count;i++){
-   const j=(i+1)%world.length,pointOnRay=new THREE.Vector3(),pointOnSegment=new THREE.Vector3();
-   const distSq=ray.distanceSqToSegment(world[i],world[j],pointOnRay,pointOnSegment);
+   const j=(i+1)%world.length;
+   const da=world[i].clone().sub(planeOrigin).dot(plane.normal),db=world[j].clone().sub(planeOrigin).dot(plane.normal);
+   if(Math.abs(da)>.051||Math.abs(db)>.051)continue;
+   const a=world[i].clone().addScaledVector(plane.normal,-da),b=world[j].clone().addScaledVector(plane.normal,-db);
+   const pointOnRay=new THREE.Vector3(),pointOnSegment=new THREE.Vector3();
+   const distSq=ray.distanceSqToSegment(a,b,pointOnRay,pointOnSegment);
    const depth=pointOnSegment.clone().sub(ray.origin).dot(ray.direction);
    if(depth<=0)continue;
    const px=Math.sqrt(distSq)/worldPerPixelAt(depth);
-   if(px<nearestEdgePx){nearestEdgePx=px;nearestEdge={start:world[i].clone(),end:world[j].clone(),point:pointOnSegment,depth};}
+   if(px<nearestEdgePx){nearestEdgePx=px;nearestEdge={start:a,end:b,point:pointOnSegment,depth};}
   }
  };
  // Compara el rayo real de la cámara con los segmentos y vértices guardados.
@@ -364,7 +388,7 @@ function resolveSnap(event,raw){
  // Cada guía es una recta que pasa por la referencia (vértice, centro de arista
  // o centro de figura) y conserva su altura/profundidad. El punto de snap es
  // el punto de esa recta más próximo al rayo de la cámara.
- const plane=workPlanes[activePlane],rectNow=renderer.domElement.getBoundingClientRect();
+ const rectNow=renderer.domElement.getBoundingClientRect();
  const pixelDistance=(a,b)=>{
   const pa=a.clone().project(camera),pb=b.clone().project(camera);
   if(pa.z < -1 || pa.z > 1 || pb.z < -1 || pb.z > 1)return Infinity;
@@ -373,15 +397,16 @@ function resolveSnap(event,raw){
  let horizontal=null,vertical=null;
  const inferenceReferences=[],inferenceDirections=[];
  const collectInferenceReferences=(world,closed=false)=>{
-  if(!world.length)return;
-  world.forEach(p=>inferenceReferences.push(p.clone()));
+  if(!world.length||world.some(p=>Math.abs(p.clone().sub(planeOrigin).dot(plane.normal))>.051))return;
+  world.forEach(p=>inferenceReferences.push(p.clone().addScaledVector(plane.normal,-p.clone().sub(planeOrigin).dot(plane.normal))));
   const count=world.length>1?(closed?world.length:world.length-1):0;
   for(let i=0;i<count;i++){
    const j=(i+1)%world.length,edge=world[j].clone().sub(world[i]),length=edge.length();
    inferenceReferences.push(world[i].clone().add(world[j]).multiplyScalar(.5));
-   if(length>.001)inferenceDirections.push({
+   const planarEdge=edge.clone().addScaledVector(plane.normal,-edge.dot(plane.normal));
+   if(length>.001&&planarEdge.lengthSq()>1e-8)inferenceDirections.push({
     anchor:world[i].clone().add(world[j]).multiplyScalar(.5),
-    axis:edge.multiplyScalar(1/length)
+    axis:planarEdge.normalize()
    });
   }
   if(closed&&world.length>=3){
@@ -413,6 +438,10 @@ function resolveSnap(event,raw){
   const anchor=linePoints[linePoints.length-1],axis=new THREE.Vector3(
    activeAxisLock==='X'?1:0,activeAxisLock==='Y'?1:0,activeAxisLock==='Z'?1:0
   );
+  if(Math.abs(axis.dot(plane.normal))>1e-6){
+   if(angleHintEl){angleHintEl.textContent='Eje '+activeAxisLock+' no pertenece al plano '+(plane.sourcePlane||activePlane);angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+   snapKind='axis-lock-incompatible';return raw.clone();
+  }
   const axisPoint=closestPointOnRayToAxis(anchor,axis);
   const axisScreenLength=pixelDistance(anchor,anchor.clone().addScaledVector(axis,10));
   if(axisScreenLength<2.5){
@@ -439,15 +468,23 @@ function resolveSnap(event,raw){
 
  const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
  const projectedLineDistance=(anchor,axis)=>{
-  const a=anchor.clone().project(camera),b=anchor.clone().addScaledVector(axis,10).project(camera);
-  if(a.z < -1 || a.z > 1 || b.z < -1 || b.z > 1)return Infinity;
+  const a=anchor.clone().project(camera);
+  if(a.z < -1 || a.z > 1)return Infinity;
   const ax=(a.x+1)*.5*rectNow.width,ay=(1-a.y)*.5*rectNow.height;
-  const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
-  const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
-  if(!Number.isFinite(lenSq)||lenSq<.0001)return Infinity;
-  const t=((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq;
-  const qx=ax+t*dx,qy=ay+t*dy;
-  return Math.hypot(pointerPx.x-qx,pointerPx.y-qy);
+  let best=Infinity;
+  // La recta es infinita: comprobar ambos sentidos evita perder la captura
+  // cuando el semieje positivo queda detrás de la cámara o fuera del recorte.
+  for(const sign of [-1,1]){
+   const b=anchor.clone().addScaledVector(axis,sign*10).project(camera);
+   if(b.z < -1 || b.z > 1)continue;
+   const bx=(b.x+1)*.5*rectNow.width,by=(1-b.y)*.5*rectNow.height;
+   const dx=bx-ax,dy=by-ay,lenSq=dx*dx+dy*dy;
+   if(!Number.isFinite(lenSq)||lenSq<.0001)continue;
+   const t=Math.max(0,Math.min(1,((pointerPx.x-ax)*dx+(pointerPx.y-ay)*dy)/lenSq));
+   const qx=ax+t*dx,qy=ay+t*dy;
+   best=Math.min(best,Math.hypot(pointerPx.x-qx,pointerPx.y-qy));
+  }
+  return best;
  };
 
  const setGuide=(index,anchor,axis)=>{
@@ -487,47 +524,77 @@ function resolveSnap(event,raw){
   line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
   line.setAttribute('visibility','visible');
  };
- // Captura los tres ejes globales, incluso el que es perpendicular al
- // plano activo. Así se puede dibujar sobre Y desde XZ sin cambiar de plano.
- const worldOrigin=new THREE.Vector3(0,0,0),worldAxes=[
-  {name:'X',axis:new THREE.Vector3(1,0,0)},
-  {name:'Y',axis:new THREE.Vector3(0,1,0)},
-  {name:'Z',axis:new THREE.Vector3(0,0,1)}
+ // Captura precisa sobre los tres ejes globales. La cuadrícula no participa
+ // en el cálculo: solo se consideran las rectas X, Y y Z que pasan por el origen.
+ // El punto se obtiene de la distancia mínima entre el rayo de cámara y cada eje,
+ // no proyectando el cursor sobre la cuadrícula.
+ const globalAxisCandidates=[
+  {name:'X',axis:new THREE.Vector3(1,0,0),color:'#ef7777'},
+  {name:'Y',axis:new THREE.Vector3(0,1,0),color:'#73d99a'},
+  {name:'Z',axis:new THREE.Vector3(0,0,1),color:'#78adff'}
  ];
- let axisCandidate=null,axisCandidatePx=30;
- worldAxes.forEach(item=>{
-  // Los ejes globales parten del origen y sirven como referencias absolutas.
-  const point=closestPointOnRayToAxis(worldOrigin,item.axis);
-  if(!point)return;
-  const px=projectedLineDistance(worldOrigin,item.axis);
-  if(px<axisCandidatePx&&point.length()<10000&&nearestVertexPx>=9){
-   axisCandidatePx=px;axisCandidate={...item,anchor:worldOrigin,point,px};
-  }
- });
- // Durante una polilínea también inferimos el eje perpendicular al plano
- // desde el último vértice. En una vista isométrica, Y puede ser una línea
- // visible aunque en la vista normal al plano XZ se reduzca a un punto.
- if(activeTool==='line'&&linePoints.length){
-  const anchor=linePoints[linePoints.length-1],normalAxis=plane.normal.clone().normalize();
-  const point=closestPointOnRayToAxis(anchor,normalAxis),px=projectedLineDistance(anchor,normalAxis);
-  if(point&&px<axisCandidatePx&&nearestVertexPx>=9){
-   const axisName=activePlane==='XZ'?'Y':activePlane==='XY'?'Z':activePlane==='YZ'?'X':'Vista';
-   axisCandidatePx=px;axisCandidate={name:axisName,axis:normalAxis,anchor:anchor.clone(),point,px};
+ let nearestGlobalAxis=null;
+ for(const candidate of globalAxisCandidates){
+  // Solo capturar ejes contenidos en el plano activo. El eje perpendicular
+  // cruza el plano únicamente en el origen y no debe atraer puntos fuera del plano.
+  if(Math.abs(candidate.axis.dot(plane.normal))>1e-6)continue;
+  const axisPoint=closestPointOnRayToAxis(new THREE.Vector3(),candidate.axis);
+  if(!axisPoint)continue;
+  const originNdc=new THREE.Vector3(0,0,0).project(camera);
+  const axisNdcPositive=candidate.axis.clone().multiplyScalar(10).project(camera);
+  const axisNdcNegative=candidate.axis.clone().multiplyScalar(-10).project(camera);
+  const screenLength=Math.max(
+   axisNdcPositive.z>=-1&&axisNdcPositive.z<=1?Math.hypot((axisNdcPositive.x-originNdc.x)*rectNow.width*.5,(axisNdcPositive.y-originNdc.y)*rectNow.height*.5):0,
+   axisNdcNegative.z>=-1&&axisNdcNegative.z<=1?Math.hypot((axisNdcNegative.x-originNdc.x)*rectNow.width*.5,(axisNdcNegative.y-originNdc.y)*rectNow.height*.5):0
+  );
+  const px=projectedLineDistance(new THREE.Vector3(),candidate.axis);
+  const projectedPoint=axisPoint.clone().project(camera);
+  const pointPx=Math.hypot(
+   (projectedPoint.x+1)*rectNow.width*.5-(event.clientX-rectNow.left),
+   (1-projectedPoint.y)*rectNow.height*.5-(event.clientY-rectNow.top)
+  );
+  if(!Number.isFinite(px)||!Number.isFinite(pointPx)||!Number.isFinite(screenLength)||screenLength<2.5||px>18||pointPx>18)continue;
+  if(!nearestGlobalAxis||pointPx<nearestGlobalAxis.pointPx){
+   nearestGlobalAxis={...candidate,point:axisPoint,px,pointPx};
   }
  }
- if(axisCandidate){
-  hideInferenceOverlay();setGuide(0,axisCandidate.anchor||worldOrigin,axisCandidate.axis);
-  const axisGuide=inferenceOverlayLines[0];
-  if(axisGuide){axisGuide.setAttribute('stroke','#ffd34e');axisGuide.setAttribute('stroke-width','2.8');axisGuide.setAttribute('stroke-dasharray','none');axisGuide.setAttribute('visibility','visible');}
-  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
-  if(angleHintEl){angleHintEl.textContent='Conexión al eje '+axisCandidate.name;angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
-  if(levelHintEl)levelHintEl.style.display='none';
-  if(snapVertexObject)snapVertexObject.visible=false;
+ // Una referencia geométrica real siempre tiene prioridad sobre un eje global.
+ // Evita que una línea o figura cercana sea sustituida por un punto del eje.
+ // El eje compite por distancia real al cursor: una geometría solo lo
+ // desplaza si su punto/arista está realmente más cerca que el punto del eje.
+ if(nearestGlobalAxis&&(!nearestVertex||nearestGlobalAxis.pointPx<nearestVertexPx)&&(!nearestEdge||nearestGlobalAxis.pointPx<nearestEdgePx)){
+  hideInferenceOverlay();
+  setGuide(0,new THREE.Vector3(),nearestGlobalAxis.axis);
+  if(inferenceOverlayLines[0]){
+   inferenceOverlayLines[0].setAttribute('stroke',nearestGlobalAxis.color);
+   inferenceOverlayLines[0].setAttribute('stroke-width','2.8');
+   inferenceOverlayLines[0].setAttribute('stroke-dasharray','none');
+  }
+  if(inferenceOverlayLines[1])inferenceOverlayLines[1].setAttribute('visibility','hidden');
+  if(snapVertexObject){
+   const depth=nearestGlobalAxis.point.clone().sub(ray.origin).dot(ray.direction);
+   const size=worldPerPixelAt(depth>0?depth:1)*13,half=size*.5,c=nearestGlobalAxis.point;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[c.clone().sub(right).sub(up),c.clone().add(right).sub(up),c.clone().add(right).add(up),c.clone().sub(right).add(up),c.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();snapVertexObject.visible=true;
+  }
   if(snapEdgeObject)snapEdgeObject.visible=false;
   if(snapMarkerEl)snapMarkerEl.style.display='none';
   if(edgeHighlightEl)edgeHighlightEl.style.display='none';
-  snapKind='axis';return axisCandidate.point;
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(angleHintEl){
+   angleHintEl.textContent='Eje '+nearestGlobalAxis.name;
+   angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';
+   angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';
+   angleHintEl.style.display='block';
+  }
+  snapKind='global-axis-'+nearestGlobalAxis.name.toLowerCase();
+  return nearestGlobalAxis.point;
  }
+ if(snapVertexObject)snapVertexObject.visible=false;
+ if(angleHintEl)angleHintEl.style.display='none';
  const considerInference=(reference)=>{
   const cameraZ=reference.clone().applyMatrix4(camera.matrixWorldInverse).z;
   if(cameraZ>=-camera.near)return;
@@ -546,21 +613,6 @@ function resolveSnap(event,raw){
   }
  };
  inferenceReferences.forEach(considerInference);
- // Tercera dirección espacial: permite alinear el cursor con una referencia
- // siguiendo la normal del plano activo, sin obligar a volver al plano base.
- // Se conserva la prioridad de la captura exacta de vértices y solo se activa
- // si esta dirección es la inferencia visual más cercana.
- let depthInference=null;
- if(activeTool==='line'){
-  inferenceReferences.forEach(reference=>{
-   const point=closestPointOnRayToAxis(reference,plane.normal);
-   if(!point)return;
-   const px=projectedLineDistance(reference,plane.normal);
-   if(px<30&&(!depthInference||px<depthInference.px)){
-    depthInference={anchor:reference.clone(),point,px};
-   }
-  });
- }
  // La captura exacta de vértice prevalece; en los demás casos, la inferencia
  // devuelve el punto de ajuste sobre la recta 3D de la referencia.
  if(nearestVertex&&nearestVertexPx<9){
@@ -569,15 +621,6 @@ function resolveSnap(event,raw){
   hideInferenceOverlay();
   setGuide(0,nearestVertex.point,plane.u);
   setGuide(1,nearestVertex.point,plane.v);
- }else if(depthInference&&(!horizontal&&!vertical||depthInference.px<Math.min(horizontal?horizontal.px:Infinity,vertical?vertical.px:Infinity))){
-  // La guía de profundidad ocupa el canal principal; no se muestran varias
-  // guías superpuestas que puedan confundir la dirección de captura.
-  hideInferenceOverlay();
-  setGuide(0,depthInference.anchor,plane.normal);
-  if(inferenceGuideObjects[1])inferenceGuideObjects[1].visible=false;
-  if(levelHintEl)levelHintEl.style.display='none';
-  if(angleHintEl)angleHintEl.style.display='none';
-  snapKind='inference';return depthInference.point;
  }else if(horizontal||vertical){
   hideInferenceOverlay();const span=500;
   if(horizontal){
@@ -976,11 +1019,11 @@ function makeShape(type,a,b,preview){
  else if(type==='rect'){
   const ca=planeCoords(a),cb=planeCoords(b);
   if(Math.abs(cb.u-ca.u)<.03||Math.abs(cb.v-ca.v)<.03)return null;
-  points.push(planePoint(ca.u,ca.v,.03),planePoint(cb.u,ca.v,.03),planePoint(cb.u,cb.v,.03),planePoint(ca.u,cb.v,.03));
+  points.push(planePoint(ca.u,ca.v),planePoint(cb.u,ca.v),planePoint(cb.u,cb.v),planePoint(ca.u,cb.v));
  }else if(type==='circle'){
   const ca=planeCoords(a),cb=planeCoords(b),radius=Math.hypot(cb.u-ca.u,cb.v-ca.v);
   if(radius<.03)return null;
-  for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius,.03));}
+  for(let i=0;i<65;i++){const t=i/64*Math.PI*2;points.push(planePoint(ca.u+Math.cos(t)*radius,ca.v+Math.sin(t)*radius));}
  }
  return makeFatStroke(points,preview?0x8ebaff:0xe5efff,preview?.65:1,type!=='line');
 }function makeFatStroke(points,color=0xe5efff,opacity=1,closed=false){
