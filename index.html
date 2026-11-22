@@ -278,7 +278,27 @@ async function startViewport(){
   const key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(90,140,100);scene.add(key);
   const fill=new THREE.DirectionalLight(0x719bd0,.65);fill.position.set(-100,50,-80);scene.add(fill);
   gridObject=new THREE.GridHelper(200,100,0x9eafc2,0xdce4ed);gridObject.position.set(0,0,0);scene.add(gridObject);
-  axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
+  
+axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
+// Planos de referencia permanentes: están anclados al origen mundial y giran
+// únicamente porque la cámara orbita; nunca se pegan a la pantalla.
+const referencePlaneGroup=new THREE.Group();referencePlaneGroup.name="NOCTURNE_REFERENCE_PLANES";scene.add(referencePlaneGroup);
+function addReferencePlane(label,color,rotation,position){
+ const geometry=new THREE.PlaneGeometry(76,76);
+ const material=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.105,side:THREE.DoubleSide,depthWrite:false});
+ const mesh=new THREE.Mesh(geometry,material);mesh.rotation.set(rotation[0],rotation[1],rotation[2]);mesh.position.set(position[0],position[1],position[2]);mesh.renderOrder=1;referencePlaneGroup.add(mesh);
+ const border=new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color,transparent:true,opacity:.72,depthWrite:false}));
+ border.rotation.copy(mesh.rotation);border.position.copy(mesh.position);border.renderOrder=2;referencePlaneGroup.add(border);
+ const canvas=document.createElement("canvas");canvas.width=256;canvas.height=80;
+ const ctx=canvas.getContext("2d");ctx.fillStyle="#ffffff";ctx.font="bold 34px system-ui";ctx.textAlign="center";ctx.fillText(label,128,52);
+ const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+ const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:false}));
+ sprite.scale.set(25,7.8,1);sprite.position.set(position[0],position[1],position[2]);sprite.position.add(new THREE.Vector3(0,0,1.2));sprite.renderOrder=4;referencePlaneGroup.add(sprite);
+}
+addReferencePlane("FRONT",0x3b82c4,[0,0,0],[0,0,0.12]);
+addReferencePlane("RIGHT",0x21a8a0,[0,Math.PI/2,0],[0.12,0,0]);
+addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
+
   // Identificación discreta de los ejes positivos y del origen del sistema mundial.
   axisLabelEls=[];
   [['X','#ef6868',new THREE.Vector3(68,0,0)],['Y','#63d98a',new THREE.Vector3(0,68,0)],['Z','#65aaff',new THREE.Vector3(0,0,68)]].forEach(([label,color])=>{const el=document.createElement('div');el.textContent=label;el.style.cssText='position:absolute;display:none;transform:translate(-50%,-50%);font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.03em;color:'+color+';text-shadow:0 1px 3px #080d16,0 0 5px #080d16;pointer-events:none;z-index:4';host.appendChild(el);axisLabelEls.push({el});});
