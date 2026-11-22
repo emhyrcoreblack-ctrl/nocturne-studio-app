@@ -398,7 +398,7 @@ function setTool(tool){
    camera.updateMatrixWorld(true);
    setWorkPlane(activePlane,activePlane!=='VIEW');
   }
-  if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;}
+  if(THREE&&controls.touches){controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.ZOOM_PAN;}
  }
  if(tool==='line'&&activeAxisLock)ensureLineAxisVisible();
  if(renderer)renderer.domElement.style.cursor=tool==='select'?'grab':'crosshair';
