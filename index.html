@@ -984,29 +984,39 @@ function beginSketch(event){
 }
 function beginTwoFingerCameraGesture(){
  if(!camera||!controls||touchGesturePoints.size<2)return;
- const pts=[...touchGesturePoints.values()].slice(0,2);
- twoFingerCameraGesture={distance:Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)),centerX:(pts[0].x+pts[1].x)/2,centerY:(pts[0].y+pts[1].y)/2};
+ const pts=[...touchGesturePoints.values()].slice(0,2),target=controls.target.clone();
+ const startOffset=camera.position.clone().sub(target);
+ twoFingerCameraGesture={
+  distance:Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)),
+  centerX:(pts[0].x+pts[1].x)/2,centerY:(pts[0].y+pts[1].y)/2,
+  target,startOffset,startUp:camera.up.clone(),
+  right:new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).normalize()
+ };
  controls.enabled=false;
  for(const id of activeTouchPointers){try{renderer.domElement.setPointerCapture(id);}catch(e){}}
 }
 function updateTwoFingerCameraGesture(event){
- if(!twoFingerCameraGesture||touchGesturePoints.size<2||!camera||!controls)return;
+ const gesture=twoFingerCameraGesture;
+ if(!gesture||touchGesturePoints.size<2||!camera||!controls)return;
  touchGesturePoints.set(event.pointerId,{x:event.clientX,y:event.clientY});
  const pts=[...touchGesturePoints.values()].slice(0,2);
  const distance=Math.max(1,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y));
  const centerX=(pts[0].x+pts[1].x)/2,centerY=(pts[0].y+pts[1].y)/2;
- const dx=centerX-twoFingerCameraGesture.centerX,dy=centerY-twoFingerCameraGesture.centerY;
- const target=controls.target,offset=camera.position.clone().sub(target);
+ const dx=centerX-gesture.centerX,dy=centerY-gesture.centerY;
  const yaw=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-dx*.006);
- const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).normalize();
- const pitch=new THREE.Quaternion().setFromAxisAngle(right,-dy*.006);
+ const pitch=new THREE.Quaternion().setFromAxisAngle(gesture.right,-dy*.006);
  const rotation=pitch.multiply(yaw);
- offset.applyQuaternion(rotation).multiplyScalar(twoFingerCameraGesture.distance/distance);
+ const offset=gesture.startOffset.clone().applyQuaternion(rotation).multiplyScalar(gesture.distance/distance);
  offset.setLength(THREE.MathUtils.clamp(offset.length(),controls.minDistance,controls.maxDistance));
- camera.up.applyQuaternion(rotation).normalize();camera.position.copy(target).add(offset);camera.lookAt(target);camera.updateMatrixWorld(true);
- twoFingerCameraGesture={distance,centerX,centerY};
+ camera.position.copy(gesture.target).add(offset);
+ camera.up.copy(gesture.startUp).applyQuaternion(rotation).normalize();
+ camera.lookAt(gesture.target);camera.updateMatrixWorld(true);
+ event.preventDefault();
 }
-function endTwoFingerCameraGesture(){twoFingerCameraGesture=null;if(controls){controls.enabled=true;controls.update();}}
+function endTwoFingerCameraGesture(){
+ twoFingerCameraGesture=null;
+ if(controls)controls.enabled=true;
+}
 function moveSketch(event){
  if(event.pointerType==='touch'&&pinchGesture){updateTwoFingerCameraGesture(event);return;}
  if(event.pointerType==='touch'&&activeTouchPointers.size>=2)return;
