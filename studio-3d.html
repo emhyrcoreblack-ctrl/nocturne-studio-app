@@ -257,7 +257,7 @@ const host=document.getElementById('viewport'),errorBox=document.getElementById(
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null;
 let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
-const activeTouchPointers=new Set();let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
+const activeTouchPointers=new Set();const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 // Las coordenadas táctiles se usan tal como las entrega el navegador: el punto debe quedar donde se levanta el dedo.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 async function startViewport(){
@@ -332,6 +332,36 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   // Los planos se seleccionan directamente desde el panel de coordenadas.
   setWorkPlane('VIEW',false,true);
   const canvas=renderer.domElement;
+  // Rotación de cámara tipo roll con dos dedos: no sustituye el zoom nativo
+  // de TrackballControls; solo añade el giro angular cuando ambos dedos giran.
+  const rollAngle=()=>{const p=[...cameraRollPointers.values()];return p.length===2?Math.atan2(p[1].y-p[0].y,p[1].x-p[0].x):null;};
+  canvas.addEventListener('pointerdown',event=>{
+   if(event.pointerType!=='touch'||activeTool!=='select')return;
+   cameraRollPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+   if(cameraRollPointers.size===2)cameraRollLastAngle=rollAngle();
+  });
+  canvas.addEventListener('pointermove',event=>{
+   if(event.pointerType!=='touch'||activeTool!=='select'||!cameraRollPointers.has(event.pointerId))return;
+   cameraRollPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+   if(cameraRollPointers.size!==2)return;
+   const angle=rollAngle();
+   if(cameraRollLastAngle===null){cameraRollLastAngle=angle;return;}
+   let delta=angle-cameraRollLastAngle;
+   while(delta>Math.PI)delta-=Math.PI*2;
+   while(delta< -Math.PI)delta+=Math.PI*2;
+   cameraRollLastAngle=angle;
+   if(Math.abs(delta)<.0005)return;
+   const viewAxis=controls.target.clone().sub(camera.position).normalize();
+   camera.up.applyAxisAngle(viewAxis,delta).normalize();
+   camera.lookAt(controls.target);
+   controls.update();
+  });
+  const endCameraRoll=event=>{
+   cameraRollPointers.delete(event.pointerId);
+   if(cameraRollPointers.size<2)cameraRollLastAngle=null;
+  };
+  canvas.addEventListener('pointerup',endCameraRoll);
+  canvas.addEventListener('pointercancel',endCameraRoll);
   canvas.addEventListener('pointerdown',beginSketch);
   canvas.addEventListener('pointerup',finishSketch);
   canvas.addEventListener('pointermove',moveSketch);
