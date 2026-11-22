@@ -1047,10 +1047,10 @@ function cancelLineGesture(){
 function cancelSketch(event){
  hideSnapFeedback();hideLineGuide();
  if(event.pointerType==='touch'){
-  activeTouchPointers.delete(event.pointerId);shapeTouchDragPointerId=null;
+  activeTouchPointers.delete(event.pointerId);touchGesturePoints.delete(event.pointerId);shapeTouchDragPointerId=null;
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
-  if(activeTouchPointers.size===0){cancelLineGesture();pinchGesture=false;}
+  if(activeTouchPointers.size===0){cancelLineGesture();pinchGesture=false;endTwoFingerCameraGesture();}
  }else if(lineDragPointerId===event.pointerId){cancelLineGesture();}
  if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}
 }
@@ -1070,7 +1070,7 @@ function finishSketch(event){
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
   const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY),p=raw?resolveSnap(guide,raw):drawStart.clone();
   const completed=finalizeShapeAtPoint(p);
-  shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+  shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchGesturePoints.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
   hideSnapFeedback();hideLineGuide();
   if(completed)return;
  }
