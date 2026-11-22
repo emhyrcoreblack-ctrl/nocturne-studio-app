@@ -334,7 +334,7 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   const canvas=renderer.domElement;
   // Rotación de cámara tipo roll con dos dedos: no sustituye el zoom nativo
   // de TrackballControls; solo añade el giro angular cuando ambos dedos giran.
-  const rollAngle=()=>{const p=[...cameraRollPointers.values()];return p.length===2?Math.atan2(p[1].y-p[0].y,p[1].x-p[0].x):null;};
+  const rollAngle=()=>{const p=[...cameraRollPointers.values()];return p.length===2?Math.atan2(p[0].y-p[1].y,p[1].x-p[0].x):null;};
   canvas.addEventListener('pointerdown',event=>{
    if(event.pointerType!=='touch'||activeTool!=='select')return;
    cameraRollPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
