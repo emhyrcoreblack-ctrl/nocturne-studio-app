@@ -925,7 +925,7 @@ function beginSketch(event){
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);touchGesturePoints.set(event.pointerId,{x:event.clientX,y:event.clientY});
   if(activeTouchPointers.size>=2){
-   pinchGesture=true;touchLineGuideActive=false;hideLineGuide();hideSnapFeedback();touchPendingEvent=null;
+   pinchGesture=true;beginTwoFingerCameraGesture();touchLineGuideActive=false;hideLineGuide();hideSnapFeedback();touchPendingEvent=null;
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
    if(lineGestureCreatedAnchor){linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
    else if(lineObject&&linePoints.length>1)updateFatStroke(lineObject,linePoints);
