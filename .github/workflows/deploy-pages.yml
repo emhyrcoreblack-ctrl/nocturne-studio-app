@@ -27,13 +27,35 @@ jobs:
         run: |
           cmp -s index.html studio-3d.html
           python3 - <<'PY'
+          from html.parser import HTMLParser
           from pathlib import Path
-          import re
-          html = Path('index.html').read_text(encoding='utf-8')
-          scripts = re.findall(r'<script\\b(?=[^>]*\\btype=[\"\\']module[\"\\'])[^>]*>([\\s\\S]*?)</script>', html, re.I)
-          if len(scripts) != 1:
-              raise SystemExit(f'Expected one module script, found {len(scripts)}')
-          Path('/tmp/nocturne-app.js').write_text(scripts[0], encoding='utf-8')
+
+          class ModuleExtractor(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.capture = False
+                  self.current = []
+                  self.scripts = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script' and dict(attrs).get('type') == 'module':
+                      self.capture = True
+                      self.current = []
+
+              def handle_data(self, data):
+                  if self.capture:
+                      self.current.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self.capture:
+                      self.scripts.append(''.join(self.current))
+                      self.capture = False
+
+          parser = ModuleExtractor()
+          parser.feed(Path('index.html').read_text(encoding='utf-8'))
+          if len(parser.scripts) != 1:
+              raise SystemExit(f'Expected one module script, found {len(parser.scripts)}')
+          Path('/tmp/nocturne-app.js').write_text(parser.scripts[0], encoding='utf-8')
           PY
           node --check /tmp/nocturne-app.js
       - name: Configure Pages
