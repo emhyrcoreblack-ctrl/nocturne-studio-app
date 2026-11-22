@@ -221,7 +221,7 @@
  document.getElementById('closeProject').addEventListener('click',()=>document.getElementById('backProjects').click());
  document.getElementById('moreButton').addEventListener('click',()=>document.getElementById('moreMenu').classList.toggle('show'));
  document.getElementById('saveProject').addEventListener('click',()=>{if(window.saveViewportProject)window.saveViewportProject();save();document.getElementById('saveState').textContent='Guardado';document.getElementById('moreMenu').classList.remove('show');});
- document.getElementById('treeToggle').addEventListener('click',()=>{const mobile=matchMedia('(max-width:850px)').matches;workspace.classList.toggle(mobile?'show-tree':'hide-tree');if(mobile)workspace.classList.remove('show-inspector');});
+ document.getElementById('treeToggle').addEventListener('click',()=>{workspace.classList.toggle('show-tree');workspace.classList.remove('show-inspector');});
  document.getElementById('propertiesToggle').addEventListener('click',()=>{const mobile=matchMedia('(max-width:850px)').matches;workspace.classList.toggle(mobile?'show-inspector':'hide-inspector');if(mobile)workspace.classList.remove('show-tree');});
  document.getElementById('helpButton').addEventListener('click',()=>document.getElementById('helpPanel').classList.toggle('show'));
  document.getElementById('closeHelp').addEventListener('click',()=>document.getElementById('helpPanel').classList.remove('show'));
