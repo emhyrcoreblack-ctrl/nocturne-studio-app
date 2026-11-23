@@ -1326,20 +1326,41 @@ function finishSketch(event){
 function trimSegmentAtScreen(clientX,clientY){
  if(!camera||!drawnObjects.length)return false;
  camera.updateMatrixWorld(true);
- const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top;
- const projected=new THREE.Vector3();let best=null,bestIndex=-1,bestPixels=12;
- const dist=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/l,0,1):0;return {d:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};};
- for(const obj of drawnObjects){const pts=obj.userData.controlPoints||[];if(pts.length<2)continue;obj.updateWorldMatrix(true,false);const screen=pts.map(p=>{projected.copy(p);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};});const n=obj.userData.closed?screen.length:screen.length-1;for(let i=0;i<n;i++){const a=screen[i],b=screen[(i+1)%screen.length];if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;const h=dist({x:px,y:py},a,b);if(h.d<bestPixels){best=obj;bestIndex=i;bestPixels=h.d;}}}
- if(!best||bestIndex<0)return false;
- const pts=(best.userData.controlPoints||[]).map(p=>p.clone()),closed=!!best.userData.closed;
- // Trim removes only the clicked straight segment; it never changes neighboring geometry.
- const next=(bestIndex+1)%pts.length;
- let parts=[];
- if(closed){const remaining=[];for(let k=0;k<pts.length;k++){const idx=(next+k)%pts.length;if(idx===bestIndex)continue;remaining.push(pts[idx]);}if(remaining.length>=2)parts=[remaining];}
- else{const left=pts.slice(0,bestIndex+1),right=pts.slice(bestIndex+1);if(left.length>=2)parts.push(left);if(right.length>=2)parts.push(right);}
- const replacements=parts.map(part=>{const obj=makeFatStroke(part,0xe5efff,1,false);if(obj){obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true});}return obj;}).filter(Boolean);
- scene.remove(best);disposePreview(best);drawnObjects=drawnObjects.filter(o=>o!==best);replacements.forEach(o=>{scene.add(o);drawnObjects.push(o);});
- setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Segmento recortado';return true;
+ const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),plane=workPlanes[activePlane];
+ let target=null,targetIndex=-1,targetT=0,bestPixels=12;
+ const distance=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/l,0,1):0;return{d:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};};
+ for(const obj of drawnObjects){
+  const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;
+  obj.updateWorldMatrix(true,false);
+  const screen=pts.map(p=>{projected.copy(p);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};});
+  for(let i=0;i<screen.length-1;i++){const a=screen[i],b=screen[i+1];if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;const h=distance({x:px,y:py},a,b);if(h.d<bestPixels){bestPixels=h.d;target=obj;targetIndex=i;targetT=h.t;}}
+ }
+ if(!target)return false;
+ const pts=target.userData.controlPoints||[],a3=pts[targetIndex],b3=pts[targetIndex+1],origin=new THREE.Vector3();
+ if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05){document.getElementById('saveState').textContent='Recortar requiere el plano activo';return false;}
+ const a=planeCoords(a3),b=planeCoords(b3),rx=b.u-a.u,ry=b.v-a.v;
+ const cross=(x,y,u,v)=>x*v-y*u,hits=[];
+ for(const obj of drawnObjects){
+  const other=obj.userData.controlPoints||[],count=obj.userData.closed?other.length:other.length-1;
+  for(let j=0;j<count;j++){
+   if(obj===target&&j===targetIndex)continue;
+   const p3=other[j],q3=other[(j+1)%other.length];
+   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
+   const p=planeCoords(p3),q=planeCoords(q3),sx=q.u-p.u,sy=q.v-p.v,den=cross(rx,ry,sx,sy);
+   if(Math.abs(den)<1e-9)continue;
+   const dx=p.u-a.u,dy=p.v-a.v,t=cross(dx,dy,sx,sy)/den,u=cross(dx,dy,rx,ry)/den;
+   if(t>1e-5&&t<1-1e-5&&u>=-1e-5&&u<=1+1e-5)hits.push(t);
+  }
+ }
+ hits.sort((x,y)=>x-y);
+ const lo=[...hits].reverse().find(t=>t<targetT-1e-4),hi=hits.find(t=>t>targetT+1e-4);
+ if(lo===undefined||hi===undefined){document.getElementById('saveState').textContent='Recortar: selecciona un tramo entre dos intersecciones';return false;}
+ const cut=t=>a3.clone().lerp(b3,t),left=pts.slice(0,targetIndex+1).map(p=>p.clone()),right=[cut(hi),...pts.slice(targetIndex+1).map(p=>p.clone())];
+ left.push(cut(lo));
+ const replacements=[left,right].filter(p=>p.length>=2).map(part=>{const obj=makeFatStroke(part,0xe5efff,1,false);if(obj)obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:'intersection-trim'});return obj;}).filter(Boolean);
+ if(!replacements.length)return false;
+ scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);replacements.forEach(o=>{scene.add(o);drawnObjects.push(o);});
+ setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Tramo entre intersecciones recortado';return true;
 }
 function findSelectableObject(clientX,clientY){
  if(!camera||!drawnObjects.length)return null;
