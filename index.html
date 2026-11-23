@@ -566,7 +566,7 @@ function setTool(tool){
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
  if(previewObject){disposePreview(previewObject);previewObject=null;}arcPoints=[];
- activeTool=tool;
+ activeTool=tool;if(tool!=='rect')rectFromCenter=false;
  refreshWorkspacePanels();
  if(cursorMarker)cursorMarker.visible=false;
  if(tool!=='line')hideMeasure();
@@ -578,7 +578,7 @@ function setTool(tool){
  activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'';
  activeToggle.setAttribute('aria-label',activeToggle.title||'Herramienta');
  activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
- const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección'};
+ const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:rectFromCenter?'Rectángulo desde el centro · arrastra hasta una esquina':'Rectángulo por esquina · arrastra para dibujar',circle:'Arrastra para dibujar',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
  if(controls){
   controls.enabled=true;
