@@ -1370,17 +1370,19 @@ function extendEndpointAtScreen(clientX,clientY){
  camera.updateMatrixWorld(true);
  const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),origin=new THREE.Vector3(),plane=workPlanes[activePlane];
  let target=null,atStart=false,best=14;
- const project=p=>{projected.copy(p).project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};};
+ const project=(point,obj)=>{projected.copy(point);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};};
  for(const obj of drawnObjects){
   const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;
   obj.updateWorldMatrix(true,false);
   for(const [start,p] of [[true,pts[0]],[false,pts[pts.length-1]]]){
-   const q=project(p),d=Math.hypot(px-q.x,py-q.y);
+   const q=project(p,obj),d=Math.hypot(px-q.x,py-q.y);
    if(q.z>=-1&&q.z<=1&&d<best){best=d;target=obj;atStart=start;}
   }
  }
  if(!target)return false;
- const pts=target.userData.controlPoints||[],endpoint=atStart?pts[0]:pts[pts.length-1],neighbor=atStart?pts[1]:pts[pts.length-2];
+ target.updateWorldMatrix(true,false);
+ const localPts=target.userData.controlPoints||[],pts=localPts.map(p=>target.localToWorld(p.clone()));
+ const endpoint=atStart?pts[0]:pts[pts.length-1],neighbor=atStart?pts[1]:pts[pts.length-2];
  if(Math.abs(endpoint.clone().sub(origin).dot(plane.normal))>.05||Math.abs(neighbor.clone().sub(origin).dot(plane.normal))>.05){document.getElementById('saveState').textContent='Extender requiere el plano activo';return false;}
  const e=planeCoords(endpoint),n=planeCoords(neighbor),dx=e.u-n.u,dy=e.v-n.v,len=Math.hypot(dx,dy);
  if(len<1e-8)return false;
@@ -1388,7 +1390,8 @@ function extendEndpointAtScreen(clientX,clientY){
  let nearest=Infinity,intersection=null;
  for(const obj of drawnObjects){
   if(obj===target)continue;
-  const other=obj.userData.controlPoints||[],count=obj.userData.closed?other.length:other.length-1;
+  obj.updateWorldMatrix(true,false);
+  const localOther=obj.userData.controlPoints||[],other=localOther.map(p=>obj.localToWorld(p.clone())),count=obj.userData.closed?other.length:other.length-1;
   for(let j=0;j<count;j++){
    const p3=other[j],q3=other[(j+1)%other.length];
    if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
@@ -1408,7 +1411,6 @@ function extendEndpointAtScreen(clientX,clientY){
  setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
  document.getElementById('saveState').textContent='Extremo extendido hasta la intersección';return true;
 }
-
 function findSelectableObject(clientX,clientY){
  if(!camera||!drawnObjects.length)return null;
  camera.updateMatrixWorld(true);
@@ -1448,7 +1450,7 @@ function refreshWorkspacePanels(){
  const projectName=document.getElementById('documentTitle')?.textContent||'Proyecto';
  const treeName=document.getElementById('treeProjectName');if(treeName)treeName.textContent=projectName;
  const count=document.getElementById('inspectorCount');if(count)count.textContent=String(drawnObjects.length);
- const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar'}[activeTool]||activeTool);
+ const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar',extend:'Extender'}[activeTool]||activeTool);
  const plane=document.getElementById('inspectorPlane');if(plane)plane.textContent=({VIEW:'Vista',XZ:'Suelo · XZ',XY:'Frente · XY',YZ:'Lado · YZ'}[activePlane]||activePlane);
  const selection=document.getElementById('inspectorSelection');
  if(selection){
