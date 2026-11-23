@@ -1190,10 +1190,12 @@ function moveSketch(event){
   const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
   const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
   if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
-  else updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+  else if(activeTool==='polygon')updateMeasureAt('Radio: '+fmt(distance)+' cm','Polígono regular · 6 lados',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+  else if(activeTool==='ellipse')updateMeasureAt('Radio X: '+fmt(dx)+' cm','Radio Y: '+fmt(dz)+' cm',anchor);
   event.preventDefault();return;
  }
- if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!drawStart){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;if(touchLineGuideActive)updateLineStartGuide(event);return;}
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!drawStart){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;if(touchLineGuideActive)updateLineStartGuide(event);return;}
  if(event.pointerType==='touch'&&shapeTouchDragPointerId!==null&&event.pointerId!==shapeTouchDragPointerId)return;
  if(event.pointerType==='touch'&&activeTool==='line'){
   if(touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;}
@@ -1246,7 +1248,7 @@ function finalizeShapeAtPoint(p){
  saveViewportProject();recordDrawingHistory();return true;
 }
 function finishSketch(event){
- if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
   const p=updateLineStartGuide(event)||(()=>{const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);return raw?resolveSnap(guide,raw):drawStart.clone();})();
   const completed=finalizeShapeAtPoint(p);
   shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
@@ -1254,7 +1256,7 @@ function finishSketch(event){
   if(completed)return;
  }
  if(event.pointerType==='touch'){
-  if((activeTool==='rect'||activeTool==='circle')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=updateLineStartGuide(event)||pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;hideSnapFeedback();hideLineGuide();return;}
+  if((activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=updateLineStartGuide(event)||pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;hideSnapFeedback();hideLineGuide();return;}
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
