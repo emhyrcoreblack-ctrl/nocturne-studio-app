@@ -233,58 +233,62 @@
 <button id="fitButton" title="Restablecer vista" aria-label="Restablecer vista">⟳</button><button id="activeToolToggle" type="button" hidden aria-label="Herramienta activa"></button><button id="gridButton" type="button" hidden aria-label="Cuadrícula"></button><button id="axesButton" type="button" hidden aria-label="Ejes"></button><span class="save-state" id="saveState" aria-live="polite">Seleccionar</span>
 </nav>
 <div id="drawToolsPanel" aria-hidden="true" role="dialog" aria-label="Herramientas de croquis">
- <div class="palette-head"><strong>CROQUIS 2D</strong><button type="button" data-palette-close title="Cerrar" aria-label="Cerrar">×</button></div>
+ <div class="palette-head"><strong>CROQUIS 2D · ONshape</strong><button type="button" data-palette-close title="Cerrar" aria-label="Cerrar">×</button></div>
  <div class="palette-group"><span>GEOMETRÍA</span><div class="palette-grid">
-  <button type="button" data-palette-tool="select" title="Seleccionar" aria-label="Seleccionar">⌖</button>
-  <button type="button" data-palette-tool="line" title="Línea / Polilínea" aria-label="Línea o polilínea">／</button>
-  <button type="button" title="Línea de construcción" aria-label="Línea de construcción">┄</button>
-  <button type="button" title="Línea de centro" aria-label="Línea de centro">┆</button>
-  <button type="button" data-palette-tool="rect" title="Rectángulo por esquinas" aria-label="Rectángulo por esquinas">▭</button>
-  <button type="button" title="Rectángulo centrado" aria-label="Rectángulo centrado">▣</button>
-  <button type="button" title="Paralelogramo" aria-label="Paralelogramo">▱</button>
-  <button type="button" title="Polígono" aria-label="Polígono">⬡</button>
-  <button type="button" data-palette-tool="circle" title="Círculo por centro" aria-label="Círculo por centro">○</button>
-  <button type="button" title="Círculo por tres puntos" aria-label="Círculo por tres puntos">◉</button>
-  <button type="button" title="Arco por centro" aria-label="Arco por centro">◜</button>
-  <button type="button" title="Arco por tres puntos" aria-label="Arco por tres puntos">◝</button>
-  <button type="button" title="Arco tangente" aria-label="Arco tangente">⌒</button>
-  <button type="button" title="Spline" aria-label="Spline">∿</button>
-  <button type="button" title="Punto" aria-label="Punto">•</button>
-  <button type="button" title="Ranura" aria-label="Ranura">▰</button>
-  <button type="button" title="Ranura centrada" aria-label="Ranura centrada">▱</button>
-  <button type="button" title="Elipse" aria-label="Elipse">⬭</button>
+  <button type="button" data-palette-tool="line" title="Línea" aria-label="Línea">／</button>
+  <button type="button" data-palette-tool="rect" title="Rectángulo por esquina" aria-label="Rectángulo por esquina">□</button>
+  <button type="button" title="Rectángulo por punto central · próximamente" aria-label="Rectángulo por punto central" disabled>▣</button>
+  <button type="button" data-palette-tool="circle" title="Círculo por punto central" aria-label="Círculo por punto central">○</button>
+  <button type="button" title="Círculo por 3 puntos · próximamente" aria-label="Círculo por 3 puntos" disabled>◉</button>
+  <button type="button" title="Elipse · próximamente" aria-label="Elipse" disabled>⬭</button>
+  <button type="button" title="Polígono inscrito · próximamente" aria-label="Polígono inscrito" disabled>⬠</button>
+  <button type="button" title="Polígono circunscrito · próximamente" aria-label="Polígono circunscrito" disabled>⬡</button>
+ </div></div>
+ <div class="palette-group"><span>CREACIÓN Y REFERENCIAS</span><div class="palette-grid">
+  <button type="button" title="Texto · próximamente" aria-label="Texto" disabled>A</button>
+  <button type="button" title="Usar / proyectar geometría · próximamente" aria-label="Usar" disabled>▣</button>
+  <button type="button" title="Intersección · próximamente" aria-label="Intersección" disabled>∩</button>
+  <button type="button" title="Redondeo · próximamente" aria-label="Redondeo" disabled>⌒</button>
+  <button type="button" title="Chaflán · próximamente" aria-label="Chaflán" disabled>／</button>
+  <button type="button" title="Insertar DXF o DWG · próximamente" aria-label="Insertar DXF o DWG" disabled>DXF</button>
+  <button type="button" title="Insertar imagen · próximamente" aria-label="Insertar imagen" disabled>▧</button>
+  <button type="button" title="Cota · próximamente" aria-label="Cota" disabled>↔</button>
+ </div></div>
+ <div class="palette-group"><span>CURVAS Y PUNTOS</span><div class="palette-grid">
+  <button type="button" title="Arco por 3 puntos · próximamente" aria-label="Arco por 3 puntos" disabled>⌒</button>
+  <button type="button" title="Arco tangente · próximamente" aria-label="Arco tangente" disabled>◜</button>
+  <button type="button" title="Arco por punto central · próximamente" aria-label="Arco por punto central" disabled>◝</button>
+  <button type="button" title="Spline · próximamente" aria-label="Spline" disabled>∿</button>
+  <button type="button" title="Punto de spline · próximamente" aria-label="Punto de spline" disabled>＋</button>
+  <button type="button" title="Punto · próximamente" aria-label="Punto" disabled>•</button>
  </div></div>
  <div class="palette-group"><span>MODIFICAR</span><div class="palette-grid">
-  <button type="button" title="Recortar" aria-label="Recortar">✂</button>
-  <button type="button" title="Extender" aria-label="Extender">↗</button>
-  <button type="button" title="Dividir" aria-label="Dividir">⫽</button>
-  <button type="button" title="Desfasar" aria-label="Desfasar">⇉</button>
-  <button type="button" title="Simetría" aria-label="Simetría">◫</button>
-  <button type="button" title="Transformar" aria-label="Transformar">✥</button>
-  <button type="button" title="Usar / proyectar aristas" aria-label="Usar o proyectar aristas">⤢</button>
-  <button type="button" title="Convertir en construcción" aria-label="Convertir en construcción">┄</button>
+  <button type="button" title="Recortar · próximamente" aria-label="Recortar" disabled>✂</button>
+  <button type="button" title="Extender · próximamente" aria-label="Extender" disabled>⇥</button>
+  <button type="button" title="Partir · próximamente" aria-label="Partir" disabled>⋔</button>
+  <button type="button" title="Equidistancia · próximamente" aria-label="Equidistancia" disabled>▱</button>
+  <button type="button" title="Ranura · próximamente" aria-label="Ranura" disabled>⊖</button>
+ </div></div>
+ <div class="palette-group"><span>PATRONES Y TRANSFORMACIÓN</span><div class="palette-grid">
+  <button type="button" title="Patrón lineal · próximamente" aria-label="Patrón lineal" disabled>▦</button>
+  <button type="button" title="Simetría · próximamente" aria-label="Simetría" disabled>◫</button>
+  <button type="button" title="Patrón circular · próximamente" aria-label="Patrón circular" disabled>◎</button>
+  <button type="button" title="Transformar · próximamente" aria-label="Transformar" disabled>✥</button>
  </div></div>
  <div class="palette-group"><span>RESTRICCIONES</span><div class="palette-grid">
-  <button type="button" data-palette-constraint="coincident" title="Coincidente" aria-label="Coincidente">◇</button>
-  <button type="button" data-palette-constraint="horizontal" title="Horizontal" aria-label="Horizontal">↔</button>
-  <button type="button" data-palette-constraint="vertical" title="Vertical" aria-label="Vertical">↕</button>
-  <button type="button" data-palette-constraint="parallel" title="Paralela" aria-label="Paralela">∥</button>
+  <button type="button" data-palette-constraint="coincident" title="Coincidente" aria-label="Coincidente">•</button>
+  <button type="button" title="Concéntrico · próximamente" aria-label="Concéntrico" disabled>◎</button>
+  <button type="button" data-palette-constraint="parallel" title="Paralelo" aria-label="Paralelo">∥</button>
+  <button type="button" title="Tangente · próximamente" aria-label="Tangente" disabled>◔</button>
+  <button type="button" data-palette-constraint="horizontal" title="Horizontal" aria-label="Horizontal">—</button>
+  <button type="button" data-palette-constraint="vertical" title="Vertical" aria-label="Vertical">│</button>
   <button type="button" data-palette-constraint="perpendicular" title="Perpendicular" aria-label="Perpendicular">⊥</button>
-  <button type="button" title="Tangente" aria-label="Tangente">◔</button>
-  <button type="button" title="Igual" aria-label="Igual">=</button>
-  <button type="button" title="Concéntrica" aria-label="Concéntrica">◎</button>
-  <button type="button" title="Punto medio" aria-label="Punto medio">⊙</button>
-  <button type="button" title="Simétrica" aria-label="Simétrica">⇔</button>
+  <button type="button" title="Igual · próximamente" aria-label="Igual" disabled>=</button>
+  <button type="button" title="Punto medio · próximamente" aria-label="Punto medio" disabled>⊙</button>
+  <button type="button" title="Normal · próximamente" aria-label="Normal" disabled>∟</button>
+  <button type="button" title="Perforar · próximamente" aria-label="Perforar" disabled>⌁</button>
+  <button type="button" title="Simétrico · próximamente" aria-label="Simétrico" disabled>⇔</button>
   <button type="button" data-palette-constraint="fixed" title="Fijar" aria-label="Fijar">⌖</button>
-  <button type="button" data-palette-constraint="unlock" title="Desbloquear" aria-label="Desbloquear">⌑</button>
- </div></div>
- <div class="palette-group"><span>COTAS</span><div class="palette-grid">
-  <button type="button" title="Cota lineal" aria-label="Cota lineal">↔</button>
-  <button type="button" title="Cota horizontal" aria-label="Cota horizontal">↔</button>
-  <button type="button" title="Cota vertical" aria-label="Cota vertical">↕</button>
-  <button type="button" title="Cota de radio" aria-label="Cota de radio">R</button>
-  <button type="button" title="Cota de diámetro" aria-label="Cota de diámetro">Ø</button>
-  <button type="button" title="Cota angular" aria-label="Cota angular">∠</button>
  </div></div>
 </div>
 <aside id="featurePanel" aria-label="Árbol del proyecto">
