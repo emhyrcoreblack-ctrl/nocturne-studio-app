@@ -1169,7 +1169,7 @@ function beginSketch(event){
  }
  beginSketchNow(event);
 }function beginSketchNow(event){
- if(activeTool==='select'||activeTool==='trim'){
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
   if(event.button!==0)return;
   selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
  }
@@ -1295,7 +1295,7 @@ function finishSketch(event){
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
  }
- if(activeTool==='select'||activeTool==='trim'){
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
   const down=selectionPointerDown;selectionPointerDown=null;
   if(down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
    if(activeTool==='trim'){const changed=trimSegmentAtScreen(event.clientX,event.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
