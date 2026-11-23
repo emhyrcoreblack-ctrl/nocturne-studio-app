@@ -1125,6 +1125,10 @@ function beginSketch(event){
    return;
   }
   if(pinchGesture)return;
+  if(activeTool==='arc'){
+   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
+   return;
+  }
   if(activeTool==='line'){
    if(linePoints.length===0){
     // Primer gesto: solo posiciona el punto inicial, sin crear geometría.
@@ -1253,7 +1257,12 @@ function finalizeShapeAtPoint(p){
 }
 function finishSketch(event){
  if(activeTool==='arc'){
-  if(event.pointerType==='touch'&&!pinchGesture){const p=pointForSketch(event,true);if(p)addArcPoint(p);activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}hideLineGuide();hideSnapFeedback();}
+  if(event.pointerType==='touch'){
+   if(!pinchGesture){const p=pointForSketch(event,true);if(p)addArcPoint(p);}
+   activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;
+   if(activeTouchPointers.size===0){pinchGesture=false;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}}
+   hideLineGuide();hideSnapFeedback();
+  }
   return;
  }
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
