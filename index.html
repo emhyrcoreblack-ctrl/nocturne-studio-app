@@ -1209,6 +1209,11 @@ function moveSketch(event){
   if(touchLineGuideActive){if(linePoints.length===0&&touchFirstAnchorStart&&Math.hypot(event.clientX-touchFirstAnchorStart.x,event.clientY-touchFirstAnchorStart.y)>8)touchFirstAnchorMoved=true;updateLineStartGuide(event);}
  }
  else if(event.pointerType==='touch'&&touchLineGuideActive){updateLineStartGuide(event);return;}
+ else if(event.pointerType==='touch'&&touchPendingEvent&&activeTool==='arc'){
+  touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;positionTouchCursor(event);
+  if(arcPoints.length>=2){const arcEnd=pointForSketch(event);if(arcEnd){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=makeArcShape(arcPoints[0],arcPoints[1],arcEnd,true);if(previewObject)scene.add(previewObject);updateMeasureAt('Arco · 3 puntos','Define el punto final',arcEnd.clone().addScaledVector(workPlanes[activePlane].normal,.08));}}
+  return;
+ }
  else if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
  const p=pointForSketch(event);if(!p)return;
  if(cursorMarker)cursorMarker.visible=false;
