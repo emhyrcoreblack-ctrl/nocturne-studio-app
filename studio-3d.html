@@ -804,7 +804,7 @@ function pointOnGroundAt(clientX,clientY){
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
 function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
 function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
-const TOUCH_CURSOR_OFFSET=76;
+const TOUCH_CURSOR_OFFSET=112;
 function lineGuideEvent(event){return event&&event.pointerType==='touch'?{...event,clientY:event.clientY-TOUCH_CURSOR_OFFSET}:event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function positionTouchCursor(event){
@@ -1342,6 +1342,7 @@ function beginSketch(event){
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch')positionTouchCursor(event);
  if(event.pointerType==='touch'&&(isDragShapeTool(activeTool))&&shapeTouchDragPointerId===event.pointerId&&drawStart){
   const p=pointForSketch(event);if(!p)return;
   positionTouchCursor(event);
