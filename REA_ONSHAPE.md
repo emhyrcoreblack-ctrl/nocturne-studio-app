@@ -42,3 +42,7 @@ Se localizaron tipos y estructuras relacionadas con entidades de cara, arista y 
 - Mantener cursor, punto de inicio, snap y coordenadas bajo la misma transformación.
 - Toda operación geométrica nueva debe actualizar escena, árbol/inspector, persistencia e historial.
 - No habilitar un botón hasta que la operación esté implementada y probada en ejecución.
+
+
+## Auditoría funcional del código (2026-11-24)
+El inventario de clases DEX es una referencia de familias de herramientas, no una especificación ejecutable. La inspección de `studio-3d.html` muestra rutas de ejecución para Línea, Rectángulo por esquina y Círculo por centro; las demás herramientas de croquis y las operaciones de sólido continúan deshabilitadas o sin motor geométrico. Las restricciones visibles tienen lógica parcial y necesitan pruebas específicas. El estado detallado, los huecos de implementación y los criterios de aceptación están en `CAD_TOOL_AUDIT.md`. No habilitar herramientas pendientes solo quitando `disabled`.
