@@ -804,13 +804,14 @@ function pointOnGroundAt(clientX,clientY){
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
 function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
 function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
-function lineGuideEvent(event){return event;}
+const TOUCH_CURSOR_OFFSET=38;
+function lineGuideEvent(event){return event&&event.pointerType==='touch'?{...event,clientY:event.clientY-TOUCH_CURSOR_OFFSET}:event;}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function positionTouchCursor(event){
  if(!lineGuideEl||!event)return;
- const r=host.getBoundingClientRect();
- // El centro visual de la cruz coincide con el mismo pixel que pointOnGroundAt() proyecta.
- const x=event.clientX-r.left,y=event.clientY-r.top;
+ const r=host.getBoundingClientRect(),guide=lineGuideEvent(event);
+ // La cruz se eleva sobre la yema; el punto geométrico usa exactamente este mismo pixel.
+ const x=guide.clientX-r.left,y=guide.clientY-r.top;
  lineGuideEl.style.left=x+'px';lineGuideEl.style.top=y+'px';lineGuideEl.style.display='block';
 }
 function updateLineStartGuide(event){
@@ -1266,17 +1267,14 @@ function beginSketch(event){
    event.preventDefault();return;
   }
   if(isDragShapeTool(activeTool)){
+   // Un solo gesto táctil: tocar y arrastrar crea la figura, sin exigir un segundo toque.
    if(!drawStart){
-    // Primer gesto: muestra la guía y fija el inicio al soltar.
-    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
-    touchLineGuideActive=true;updateLineStartGuide(event);
-    event.preventDefault();return;
+    const start=pointForSketch(event,true);if(!start)return;
+    drawStart=start.clone();shapeTouchDragPointerId=event.pointerId;
+    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
+    previewObject=makeShape(activeTool,drawStart,drawStart,true);
+    if(previewObject)scene.add(previewObject);
    }
-   // Segundo gesto: arrastra para definir tamaño y forma.
-   shapeTouchDragPointerId=event.pointerId;
-   try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
-   previewObject=makeShape(activeTool,drawStart,drawStart,true);
-   if(previewObject)scene.add(previewObject);
    event.preventDefault();return;
   }
   touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType,button:event.button,preventDefault(){}};
