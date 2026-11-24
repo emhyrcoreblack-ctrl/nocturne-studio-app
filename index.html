@@ -282,6 +282,55 @@
  #drawToolsPanel .onshape-row button{height:62px!important;font-size:9.5px!important;border-radius:8px!important}
  #drawToolsPanel .onshape-row button svg{width:25px!important;height:25px!important}
 }
+
+
+/* Rediseño CAD: paleta compacta, sobria y legible inspirada en flujos profesionales */
+#drawToolsPanel{
+ position:fixed!important;inset:102px 0 0!important;width:100vw!important;height:auto!important;
+ max-width:none!important;max-height:none!important;transform:none!important;
+ display:none!important;grid-template-columns:1fr!important;align-content:start!important;
+ gap:0!important;padding:8px 10px calc(14px + env(safe-area-inset-bottom))!important;
+ overflow-x:hidden!important;overflow-y:auto!important;border:0!important;border-top:1px solid #26394f!important;
+ border-radius:0!important;background:#101b29!important;color:#e7eef7!important;
+ box-shadow:0 -10px 28px #0006!important;
+}
+#drawToolsPanel.open{display:grid!important}
+#drawToolsPanel .onshape-topbar,#drawToolsPanel .onshape-search{display:none!important}
+#drawToolsPanel .onshape-tools{padding:0!important;width:100%!important;min-width:0!important;overflow:visible!important}
+#drawToolsPanel .onshape-row{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ grid-auto-flow:row!important;gap:2px!important;padding:5px 0!important;
+ border-bottom:1px solid #26394b!important;
+}
+#drawToolsPanel .onshape-row.single{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#drawToolsPanel .onshape-row.single button{grid-column:1!important;max-width:82px!important}
+#drawToolsPanel .onshape-row.grid3,#drawToolsPanel .onshape-row.grid4,#drawToolsPanel .onshape-row.grid5{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#drawToolsPanel .onshape-row button{
+ width:100%!important;min-width:0!important;height:64px!important;padding:5px 2px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ gap:4px!important;border:1px solid transparent!important;border-radius:8px!important;
+ background:transparent!important;color:#cbd8e7!important;box-shadow:none!important;
+ font-size:10px!important;font-weight:500!important;line-height:1.12!important;text-align:center!important;
+}
+#drawToolsPanel .onshape-row button:disabled{opacity:1!important;color:#9aacc0!important}
+#drawToolsPanel .onshape-row button:active,#drawToolsPanel .onshape-row button[aria-pressed="true"]{
+ background:#1c3550!important;border-color:#355a7d!important;color:#fff!important
+}
+#drawToolsPanel .onshape-row button svg{width:25px!important;height:25px!important;flex:none!important;overflow:visible!important}
+#drawToolsPanel .onshape-row button svg [stroke="#222"],#drawToolsPanel .onshape-row button svg [stroke="#222222"]{stroke:#d9e5f2!important}
+#drawToolsPanel .onshape-row button svg [stroke="#24649c"]{stroke:#62b4f5!important}
+#drawToolsPanel .onshape-row button svg [fill="#222"]{fill:#d9e5f2!important}
+#drawToolsPanel .onshape-row button span{display:block!important;max-width:100%!important;max-height:2.25em!important;overflow:hidden!important;overflow-wrap:anywhere!important}
+#drawToolsPanel .onshape-divider{height:1px!important;min-height:1px!important;margin:1px 0!important;background:#26394b!important;flex:none!important}
+#drawToolsPanel .onshape-close{justify-content:center!important;padding:8px 0 2px!important}
+#drawToolsPanel .onshape-close button{min-width:100px!important;padding:7px 16px!important;border:1px solid #344b64!important;border-radius:8px!important;background:#17283a!important;color:#cbd8e7!important;font-size:11px!important}
+@media(max-width:640px){
+ #drawToolsPanel{inset:102px 0 0!important;padding:6px 8px calc(12px + env(safe-area-inset-bottom))!important}
+ #drawToolsPanel .onshape-row{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:1px!important;padding:4px 0!important}
+ #drawToolsPanel .onshape-row.single{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #drawToolsPanel .onshape-row button{height:62px!important;font-size:9px!important;border-radius:7px!important}
+ #drawToolsPanel .onshape-row button svg{width:24px!important;height:24px!important}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
