@@ -1004,6 +1004,43 @@ function resolveSnap(event,raw){
   line.setAttribute('y2',String(y+hits[hits.length-1]*uy));
   line.setAttribute('visibility','visible');
  };
+ // Captura prioritaria del origen global (0,0,0): punto común de los tres ejes.
+ // Evita que el cursor quede cerca del cruce sin conectarse al punto exacto.
+ const originPoint=new THREE.Vector3(0,0,0);
+ const originNdc=originPoint.clone().project(camera);
+ const originScreen={
+  x:(originNdc.x+1)*rectNow.width*.5,
+  y:(1-originNdc.y)*rectNow.height*.5
+ };
+ const originDistance=Math.hypot(pointerPx.x-originScreen.x,pointerPx.y-originScreen.y);
+ const originDepth=originPoint.clone().sub(ray.origin).dot(ray.direction);
+ const originHasPriority=originNdc.z>=-1&&originNdc.z<=1&&originDistance<=16&&originDepth>0;
+ if(originHasPriority&&(!nearestVertex||originDistance<nearestVertexPx)&&(!nearestEdge||originDistance<nearestEdgePx)){
+  hideInferenceOverlay();
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapMarkerEl){
+   snapMarkerEl.style.left=originScreen.x+'px';
+   snapMarkerEl.style.top=originScreen.y+'px';
+   snapMarkerEl.style.display='block';
+  }
+  if(snapVertexObject){
+   const size=worldPerPixelAt(originDepth)*15,half=size*.5;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[originPoint.clone().sub(right).sub(up),originPoint.clone().add(right).sub(up),originPoint.clone().add(right).add(up),originPoint.clone().sub(right).add(up),originPoint.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();snapVertexObject.visible=true;
+  }
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(angleHintEl){
+   angleHintEl.textContent='Origen · 0, 0, 0';
+   angleHintEl.style.left=(originScreen.x+12)+'px';
+   angleHintEl.style.top=(originScreen.y+12)+'px';
+   angleHintEl.style.display='block';
+  }
+  snapKind='global-origin';
+  return originPoint;
+ }
  // Captura precisa sobre los tres ejes globales. La cuadrícula no participa
  // en el cálculo: solo se consideran las rectas X, Y y Z que pasan por el origen.
  // El punto se obtiene de la distancia mínima entre el rayo de cámara y cada eje,
