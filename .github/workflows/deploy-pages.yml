@@ -23,9 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate app source
+      - name: Validate app sources
         run: |
-          cmp -s index.html studio-3d.html
           python3 - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
@@ -51,13 +50,18 @@ jobs:
                       self.scripts.append(''.join(self.current))
                       self.capture = False
 
-          parser = ModuleExtractor()
-          parser.feed(Path('index.html').read_text(encoding='utf-8'))
-          if len(parser.scripts) != 1:
-              raise SystemExit(f'Expected one module script, found {len(parser.scripts)}')
-          Path('/tmp/nocturne-app.js').write_text(parser.scripts[0], encoding='utf-8')
+          for source in ('index.html', 'studio-3d.html'):
+              path = Path(source)
+              if not path.is_file():
+                  raise SystemExit(f'Missing app source: {source}')
+              parser = ModuleExtractor()
+              parser.feed(path.read_text(encoding='utf-8'))
+              if len(parser.scripts) != 1:
+                  raise SystemExit(f'{source}: expected one module script, found {len(parser.scripts)}')
+              Path(f'/tmp/{path.stem}.js').write_text(parser.scripts[0], encoding='utf-8')
           PY
-          node --check /tmp/nocturne-app.js
+          node --check /tmp/index.js
+          node --check /tmp/studio-3d.js
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -74,35 +78,3 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
-
-# Re-trigger deployment after synchronizing the CAD snap feedback files.
-
-# Redeploy corrected snap priority and alignment handling.
-
-# Redeploy continuous line drag and pointer release fixes.
-
-# Redeploy immediate first-touch line preview behavior.
-
-# Publish unified touch and mouse drag handling.
-
-# Restore touch guide and allow continuous multi-segment line drawing.
-
-# Redeploy aligned touch cursor and stable pointer cleanup.
-
-# Redeploy line preview rollback and final touch input cleanup.
-
-# Publish compact crosshair and unified line endpoint mapping.
-
-# Deploy first-touch cross-only anchor behavior.
-
-# Deploy immediate touch cross and stronger CAD snapping.
-
-# deploy-refresh 2026-11-08 first-anchor swipe guard
-
-# Trigger deployment for the latest synchronized studio files.
-
-# Redeploy corrected CAD snap detection without live-preview self-snapping.
-
-# Publish matrix refresh and stronger on-screen CAD snap feedback.
-
-# Fresh deployment trigger to avoid reusing artifacts from a previous failed attempt.
