@@ -237,6 +237,51 @@
 #drawToolsPanel .onshape-topbar,#drawToolsPanel .onshape-search{display:none!important}
 #drawToolsPanel{top:102px!important;max-height:calc(100dvh - 112px)!important}
 @media(max-width:640px){#editorToolbar{top:62px!important;height:38px!important;min-height:38px!important}#editorToolbar #drawMenuButton{flex-basis:32px!important;width:32px!important;min-width:32px!important;height:32px!important}#drawToolsPanel{top:102px!important;max-height:calc(100dvh - 112px)!important}}
+
+
+/* Paleta CAD compacta a pantalla completa: jerarquía visual y controles densos */
+#drawToolsPanel{
+ position:fixed!important;top:102px!important;left:0!important;right:0!important;bottom:0!important;
+ width:100vw!important;max-width:none!important;max-height:none!important;height:auto!important;
+ transform:none!important;border:0!important;border-top:1px solid #2c4058!important;
+ border-radius:0!important;padding:8px 10px calc(12px + env(safe-area-inset-bottom))!important;
+ background:linear-gradient(180deg,#111d2b 0%,#0c1521 100%)!important;color:#e5edf7!important;
+ box-shadow:0 -8px 26px #0005!important;overflow-x:hidden!important;overflow-y:auto!important;
+ grid-template-columns:1fr!important;align-content:start!important;gap:5px!important;
+}
+#drawToolsPanel .onshape-topbar,#drawToolsPanel .onshape-search{display:none!important}
+#drawToolsPanel .onshape-tools{padding:0!important;width:100%!important;overflow:visible!important}
+#drawToolsPanel .onshape-row{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:5px!important;padding:5px 0!important;border-bottom:1px solid #26384d!important;
+}
+#drawToolsPanel .onshape-row.single{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#drawToolsPanel .onshape-row.single button{grid-column:auto!important}
+#drawToolsPanel .onshape-row.grid3,#drawToolsPanel .onshape-row.grid4,#drawToolsPanel .onshape-row.grid5{
+ grid-template-columns:repeat(5,minmax(0,1fr))!important
+}
+#drawToolsPanel .onshape-row button{
+ min-width:0!important;height:66px!important;padding:5px 2px!important;gap:3px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ border:1px solid #2a3d54!important;border-radius:9px!important;background:#172638!important;
+ color:#dce7f4!important;font-size:10px!important;line-height:1.12!important;font-weight:500!important;
+ box-shadow:inset 0 1px #ffffff08!important;
+}
+#drawToolsPanel .onshape-row button:active,#drawToolsPanel .onshape-row button[aria-pressed="true"]{
+ background:#24476b!important;border-color:#6aa5df!important;color:#fff!important
+}
+#drawToolsPanel .onshape-row button svg{width:27px!important;height:27px!important;flex:none!important}
+#drawToolsPanel .onshape-row button span{max-width:100%!important;max-height:2.25em!important;overflow:hidden!important}
+#drawToolsPanel .onshape-divider{height:1px!important;background:#30445c!important;margin:1px 0!important}
+#drawToolsPanel .onshape-close{padding:4px 0!important}
+#drawToolsPanel .onshape-close button{background:#20344a!important;color:#e5edf7!important;border:1px solid #3a536f!important;border-radius:8px!important}
+@media(max-width:640px){
+ #drawToolsPanel{top:102px!important;padding:6px 7px calc(10px + env(safe-area-inset-bottom))!important}
+ #drawToolsPanel .onshape-row{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important;padding:4px 0!important}
+ #drawToolsPanel .onshape-row.single,#drawToolsPanel .onshape-row.grid3,#drawToolsPanel .onshape-row.grid4,#drawToolsPanel .onshape-row.grid5{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #drawToolsPanel .onshape-row button{height:62px!important;font-size:9.5px!important;border-radius:8px!important}
+ #drawToolsPanel .onshape-row button svg{width:25px!important;height:25px!important}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
