@@ -220,6 +220,15 @@
  #drawToolsPanel .onshape-search{position:sticky;top:54px;z-index:2;background:#fff}
 }
 
+
+
+/* Interfaz simplificada solicitada: conservar únicamente el lápiz */
+#workspaceBottom{display:none!important}
+#editorToolbar{top:56px!important;height:46px!important;justify-content:flex-start!important;padding:0 9px!important;overflow:hidden!important}
+#editorToolbar>*{display:none!important}
+#editorToolbar #drawMenuButton{display:inline-grid!important;flex:0 0 38px!important;width:38px!important;min-width:38px!important;height:38px!important;place-items:center!important;font-size:23px!important}
+#viewport{inset:102px 0 0!important}
+@media(min-width:641px){#editorToolbar{top:58px!important}#viewport{inset:104px 0 0!important}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
