@@ -229,6 +229,14 @@
 #editorToolbar #drawMenuButton{display:inline-grid!important;flex:0 0 38px!important;width:38px!important;min-width:38px!important;height:38px!important;place-items:center!important;font-size:23px!important}
 #viewport{inset:102px 0 0!important}
 @media(min-width:641px){#editorToolbar{top:58px!important}#viewport{inset:104px 0 0!important}}
+
+
+/* Ajuste de paleta: botón de lápiz compacto y sin cabecera/buscador redundantes */
+#editorToolbar{height:40px!important;min-height:40px!important;padding:0 8px!important}
+#editorToolbar #drawMenuButton{flex:0 0 32px!important;width:32px!important;min-width:32px!important;height:32px!important;font-size:19px!important;border-radius:7px!important}
+#drawToolsPanel .onshape-topbar,#drawToolsPanel .onshape-search{display:none!important}
+#drawToolsPanel{top:102px!important;max-height:calc(100dvh - 112px)!important}
+@media(max-width:640px){#editorToolbar{top:62px!important;height:38px!important;min-height:38px!important}#editorToolbar #drawMenuButton{flex-basis:32px!important;width:32px!important;min-width:32px!important;height:32px!important}#drawToolsPanel{top:102px!important;max-height:calc(100dvh - 112px)!important}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
