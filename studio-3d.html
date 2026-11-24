@@ -809,10 +809,16 @@ function lineGuideEvent(event){return event&&event.pointerType==='touch'?{...eve
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function positionTouchCursor(event){
  if(!lineGuideEl||!event)return;
- const r=host.getBoundingClientRect(),guide=lineGuideEvent(event);
- // La cruz y el punto geométrico usan el mismo desplazamiento vertical para quedar visibles sobre la yema.
- const x=guide.clientX-r.left,y=guide.clientY-r.top;
- lineGuideEl.style.left=x+'px';lineGuideEl.style.top=y+'px';lineGuideEl.style.display='block';
+ const r=host.getBoundingClientRect();
+ // La cruz es solo un indicador visual: se eleva respecto al punto real del dedo
+ // sin modificar la coordenada usada por el motor geométrico ni el ajuste a entidades.
+ const touch=event.pointerType==='touch';
+ const x=event.clientX-r.left;
+ const y=event.clientY-r.top-(touch?104:0);
+ lineGuideEl.style.left=x+'px';lineGuideEl.style.top=y+'px';
+ lineGuideEl.style.zIndex='1002';
+ lineGuideEl.style.willChange='left,top';
+ lineGuideEl.style.display='block';
 }
 function updateLineStartGuide(event){
  const guide=lineGuideEvent(event),x=guide.clientX,y=guide.clientY,raw=pointOnGroundAt(x,y);if(!raw)return null;
