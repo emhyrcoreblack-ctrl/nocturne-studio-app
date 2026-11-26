@@ -733,7 +733,7 @@ function setTool(tool){
   // El giro queda anulado por completo; el zoom táctil de dos dedos sigue habilitado.
   controls.noRotate=tool!=='select';
   controls.noZoom=tool!=='select';
-  controls.noPan=true;
+  controls.noPan=tool!=='select';
   if(tool!=='select'){
    controls.update();
    camera.updateMatrixWorld(true);
