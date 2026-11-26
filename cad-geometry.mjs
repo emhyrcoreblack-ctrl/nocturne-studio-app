@@ -46,3 +46,17 @@ export function closedPathVertexIndices(cumulative, startS, endS, totalLength, e
   indices.sort((a, b) => a.s - b.s);
   return indices.map(item => item.index);
 }
+export function intersectRaySegment2D(origin, direction, p, q, rayEpsilon = 1e-4, segmentEpsilon = 1e-5) {
+  const rx = direction.u;
+  const ry = direction.v;
+  const sx = q.u - p.u;
+  const sy = q.v - p.v;
+  const denominator = rx * sy - ry * sx;
+  if (Math.abs(denominator) < 1e-9) return null;
+  const dx = p.u - origin.u;
+  const dy = p.v - origin.v;
+  const t = (dx * sy - dy * sx) / denominator;
+  const u = (dx * ry - dy * rx) / denominator;
+  if (t <= rayEpsilon || u < -segmentEpsilon || u > 1 + segmentEpsilon) return null;
+  return { t, u };
+}
