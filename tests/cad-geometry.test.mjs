@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intersectSegments2D, selectTrimBounds, closedPathVertexIndices } from '../cad-geometry.js';
+import { intersectSegments2D, selectTrimBounds, closedPathVertexIndices } from '../cad-geometry.mjs';
 
 test('intersects two crossing segments and returns parameters', () => {
   const hit = intersectSegments2D({u:0,v:0},{u:10,v:0},{u:5,v:-2},{u:5,v:2});
