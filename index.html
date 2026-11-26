@@ -460,7 +460,7 @@
 })();
 </script>
 <script type="module">
-import { intersectSegments2D, selectTrimBounds, closedPathVertexIndices } from './cad-geometry.js';
+import { intersectSegments2D, selectTrimBounds, closedPathVertexIndices } from './cad-geometry.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
