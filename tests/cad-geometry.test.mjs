@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices } from '../cad-geometry.mjs';
+import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance } from '../cad-geometry.mjs';
 
 test('intersects two crossing segments and returns parameters', () => {
   const hit = intersectSegments2D({u:0,v:0},{u:10,v:0},{u:5,v:-2},{u:5,v:2});
@@ -66,4 +66,17 @@ test('ray intersection accepts a target segment endpoint', () => {
   assert.ok(hit);
   assert.ok(Math.abs(hit.t - 5) < 1e-9);
   assert.ok(Math.abs(hit.u) < 1e-9);
+});
+
+
+test('origin snap accepts points inside the pixel tolerance', () => {
+  assert.equal(isWithinSnapTolerance(0), true);
+  assert.equal(isWithinSnapTolerance(14), true);
+  assert.equal(isWithinSnapTolerance(14.01), false);
+});
+
+test('origin snap rejects invalid distances and invalid tolerances', () => {
+  assert.equal(isWithinSnapTolerance(Number.NaN), false);
+  assert.equal(isWithinSnapTolerance(Infinity), false);
+  assert.equal(isWithinSnapTolerance(1, -1), false);
 });
