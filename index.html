@@ -460,6 +460,7 @@
 })();
 </script>
 <script type="module">
+import { intersectSegments2D, selectTrimBounds, closedPathVertexIndices } from './cad-geometry.js';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
@@ -1498,7 +1499,7 @@ function trimSegmentAtScreen(clientX,clientY){
  const targetS=cumulative[targetIndex]+targetT*selectedLength;
  if(!Number.isFinite(total)||total<1e-8)return false;
  // 3) Encontrar todas las intersecciones de la figura seleccionada con las demás geometrías.
- const cross=(x,y,u,v)=>x*v-y*u,hits=[];
+ const hits=[];
  for(const otherObj of drawnObjects){
   if(otherObj===target)continue;
   const other=otherObj.userData.controlPoints||[],otherClosed=!!otherObj.userData.closed,otherCount=otherClosed?other.length:other.length-1;
@@ -1509,30 +1510,18 @@ function trimSegmentAtScreen(clientX,clientY){
    for(let i=0;i<edgeCount;i++){
     const a3=points[i],b3=points[(i+1)%n];
     if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05)continue;
-    const a=uv[i],b=uv[(i+1)%n],rx=b.u-a.u,ry=b.v-a.v,den=cross(rx,ry,sx,sy);
-    if(Math.abs(den)<1e-9)continue;
-    const dx=p.u-a.u,dy=p.v-a.v,t=cross(dx,dy,sx,sy)/den,u=cross(dx,dy,rx,ry)/den;
-    if(t>1e-6&&t<1-1e-6&&u>=-1e-6&&u<=1+1e-6){
-     const edgeLength=Math.hypot(rx,ry),s=cumulative[i]+t*edgeLength;
-     hits.push({s,point:a3.clone().lerp(b3,t)});
+    const a=uv[i],b=uv[(i+1)%n],intersection=intersectSegments2D(a,b,p,q);
+    if(intersection){
+     const edgeLength=Math.hypot(b.u-a.u,b.v-a.v),s=cumulative[i]+intersection.t*edgeLength;
+     hits.push({s,point:a3.clone().lerp(b3,intersection.t)});
     }
    }
   }
  }
- hits.sort((a,b)=>a.s-b.s);
- const unique=[];
- for(const hit of hits){if(!unique.length||Math.abs(hit.s-unique[unique.length-1].s)>1e-4)unique.push(hit);}
- if(unique.length<2){document.getElementById('saveState').textContent='Recortar: se necesitan dos intersecciones';return false;}
  // 4) Identificar las dos intersecciones que delimitan el tramo bajo el cursor.
- let previous,next;
- if(closed){
-  previous=[...unique].reverse().find(h=>h.s<targetS-1e-5)||{...unique[unique.length-1],s:unique[unique.length-1].s-total};
-  next=unique.find(h=>h.s>targetS+1e-5)||{...unique[0],s:unique[0].s+total};
- }else{
-  previous=[...unique].reverse().find(h=>h.s<targetS-1e-5);
-  next=unique.find(h=>h.s>targetS+1e-5);
- }
- if(!previous||!next||next.s-previous.s<1e-5){document.getElementById('saveState').textContent='Recortar: el cursor debe estar entre dos intersecciones';return false;}
+ const bounds=selectTrimBounds(hits,targetS,total,closed);
+ if(!bounds){document.getElementById('saveState').textContent='Recortar: el cursor debe estar entre dos intersecciones';return false;}
+ const {previous,next}=bounds;
  const replacements=[];
  if(closed){
   // En un contorno cerrado se elimina el arco que contiene el cursor y se conserva el arco complementario.
@@ -1540,11 +1529,7 @@ function trimSegmentAtScreen(clientX,clientY){
   let endS=endHit.s;
   if(endS<=startHit.s)endS+=total;
   const kept=[startHit.point.clone()];
-  for(let i=0;i<n;i++){
-   let s=cumulative[i];
-   while(s<=startHit.s+1e-5)s+=total;
-   if(s<endS-1e-5)kept.push(points[i].clone());
-  }
+  for(const index of closedPathVertexIndices(cumulative,startHit.s,endS,total))kept.push(points[index].clone());
   kept.push(previous.point.clone());
   if(kept.length>=2)replacements.push(kept);
  }else{
