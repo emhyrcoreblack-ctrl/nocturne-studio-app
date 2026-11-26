@@ -460,7 +460,7 @@
 })();
 </script>
 <script type="module">
-import { intersectSegments2D, selectTrimBounds, closedPathVertexIndices } from './cad-geometry.mjs';
+import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices } from './cad-geometry.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
@@ -1582,10 +1582,8 @@ function extendEndpointAtScreen(clientX,clientY){
   for(let j=0;j<count;j++){
    const p3=other[j],q3=other[(j+1)%other.length];
    if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
-   const p=planeCoords(p3),q=planeCoords(q3),sx=q.u-p.u,sy=q.v-p.v,den=cross(rx,ry,sx,sy);
-   if(Math.abs(den)<1e-9)continue;
-   const ax=p.u-e.u,ay=p.v-e.v,t=cross(ax,ay,sx,sy)/den,u=cross(ax,ay,rx,ry)/den;
-   if(t>1e-4&&u>=-1e-5&&u<=1+1e-5&&t<nearest){nearest=t;intersection=planePoint(e.u+rx*t,e.v+ry*t);}
+   const p=planeCoords(p3),q=planeCoords(q3),hit=intersectRaySegment2D(e,{u:rx,v:ry},p,q);
+   if(hit&&hit.t<nearest){nearest=hit.t;intersection=planePoint(e.u+rx*hit.t,e.v+ry*hit.t);}
   }
  }
  if(!intersection)return false;
