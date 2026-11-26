@@ -22,7 +22,7 @@ export function selectTrimBounds(hits, targetS, totalLength, closed, epsilon = 1
   for (const hit of sorted) {
     if (!unique.length || Math.abs(hit.s - unique[unique.length - 1].s) > epsilon) unique.push(hit);
   }
-  if (unique.length < 2) return null;
+  if (unique.length < 2 || (closed && !(totalLength > 0))) return null;
   if (!closed) {
     const previous = [...unique].reverse().find(hit => hit.s < targetS - epsilon);
     const next = unique.find(hit => hit.s > targetS + epsilon);
@@ -36,6 +36,7 @@ export function selectTrimBounds(hits, targetS, totalLength, closed, epsilon = 1
 }
 
 export function closedPathVertexIndices(cumulative, startS, endS, totalLength, epsilon = 1e-5) {
+  if (!(totalLength > 0) || !(endS > startS)) return [];
   const indices = [];
   for (let index = 0; index < cumulative.length - 1; index++) {
     let s = cumulative[index];
