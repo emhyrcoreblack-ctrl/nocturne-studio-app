@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "application": "NOCTURNE STUDIO",
+  "branch": "fix/touch-aim-cursor",
+  "policy": "No tool is approved by source inspection alone. Approval requires automated checks plus recorded browser and device validation for interaction-dependent behavior.",
+  "globalAcceptance": [
+    "Geometry and dimensions match the intended construction within documented tolerances.",
+    "Snapping and inference target the intended geometric references without false captures.",
+    "The active work plane is respected.",
+    "Selection and edits do not alter unrelated geometry.",
+    "Undo and redo restore the exact prior and subsequent states.",
+    "Saved projects reopen with the same geometry and constraints.",
+    "Mouse, touch, and stylus interactions target the visible cursor location.",
+    "No uncaught browser errors, stuck pointer states, or unacceptable interaction delays.",
+    "Existing tools continue to pass their regression scenarios."
+  ],
+  "tools": [
+    {
+      "id": "select",
+      "buttonId": "selectTool",
+      "label": "Seleccionar",
+      "status": "not_verified",
+      "automatedCoverage": [],
+      "manualScenarios": [
+        "Seleccionar y deseleccionar cada tipo de entidad.",
+        "Mover una entidad y comprobar que las demás no cambian.",
+        "Eliminar solo la entidad seleccionada.",
+        "Comprobar selección con ratón, dedo y lápiz táctil."
+      ]
+    },
+    {
+      "id": "line",
+      "buttonId": "lineTool",
+      "label": "Línea",
+      "status": "not_verified",
+      "automatedCoverage": [],
+      "manualScenarios": [
+        "Dibujar segmentos horizontales, verticales y diagonales.",
+        "Comprobar coordenadas, longitud y ángulo.",
+        "Probar snap a extremos, puntos medios e intersecciones.",
+        "Dibujar con ratón, dedo y lápiz táctil."
+      ]
+    },
+    {
+      "id": "rect",
+      "buttonId": "rectTool",
+      "label": "Rectángulo",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Restricción vertical del cuarto lado: referencia al vértice inicial (b=0), pendiente de integración visual."
+      ],
+      "manualScenarios": [
+        "Crear rectángulos en los cuatro sentidos de arrastre.",
+        "Comprobar cuatro lados, cierre y dimensiones.",
+        "Comprobar restricciones horizontal y vertical en los cuatro lados.",
+        "Editar, seleccionar y deshacer el rectángulo."
+      ]
+    },
+    {
+      "id": "circle",
+      "buttonId": "circleTool",
+      "label": "Círculo",
+      "status": "not_verified",
+      "automatedCoverage": [],
+      "manualScenarios": [
+        "Crear círculos con distintos radios.",
+        "Comprobar centro y radio mediante referencias geométricas.",
+        "Probar selección, guardado y recorte cuando intersecta otras entidades."
+      ]
+    },
+    {
+      "id": "polygon",
+      "buttonId": "polygonTool",
+      "label": "Polígono",
+      "status": "not_verified",
+      "automatedCoverage": [],
+      "manualScenarios": [
+        "Crear polígonos y comprobar número de lados y cierre.",
+        "Comprobar que los vértices no se duplican ni se omiten.",
+        "Probar selección, guardado y recorte."
+      ]
+    },
+    {
+      "id": "ellipse",
+      "buttonId": "ellipseTool",
+      "label": "Elipse",
+      "status": "not_verified",
+      "automatedCoverage": [],
+      "manualScenarios": [
+        "Crear elipses con ejes mayor y menor distintos.",
+        "Comprobar orientación, centro y extremos de ambos ejes.",
+        "Probar selección, guardado y recorte."
+      ]
+    },
+    {
+      "id": "arc",
+      "buttonId": "arcTool",
+      "label": "Arco de 3 puntos",
+      "status": "not_verified",
+      "automatedCoverage": [],
+      "manualScenarios": [
+        "Crear arcos con tres puntos no colineales.",
+        "Comprobar extremos, sentido y curvatura.",
+        "Probar arcos pequeños, grandes y cercanos a 180 grados.",
+        "Comprobar cursor táctil y guardado."
+      ]
+    },
+    {
+      "id": "trim",
+      "buttonId": "trimTool",
+      "label": "Recortar",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Intersección 2D y límites de recorte: suite cad-geometry.test.mjs; requiere ampliar casos e integración."
+      ],
+      "manualScenarios": [
+        "Recortar una línea abierta entre dos intersecciones.",
+        "Recortar líneas cruzadas y uniones en extremos/vértices.",
+        "Recortar rectángulo, círculo, polígono y elipse intersectados.",
+        "Comprobar que se conserva exactamente la parte complementaria.",
+        "Comprobar plano activo, undo/redo y persistencia.",
+        "Repetir con ratón, dedo y lápiz táctil."
+      ]
+    },
+    {
+      "id": "extend",
+      "buttonId": "extendTool",
+      "label": "Extender",
+      "status": "not_verified",
+      "automatedCoverage": [],
+      "manualScenarios": [
+        "Extender cada extremo de una línea hacia una intersección válida.",
+        "Comprobar que no extiende en dirección contraria ni hasta un objeto fuera del plano.",
+        "Probar ausencia de intersección, intersecciones múltiples y extremos coincidentes.",
+        "Comprobar undo/redo, persistencia y uso táctil."
+      ]
+    }
+  ]
+}
