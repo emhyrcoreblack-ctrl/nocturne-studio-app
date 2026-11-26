@@ -54,4 +54,4 @@ jobs:
           PY
           node --check /tmp/index.mjs
           node --check /tmp/studio-3d.mjs
-          node --test tests/cad-geometry.test.mjs
+          node --test tests/*.test.mjs
