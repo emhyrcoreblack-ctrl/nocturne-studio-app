@@ -1464,43 +1464,108 @@ function finishSketch(event){
 function trimSegmentAtScreen(clientX,clientY){
  if(!camera||!drawnObjects.length)return false;
  camera.updateMatrixWorld(true);
- const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),plane=workPlanes[activePlane];
+ const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),plane=workPlanes[activePlane],origin=new THREE.Vector3();
  let target=null,targetIndex=-1,targetT=0,bestPixels=12;
- const distance=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/l,0,1):0;return{d:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};};
+ const segmentDistance=(p,a,b)=>{
+  const dx=b.x-a.x,dy=b.y-a.y,lenSq=dx*dx+dy*dy,t=lenSq?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/lenSq,0,1):0;
+  return {distance:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};
+ };
+ // 1) Seleccionar el segmento visible más cercano al punto de mira.
  for(const obj of drawnObjects){
-  const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;
+  const pts=obj.userData.controlPoints||[],closed=!!obj.userData.closed,count=closed?pts.length:pts.length-1;
+  if(pts.length<2)continue;
   obj.updateWorldMatrix(true,false);
   const screen=pts.map(p=>{projected.copy(p);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};});
-  for(let i=0;i<screen.length-1;i++){const a=screen[i],b=screen[i+1];if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;const h=distance({x:px,y:py},a,b);if(h.d<bestPixels){bestPixels=h.d;target=obj;targetIndex=i;targetT=h.t;}}
- }
- if(!target)return false;
- const pts=target.userData.controlPoints||[],a3=pts[targetIndex],b3=pts[targetIndex+1],origin=new THREE.Vector3();
- if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05){document.getElementById('saveState').textContent='Recortar requiere el plano activo';return false;}
- const a=planeCoords(a3),b=planeCoords(b3),rx=b.u-a.u,ry=b.v-a.v;
- const cross=(x,y,u,v)=>x*v-y*u,hits=[];
- for(const obj of drawnObjects){
-  const other=obj.userData.controlPoints||[],count=obj.userData.closed?other.length:other.length-1;
-  for(let j=0;j<count;j++){
-   if(obj===target&&j===targetIndex)continue;
-   const p3=other[j],q3=other[(j+1)%other.length];
-   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
-   const p=planeCoords(p3),q=planeCoords(q3),sx=q.u-p.u,sy=q.v-p.v,den=cross(rx,ry,sx,sy);
-   if(Math.abs(den)<1e-9)continue;
-   const dx=p.u-a.u,dy=p.v-a.v,t=cross(dx,dy,sx,sy)/den,u=cross(dx,dy,rx,ry)/den;
-   if(t>1e-5&&t<1-1e-5&&u>=-1e-5&&u<=1+1e-5)hits.push(t);
+  for(let i=0;i<count;i++){
+   const a=screen[i],b=screen[(i+1)%screen.length];
+   if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;
+   const hit=segmentDistance({x:px,y:py},a,b);
+   if(hit.distance<bestPixels){bestPixels=hit.distance;target=obj;targetIndex=i;targetT=hit.t;}
   }
  }
- hits.sort((x,y)=>x-y);
- const lo=[...hits].reverse().find(t=>t<targetT-1e-4),hi=hits.find(t=>t>targetT+1e-4);
- if(lo===undefined||hi===undefined){document.getElementById('saveState').textContent='Recortar: selecciona un tramo entre dos intersecciones';return false;}
- const cut=t=>a3.clone().lerp(b3,t),left=pts.slice(0,targetIndex+1).map(p=>p.clone()),right=[cut(hi),...pts.slice(targetIndex+1).map(p=>p.clone())];
- left.push(cut(lo));
- const replacements=[left,right].filter(p=>p.length>=2).map(part=>{const obj=makeFatStroke(part,0xe5efff,1,false);if(obj)obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:'intersection-trim'});return obj;}).filter(Boolean);
- if(!replacements.length)return false;
- scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);replacements.forEach(o=>{scene.add(o);drawnObjects.push(o);});
- setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Tramo entre intersecciones recortado';return true;
+ if(!target)return false;
+ const points=target.userData.controlPoints||[],closed=!!target.userData.closed,n=points.length,edgeCount=closed?n:n-1;
+ if(n<2)return false;
+ // 2) Construir la longitud acumulada de la polilínea en el plano activo.
+ const uv=points.map(p=>planeCoords(p)),cumulative=[0];
+ for(let i=0;i<edgeCount;i++){
+  const a=uv[i],b=uv[(i+1)%n];
+  cumulative.push(cumulative[i]+Math.hypot(b.u-a.u,b.v-a.v));
+ }
+ const total=cumulative[cumulative.length-1],selectedA=uv[targetIndex],selectedB=uv[(targetIndex+1)%n];
+ const selectedLength=Math.hypot(selectedB.u-selectedA.u,selectedB.v-selectedA.v);
+ const targetS=cumulative[targetIndex]+targetT*selectedLength;
+ if(!Number.isFinite(total)||total<1e-8)return false;
+ // 3) Encontrar todas las intersecciones de la figura seleccionada con las demás geometrías.
+ const cross=(x,y,u,v)=>x*v-y*u,hits=[];
+ for(const otherObj of drawnObjects){
+  if(otherObj===target)continue;
+  const other=otherObj.userData.controlPoints||[],otherClosed=!!otherObj.userData.closed,otherCount=otherClosed?other.length:other.length-1;
+  for(let j=0;j<otherCount;j++){
+   const p3=other[j],q3=other[(j+1)%other.length];
+   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
+   const p=planeCoords(p3),q=planeCoords(q3),sx=q.u-p.u,sy=q.v-p.v;
+   for(let i=0;i<edgeCount;i++){
+    const a3=points[i],b3=points[(i+1)%n];
+    if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05)continue;
+    const a=uv[i],b=uv[(i+1)%n],rx=b.u-a.u,ry=b.v-a.v,den=cross(rx,ry,sx,sy);
+    if(Math.abs(den)<1e-9)continue;
+    const dx=p.u-a.u,dy=p.v-a.v,t=cross(dx,dy,sx,sy)/den,u=cross(dx,dy,rx,ry)/den;
+    if(t>1e-6&&t<1-1e-6&&u>=-1e-6&&u<=1+1e-6){
+     const edgeLength=Math.hypot(rx,ry),s=cumulative[i]+t*edgeLength;
+     hits.push({s,point:a3.clone().lerp(b3,t)});
+    }
+   }
+  }
+ }
+ hits.sort((a,b)=>a.s-b.s);
+ const unique=[];
+ for(const hit of hits){if(!unique.length||Math.abs(hit.s-unique[unique.length-1].s)>1e-4)unique.push(hit);}
+ if(unique.length<2){document.getElementById('saveState').textContent='Recortar: se necesitan dos intersecciones';return false;}
+ // 4) Identificar las dos intersecciones que delimitan el tramo bajo el cursor.
+ let previous,next;
+ if(closed){
+  previous=[...unique].reverse().find(h=>h.s<targetS-1e-5)||{...unique[unique.length-1],s:unique[unique.length-1].s-total};
+  next=unique.find(h=>h.s>targetS+1e-5)||{...unique[0],s:unique[0].s+total};
+ }else{
+  previous=[...unique].reverse().find(h=>h.s<targetS-1e-5);
+  next=unique.find(h=>h.s>targetS+1e-5);
+ }
+ if(!previous||!next||next.s-previous.s<1e-5){document.getElementById('saveState').textContent='Recortar: el cursor debe estar entre dos intersecciones';return false;}
+ const replacements=[];
+ if(closed){
+  // En un contorno cerrado se elimina el arco que contiene el cursor y se conserva el arco complementario.
+  const startHit=next,endHit={...previous,s:previous.s+(next.s<=previous.s?total:0)};
+  let endS=endHit.s;
+  if(endS<=startHit.s)endS+=total;
+  const kept=[startHit.point.clone()];
+  for(let i=0;i<n;i++){
+   let s=cumulative[i];
+   while(s<=startHit.s+1e-5)s+=total;
+   if(s<endS-1e-5)kept.push(points[i].clone());
+  }
+  kept.push(previous.point.clone());
+  if(kept.length>=2)replacements.push(kept);
+ }else{
+  const left=points.filter((p,i)=>cumulative[i]<previous.s-1e-5).map(p=>p.clone());
+  left.push(previous.point.clone());
+  const right=[next.point.clone(),...points.filter((p,i)=>cumulative[i]>next.s+1e-5).map(p=>p.clone())];
+  if(left.length>=2)replacements.push(left);
+  if(right.length>=2)replacements.push(right);
+ }
+ const color=target.material&&target.material.color?target.material.color.getHex():0xe5efff;
+ const objects=replacements.map(part=>{
+  const obj=makeFatStroke(part,color,1,false);
+  if(obj)obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:sketchMetaForObject(target).type});
+  return obj;
+ }).filter(Boolean);
+ if(!objects.length)return false;
+ scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);
+ objects.forEach(obj=>{scene.add(obj);drawnObjects.push(obj);});
+ setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
+ document.getElementById('saveState').textContent=closed?'Perfil cerrado recortado':'Tramo entre intersecciones recortado';
+ return true;
 }
-
 function extendEndpointAtScreen(clientX,clientY){
  if(!camera||drawnObjects.length<2)return false;
  camera.updateMatrixWorld(true);
