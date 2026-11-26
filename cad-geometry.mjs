@@ -60,3 +60,8 @@ export function intersectRaySegment2D(origin, direction, p, q, rayEpsilon = 1e-4
   if (t <= rayEpsilon || u < -segmentEpsilon || u > 1 + segmentEpsilon) return null;
   return { t, u };
 }
+
+// Pixel-space snap gate shared by CAD interaction and regression tests.
+export function isWithinSnapTolerance(distancePx, tolerancePx = 14) {
+  return Number.isFinite(distancePx) && Number.isFinite(tolerancePx) && tolerancePx >= 0 && distancePx <= tolerancePx;
+}
