@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intersectSegments2D, selectTrimBounds, closedPathVertexIndices } from '../cad-geometry.mjs';
+import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices } from '../cad-geometry.mjs';
 
 test('intersects two crossing segments and returns parameters', () => {
   const hit = intersectSegments2D({u:0,v:0},{u:10,v:0},{u:5,v:-2},{u:5,v:2});
@@ -41,4 +41,29 @@ test('does not produce trim bounds without a crossing on each side', () => {
 
 test('guards zero-length closed paths', () => {
   assert.deepEqual(closedPathVertexIndices([0,0,0], 0, 1, 0), []);
+});
+
+test('extends a ray to the nearest forward segment intersection', () => {
+  const hit = intersectRaySegment2D(
+    {u:0,v:0}, {u:1,v:0}, {u:5,v:-2}, {u:5,v:2}
+  );
+  assert.ok(hit);
+  assert.ok(Math.abs(hit.t - 5) < 1e-9);
+  assert.ok(Math.abs(hit.u - 0.5) < 1e-9);
+});
+
+test('ray intersection rejects behind, parallel, and out-of-segment targets', () => {
+  const origin = {u:0,v:0}, direction = {u:1,v:0};
+  assert.equal(intersectRaySegment2D(origin,direction,{u:-5,v:-1},{u:-5,v:1}), null);
+  assert.equal(intersectRaySegment2D(origin,direction,{u:2,v:1},{u:8,v:1}), null);
+  assert.equal(intersectRaySegment2D(origin,direction,{u:5,v:2},{u:5,v:4}), null);
+});
+
+test('ray intersection accepts a target segment endpoint', () => {
+  const hit = intersectRaySegment2D(
+    {u:0,v:0}, {u:1,v:0}, {u:5,v:0}, {u:5,v:3}
+  );
+  assert.ok(hit);
+  assert.ok(Math.abs(hit.t - 5) < 1e-9);
+  assert.ok(Math.abs(hit.u) < 1e-9);
 });
