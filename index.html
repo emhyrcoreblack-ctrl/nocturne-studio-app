@@ -490,7 +490,7 @@ function attachSketchDefinition(obj,type,start,end){
  else if(type==='polygon')parameters={radius:Math.hypot(b.u-a.u,b.v-a.v),sides:6,center:[start.x,start.y,start.z]};
  else if(type==='ellipse')parameters={radiusU:Math.abs(b.u-a.u),radiusV:Math.abs(b.v-a.v),center:[start.x,start.y,start.z]};
  const meta=createSketchDefinition(type,obj.userData.controlPoints||[],activePlane,parameters);
- if(type==='rect'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,enabled:true}];}
+ if(type==='rect'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,b:0,enabled:true}];}
  obj.userData.sketch=meta;return obj;
 }
 function sketchConstraintSummary(obj){const m=sketchMetaForObject(obj);if(!m)return 'Sin definición paramétrica';const active=m.constraints.filter(c=>c&&c.enabled!==false).length;return active+' restricciones · '+m.dimensions.length+' cotas'+(m.fixed?' · Fijado':'');}
@@ -506,8 +506,9 @@ function solveSketchConstraints(obj){
   for(const c of meta.constraints.filter(x=>x&&x.enabled!==false)){
    const i=Number.isInteger(c.a)?c.a:0,j=Number.isInteger(c.b)?c.b:1;
    if(c.type==='horizontal'||c.type==='vertical'){
-    if(!uv[i]||!uv[i+1])continue;
-    if(c.type==='horizontal')uv[i+1].v=uv[i].v;else uv[i+1].u=uv[i].u;
+    const k=Number.isInteger(c.b)?c.b:i+1;
+    if(!uv[i]||!uv[k])continue;
+    if(c.type==='horizontal')uv[k].v=uv[i].v;else uv[k].u=uv[i].u;
    }else if(c.type==='coincident'){
     if(!uv[i]||!uv[j])continue;const u=(uv[i].u+uv[j].u)/2,v=(uv[i].v+uv[j].v)/2;uv[i].u=uv[j].u=u;uv[i].v=uv[j].v=v;
    }else if(c.type==='parallel'||c.type==='perpendicular'){
@@ -1553,7 +1554,7 @@ function trimSegmentAtScreen(clientX,clientY){
   if(left.length>=2)replacements.push(left);
   if(right.length>=2)replacements.push(right);
  }
- const color=target.material&&target.material.color?target.material.color.getHex():0xe5efff;
+ const color=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff);
  const objects=replacements.map(part=>{
   const obj=makeFatStroke(part,color,1,false);
   if(obj)obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:sketchMetaForObject(target).type});
