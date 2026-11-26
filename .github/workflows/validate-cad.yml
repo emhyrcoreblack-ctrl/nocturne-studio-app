@@ -48,10 +48,10 @@ jobs:
                   raise SystemExit(
                       f"{source}: expected one module script, found {len(parser.scripts)}"
                   )
-              Path(f"/tmp/{Path(source).stem}.js").write_text(
+              Path(f"/tmp/{Path(source).stem}.mjs").write_text(
                   parser.scripts[0], encoding="utf-8"
               )
           PY
-          node --check /tmp/index.js
-          node --check /tmp/studio-3d.js
+          node --check /tmp/index.mjs
+          node --check /tmp/studio-3d.mjs
           node --test tests/cad-geometry.test.mjs
