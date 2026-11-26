@@ -365,6 +365,95 @@
  background:#294766!important;border-color:#6b91bc!important;color:#fff!important;opacity:1!important;
 }
 
+
+
+/* NOCTURNE STUDIO — interfaz compacta de trabajo */
+#workspace{background:#080f18!important;color:#dce7f4!important}
+#documentHeader{
+ height:56px!important;padding:0 12px!important;gap:12px!important;
+ background:linear-gradient(105deg,#10243a 0%,#132e4b 58%,#102238 100%)!important;
+ border-bottom:1px solid #263c55!important;box-shadow:0 5px 18px #0003!important
+}
+.document-heading div{font-size:15px!important;font-weight:650!important;letter-spacing:.01em}
+.document-heading small{font-size:10px!important;color:#91a8c2!important}
+.header-actions{gap:5px!important}
+.header-actions button{width:34px!important;height:34px!important;border-radius:9px!important;color:#c8d8ea!important}
+.header-actions #treeToggle{border:1px solid #38516e!important;background:#1a3049!important}
+.header-actions #helpButton{width:30px!important;height:30px!important}
+#editorToolbar{
+ top:56px!important;height:48px!important;padding:0 9px!important;gap:3px!important;
+ background:#0e1927!important;border-bottom:1px solid #26394f!important;
+ box-shadow:0 3px 12px #0002!important;overflow-x:auto!important;overflow-y:hidden!important;
+ scrollbar-width:none!important
+}
+#editorToolbar::-webkit-scrollbar{display:none}
+#editorToolbar button{
+ flex:0 0 auto!important;min-width:34px!important;width:auto;height:36px!important;
+ padding:0 8px!important;border:1px solid transparent!important;border-radius:8px!important;
+ color:#b8c9dc!important;background:transparent!important;font-size:18px!important
+}
+#editorToolbar button:hover{background:#1a2c42!important;border-color:#304a67!important}
+#editorToolbar button.tool-active{background:#1b3c5e!important;border-color:#426b94!important;color:#f1f7ff!important}
+#editorToolbar .tool-separator{height:24px!important;background:#30445b!important;margin:0 3px!important}
+#activeToolToggle{border-radius:9px!important}
+#sketchConstraintCard{transform:scale(.9);transform-origin:left center}
+#viewport{inset:104px 0 0!important;background:#080f18!important}
+#workspaceBottom{display:none!important;height:0!important;visibility:hidden!important;pointer-events:none!important}
+#workspaceTabs,#featureActions{display:none!important}
+#featurePanel{
+ top:112px!important;bottom:12px!important;left:10px!important;
+ width:min(286px,calc(100vw - 20px))!important;
+ background:rgba(15,27,42,.97)!important;color:#dce7f4!important;
+ border:1px solid #30465f!important;border-radius:13px!important;
+ box-shadow:0 18px 48px #0009!important;backdrop-filter:blur(14px)!important;
+ z-index:30!important
+}
+#featurePanel .panel-heading{height:44px!important;color:#9fb5ce!important;border-color:#2a3e55!important}
+#featurePanel .panel-section,#featurePanel .tree-row{border-color:#293e55!important;color:#c9d8e8!important}
+#featurePanel .tree-row:hover{background:#1a3049!important}
+#featurePanel .tree-row.active{background:#1c3b5b!important;color:#e5f1ff!important}
+#featurePanel .panel-kicker{color:#7f98b4!important}
+#workspace:not(.show-tree) #featurePanel{display:none!important}
+#inspectorPanel{display:none!important}
+#workspace.hide-inspector #inspectorPanel,
+#workspace.show-inspector #inspectorPanel{display:block!important;top:112px!important;bottom:12px!important;z-index:30!important;background:#101c2b!important;color:#dce7f4!important;border-color:#30465f!important;border-radius:13px!important;box-shadow:0 18px 48px #0009!important}
+#workPlaneSwitcher{
+ top:10px!important;left:10px!important;gap:4px!important;padding:4px!important;
+ max-width:calc(100% - 128px)!important;border:1px solid #30465b!important;
+ border-radius:10px!important;background:rgba(12,22,35,.88)!important;
+ box-shadow:0 5px 18px #0004!important;backdrop-filter:blur(10px)!important
+}
+#workPlaneSwitcher button{
+ min-height:29px!important;padding:5px 8px!important;border-radius:7px!important;
+ font-size:9px!important;letter-spacing:.035em!important
+}
+.viewcube{top:8px!important;right:8px!important;width:82px!important;height:82px!important;transform:scale(.78)!important;transform-origin:top right!important;z-index:4!important}
+#sceneStatus{
+ left:10px!important;bottom:10px!important;padding:5px 9px!important;
+ background:rgba(12,23,37,.82)!important;color:#91a9c4!important;
+ border:1px solid #2b4058!important;border-radius:8px!important;
+ font-size:9px!important;letter-spacing:.025em!important;backdrop-filter:blur(8px)!important
+}
+#measureLabel{background:#13243a!important;color:#e7f0fb!important;border-color:#527da9!important}
+#helpPanel{top:112px!important;background:#101c2b!important;color:#e1ebf7!important;border-color:#30465f!important}
+#helpPanel p{color:#aebfd2!important}
+@media(max-width:640px){
+ #documentHeader{height:54px!important;padding:0 8px!important;gap:7px!important}
+ .document-heading div{font-size:13px!important;max-width:48vw!important}
+ .document-heading small{font-size:9px!important}
+ .header-actions{gap:2px!important}
+ .header-actions #treeToggle{width:31px!important;height:31px!important}
+ #editorToolbar{top:54px!important;height:46px!important;padding:0 6px!important;gap:1px!important}
+ #editorToolbar button{min-width:32px!important;height:34px!important;padding:0 6px!important;font-size:17px!important}
+ #editorToolbar .tool-separator{height:21px!important;margin:0 2px!important}
+ #viewport{inset:100px 0 0!important}
+ #workPlaneSwitcher{max-width:calc(100% - 102px)!important;gap:3px!important;padding:3px!important}
+ #workPlaneSwitcher button{min-height:28px!important;padding:4px 6px!important;font-size:8px!important}
+ .viewcube{top:5px!important;right:2px!important;transform:scale(.64)!important}
+ #featurePanel{top:106px!important;bottom:8px!important;left:7px!important;width:min(280px,calc(100vw - 14px))!important}
+ #sceneStatus{left:7px!important;bottom:7px!important;font-size:8px!important}
+ #helpPanel{top:106px!important;right:8px!important}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
