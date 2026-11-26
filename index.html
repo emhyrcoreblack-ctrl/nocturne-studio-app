@@ -811,13 +811,18 @@ function pointOnGroundAt(clientX,clientY){
 function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
 function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
 function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
-function lineGuideEvent(event){return event;}
+const TOUCH_AIM_OFFSET=56;
+function lineGuideEvent(event){
+ if(!event||event.pointerType!=='touch')return event;
+ const bounds=host.getBoundingClientRect();
+ return {clientX:event.clientX,clientY:Math.max(bounds.top+12,event.clientY-TOUCH_AIM_OFFSET),pointerType:event.pointerType,pointerId:event.pointerId};
+}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function positionTouchCursor(event){
  if(!lineGuideEl||!event)return;
- const r=host.getBoundingClientRect();
- // El centro visual de la cruz coincide con el mismo pixel que pointOnGroundAt() proyecta.
- const x=event.clientX-r.left,y=event.clientY-r.top;
+ const guide=lineGuideEvent(event),r=host.getBoundingClientRect();
+ // La cruz y la geometría comparten el punto compensado; queda por encima del dedo.
+ const x=guide.clientX-r.left,y=guide.clientY-r.top;
  lineGuideEl.style.left=x+'px';lineGuideEl.style.top=y+'px';lineGuideEl.style.display='block';
 }
 function updateLineStartGuide(event){
@@ -1257,7 +1262,7 @@ function beginSketch(event){
   if(pinchGesture)return;
   if(activeTool==='arc'){
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
-   return;
+   positionTouchCursor(event);return;
   }
   if(activeTool==='line'){
    if(linePoints.length===0){
@@ -1319,6 +1324,7 @@ function beginSketch(event){
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch'&&(activeTool==='trim'||activeTool==='extend')){positionTouchCursor(event);return;}
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
   const p=pointForSketch(event);if(!p)return;
   positionTouchCursor(event);
@@ -1426,8 +1432,9 @@ function finishSketch(event){
  if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
   const down=selectionPointerDown;selectionPointerDown=null;
   if(down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
-   if(activeTool==='trim'){const changed=trimSegmentAtScreen(event.clientX,event.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
-   else if(activeTool==='extend'){const changed=extendEndpointAtScreen(event.clientX,event.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un extremo con intersección delante';}
+   const aim=lineGuideEvent(event);
+   if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
+   else if(activeTool==='extend'){const changed=extendEndpointAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un extremo con intersección delante';}
    else{const picked=findSelectableObject(event.clientX,event.clientY);setSelectedObject(picked);}
   }
   return;
