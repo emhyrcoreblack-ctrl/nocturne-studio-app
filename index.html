@@ -348,6 +348,23 @@
 }
 #editorToolbar #undoButton:disabled,#editorToolbar #redoButton:disabled{opacity:.28!important}
 @media(max-width:640px){#editorToolbar #undoButton,#editorToolbar #redoButton,#editorToolbar #drawMenuButton{flex-basis:32px!important;width:32px!important;min-width:32px!important;height:32px!important}}
+
+
+/* Acceso directo a la última herramienta elegida, junto al lápiz */
+#editorToolbar #activeToolToggle{
+ display:inline-grid!important;flex:0 0 32px!important;width:32px!important;min-width:32px!important;
+ height:32px!important;min-height:32px!important;padding:0!important;place-items:center!important;
+ border:1px solid #405873!important;border-radius:7px!important;background:#20354c!important;
+ color:#dceaff!important;font-size:20px!important;line-height:1!important;
+}
+#editorToolbar #activeToolToggle[aria-pressed="false"]{
+ opacity:.48!important;background:transparent!important;color:#9aacc1!important;border-color:#34475e!important;
+}
+#editorToolbar #activeToolToggle[hidden]{display:none!important}
+#editorToolbar #activeToolToggle:not([hidden]):hover{
+ background:#294766!important;border-color:#6b91bc!important;color:#fff!important;opacity:1!important;
+}
+
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -1769,18 +1786,3 @@ window.saveViewportProject=saveViewportProject;window.loadViewportProject=loadVi
 </script>
 </body>
 </html>
-
-/* Acceso directo a la última herramienta elegida, junto al lápiz */
-#editorToolbar #activeToolToggle{
- display:inline-grid!important;flex:0 0 32px!important;width:32px!important;min-width:32px!important;
- height:32px!important;min-height:32px!important;padding:0!important;place-items:center!important;
- border:1px solid #405873!important;border-radius:7px!important;background:#20354c!important;
- color:#dceaff!important;font-size:20px!important;line-height:1!important;
-}
-#editorToolbar #activeToolToggle[aria-pressed="false"]{
- opacity:.48!important;background:transparent!important;color:#9aacc1!important;border-color:#34475e!important;
-}
-#editorToolbar #activeToolToggle[hidden]{display:none!important}
-#editorToolbar #activeToolToggle:not([hidden]):hover{
- background:#294766!important;border-color:#6b91bc!important;color:#fff!important;opacity:1!important;
-}
