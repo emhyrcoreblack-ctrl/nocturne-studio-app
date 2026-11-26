@@ -700,7 +700,7 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   const drawToolsPanel=document.getElementById('drawToolsPanel');
   const toggleDrawPalette=()=>{const open=!drawToolsPanel.classList.contains('open');drawToolsPanel.classList.toggle('open',open);drawToolsPanel.setAttribute('aria-hidden',String(!open));drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));};
   const closeDrawPalette=()=>{drawToolsPanel.classList.remove('open');drawToolsPanel.setAttribute('aria-hidden','true');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');};
-  function chooseTool(tool){setTool(tool);closeDrawPalette();}
+  function chooseTool(tool){setTool(activeTool===tool?'select':tool);closeDrawPalette();}
   drawMenuButton.addEventListener('click',toggleDrawPalette);
   document.getElementById('bottomSketch').addEventListener('click',toggleDrawPalette);
   drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('[data-palette-tool]');if(toolButton){const tool=toolButton.dataset.paletteTool;const target=document.getElementById(({select:'selectTool',line:'lineTool',rect:'rectTool',circle:'circleTool',polygon:'polygonTool',ellipse:'ellipseTool',arc:'arcTool',trim:'trimTool',extend:'extendTool'})[tool]);if(target)target.click();closeDrawPalette();return;}const constraint=event.target.closest('[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
@@ -802,16 +802,10 @@ function setWorkPlane(name,orientCamera=true,recaptureView=false){
  refreshWorkspacePanels();
  groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
  if(gridObject){
-  if(name==='VIEW'){
-   // GridHelper está construido en XZ con su normal local en +Y.
-   // Lleva X a la derecha de pantalla, Y hacia la cámara y Z hacia abajo de pantalla.
-   const gridZ=config.u.clone().cross(config.normal).normalize();
-   gridObject.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(config.u,config.normal,gridZ));
-  }else{
-   gridObject.quaternion.identity();
-   if(name==='XY')gridObject.rotation.x=Math.PI/2;
-   else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;
-  }
+  // Construye la orientación de la cuadrícula desde la misma base ortonormal
+  // que usa el plano de dibujo. Evita rotaciones especiales inconsistentes en YZ.
+  const gridZ=config.u.clone().cross(config.normal).normalize();
+  gridObject.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(config.u,config.normal,gridZ));
   gridObject.position.set(0,0,0);
  }
  
