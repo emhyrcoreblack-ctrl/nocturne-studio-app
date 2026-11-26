@@ -477,7 +477,7 @@
 })();
 </script>
 <script type="module">
-import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices } from './cad-geometry.mjs';
+import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance } from './cad-geometry.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
@@ -641,6 +641,21 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   });
   // Los planos se seleccionan directamente desde el panel de coordenadas.
   setWorkPlane('VIEW',false,true);
+  // Selector visible de planos de croquis: antes setWorkPlane existía, pero
+  // no había controles conectados y el usuario quedaba atrapado en VIEW.
+  coordinatePanel=document.createElement('div');
+  coordinatePanel.id='workPlaneSwitcher';
+  coordinatePanel.setAttribute('role','group');
+  coordinatePanel.setAttribute('aria-label','Plano de dibujo');
+  coordinatePanel.style.cssText='position:absolute;z-index:25;top:10px;left:10px;display:flex;flex-wrap:wrap;gap:5px;max-width:min(94%,420px);padding:6px;border:1px solid #40536a;border-radius:9px;background:rgba(12,22,35,.94);box-shadow:0 4px 14px #0005;pointer-events:auto';
+  [['VIEW','VISTA'],['XZ','SUELO XZ'],['XY','FRENTE XY'],['YZ','LADO YZ']].forEach(([name,label])=>{
+   const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.workPlane=name;
+   button.style.cssText='min-height:32px;padding:5px 9px;border:1px solid #455c78;border-radius:6px;background:#1b2a3d;color:#cfe0f5;font:650 10px/1 system-ui;letter-spacing:.02em;touch-action:manipulation';
+   button.addEventListener('click',()=>{setWorkPlane(name,true);hideSnapFeedback();hideLineGuide();});
+   coordinatePanel.appendChild(button);coordinatePlaneButtons.push({name,button});
+  });
+  host.appendChild(coordinatePanel);
+  setWorkPlane(activePlane,false);
   const canvas=renderer.domElement;
   // Rotación de cámara tipo roll con dos dedos: no sustituye el zoom nativo
   // de TrackballControls; solo añade el giro angular cuando ambos dedos giran.
@@ -977,6 +992,28 @@ function resolveSnap(event,raw){
  }
 
  const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
+ // El origen mundial es una referencia explícita y prioritaria en los tres
+ // planos. No dependemos de que el rayo encuentre una recta de eje estable.
+ const worldOrigin=new THREE.Vector3(),originNdc=worldOrigin.clone().project(camera);
+ const originPx=Math.hypot((originNdc.x+1)*rectNow.width*.5-pointerPx.x,(1-originNdc.y)*rectNow.height*.5-pointerPx.y);
+ if(originNdc.z>=-1&&originNdc.z<=1&&isWithinSnapTolerance(originPx,14)){
+  hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapVertexObject){
+   const depth=worldOrigin.clone().sub(ray.origin).dot(ray.direction);
+   const size=worldPerPixelAt(depth>0?depth:1)*14,half=size*.5;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[worldOrigin.clone().sub(right).sub(up),worldOrigin.clone().add(right).sub(up),worldOrigin.clone().add(right).add(up),worldOrigin.clone().sub(right).add(up),worldOrigin.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();snapVertexObject.visible=true;
+  }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(angleHintEl){angleHintEl.textContent='Origen · X 0  Y 0  Z 0';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+  snapKind='origin';return worldOrigin;
+ }
  const projectedLineDistance=(anchor,axis)=>{
   const a=anchor.clone().project(camera);
   if(a.z < -1 || a.z > 1)return Infinity;
