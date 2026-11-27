@@ -2335,7 +2335,7 @@ function refreshWorkspacePanels(){
  const projectName=document.getElementById('documentTitle')?.textContent||'Proyecto';
  const treeName=document.getElementById('treeProjectName');if(treeName)treeName.textContent=projectName;
  const count=document.getElementById('inspectorCount');if(count)count.textContent=String(drawnObjects.length);
- const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',slot:'Ranura',bezier:'Bézier',trim:'Recortar',extend:'Extender',split:'Partir'}[activeTool]||activeTool);
+ const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',slot:'Ranura',bezier:'Bézier',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia'}[activeTool]||activeTool);
  const plane=document.getElementById('inspectorPlane');if(plane)plane.textContent=({VIEW:'Vista',XZ:'Suelo · XZ',XY:'Frente · XY',YZ:'Lado · YZ'}[activePlane]||activePlane);
  const selection=document.getElementById('inspectorSelection');
  if(selection){
