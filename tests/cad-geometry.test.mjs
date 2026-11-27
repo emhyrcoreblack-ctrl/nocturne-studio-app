@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance } from '../cad-geometry.mjs';
+import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance, circleThroughThreePoints } from '../cad-geometry.mjs';
 
 test('intersects two crossing segments and returns parameters', () => {
   const hit = intersectSegments2D({u:0,v:0},{u:10,v:0},{u:5,v:-2},{u:5,v:2});
@@ -166,4 +166,16 @@ test('creates regular polygons and centered rectangles with validated dimensions
   const rect = rectangleFromCenter({u:0,v:0},{u:2,v:1});
   assert.deepEqual(rect,[{u:-2,v:-1},{u:2,v:-1},{u:2,v:1},{u:-2,v:1}]);
   assert.deepEqual(rectangleFromCenter({u:0,v:0},{u:0,v:1}),[]);
+});
+
+test('constructs a circle through three non-collinear points', () => {
+  const circle = circleThroughThreePoints({u:1,v:0},{u:0,v:1},{u:-1,v:0});
+  assert.ok(circle);
+  assert.ok(Math.abs(circle.center.u) < 1e-9);
+  assert.ok(Math.abs(circle.center.v) < 1e-9);
+  assert.ok(Math.abs(circle.radius - 1) < 1e-9);
+});
+
+test('rejects a three-point circle when points are collinear', () => {
+  assert.equal(circleThroughThreePoints({u:0,v:0},{u:1,v:1},{u:2,v:2}), null);
 });
