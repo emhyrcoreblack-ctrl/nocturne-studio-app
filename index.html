@@ -1086,6 +1086,7 @@ function bindDimensionActivation(id,type){
 bindDimensionActivation('radiusDimensionTool','radius');
 bindDimensionActivation('diameterDimensionTool','diameter');
 bindDimensionActivation('linearDimensionTool','distance');
+const sketchConstraintHint=document.getElementById('sketchConstraintHint');if(sketchConstraintHint)document.body.appendChild(sketchConstraintHint);
 function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el){el.textContent=message;el.hidden=false;}}
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
@@ -1282,10 +1283,12 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   }
   // En táctil, mantener la paleta abierta desde el primer contacto, antes del click.
   drawToolsPanel.addEventListener('pointerdown',event=>{
+   const dimensionButton=event.target.closest('button[data-palette-dimension]');
+   if(dimensionButton&&!dimensionButton.disabled){event.preventDefault();event.stopImmediatePropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}
    const toolButton=event.target.closest('button[data-palette-tool]');
    if(toolButton&&!toolButton.disabled)setDrawPaletteOpen(true);
   },true);
-  drawToolsPanel.addEventListener('click',event=>{const dimensionButton=event.target.closest('button[data-palette-dimension]');if(dimensionButton&&!dimensionButton.disabled){event.preventDefault();event.stopPropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
+  drawToolsPanel.addEventListener('click',event=>{const dimensionButton=event.target.closest('button[data-palette-dimension]');if(dimensionButton&&!dimensionButton.disabled&&event.detail===0){event.preventDefault();event.stopPropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
   document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
