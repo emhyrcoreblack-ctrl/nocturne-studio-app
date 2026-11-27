@@ -102,7 +102,7 @@ export class ParametricSketch {
     } else if(['distance','horizontalDistance','verticalDistance'].includes(c.type)) {
       if(r.length!==2) throw new Error(c.type+' expects two points'); r.forEach(id=>point(this,id));
     } else if(c.type==='radius'||c.type==='diameter') {
-      if(r.length!==1) throw new Error(c.type+' expects one circle'); circle(this,r[0]);
+      if(r.length!==1||!['circle','arc'].includes(this.entities[r[0]]?.type)) throw new Error(c.type+' expects one circle or arc');
     } else if(c.type==='angle') {
       if(r.length!==2) throw new Error('angle expects two lines'); r.forEach(id=>line(this,id));
     } else if(c.type==='pointOnLine') {
@@ -132,7 +132,8 @@ function parameterLayout(model) {
   const values=[], descriptors=[];
   for(const entity of Object.values(model.entities)) {
     if(entity.type==='point') for(const key of ['u','v']) { values.push(entity[key]); descriptors.push({id:entity.id,key}); }
-    if(entity.type==='circle'||entity.type==='arc') { values.push(entity.radius); descriptors.push({id:entity.id,key:'radius'}); }\n    if(entity.type==='arc') for(const key of ['startAngle','sweep']) { values.push(entity[key]); descriptors.push({id:entity.id,key}); }
+    if(entity.type==='circle'||entity.type==='arc') { values.push(entity.radius); descriptors.push({id:entity.id,key:'radius'}); }
+    if(entity.type==='arc') for(const key of ['startAngle','sweep']) { values.push(entity[key]); descriptors.push({id:entity.id,key}); }
   }
   return {values,descriptors};
 }
@@ -170,7 +171,7 @@ function residuals(model) {
       result.push(point(model,r[1]).v-point(model,r[0]).v-c.value);
     } else if(c.type==='radius'||c.type==='diameter') {
       const target=c.type==='diameter'?c.value/2:c.value;
-      result.push(circle(model,r[0]).radius-target);
+      result.push(model.entities[r[0]].radius-target);
     } else if(c.type==='angle') {
       const a=direction({model,entity:line(model,r[0])}),b=direction({model,entity:line(model,r[1])});
       let delta=Math.atan2(cross(a,b),dot(a,b))-c.value;
