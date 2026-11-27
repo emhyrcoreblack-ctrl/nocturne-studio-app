@@ -1086,6 +1086,32 @@ function bindDimensionActivation(id,type){
 bindDimensionActivation('radiusDimensionTool','radius');
 bindDimensionActivation('diameterDimensionTool','diameter');
 bindDimensionActivation('linearDimensionTool','distance');
+// Los controles de cota se montan en la paleta visible: la barra compacta
+// oculta deliberadamente todos sus hijos salvo el botón del lápiz.
+(function mountDimensionToolsInPalette(){
+ const tools=document.querySelector('#drawToolsPanel .onshape-tools');
+ if(!tools)return;
+ const heading=document.createElement('div');
+ heading.className='dimension-tools-heading';
+ heading.textContent='COTAS';
+ const row=document.createElement('div');
+ row.className='onshape-row grid3';
+ row.setAttribute('aria-label','Herramientas de cota');
+ const definitions=[
+  ['radiusDimensionTool','Radio'],
+  ['diameterDimensionTool','Diámetro'],
+  ['linearDimensionTool','Lineal']
+ ];
+ for(const [id,label] of definitions){
+  const button=document.getElementById(id);
+  if(!button)continue;
+  const caption=document.createElement('span');
+  caption.textContent=label;
+  button.appendChild(caption);
+  row.appendChild(button);
+ }
+ if(row.children.length){tools.appendChild(heading);tools.appendChild(row);}
+})();
 function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el){el.textContent=message;el.hidden=false;}}
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
