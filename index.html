@@ -614,6 +614,16 @@
 .tree-sketch-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tree-sketch-plane{font-size:9px;color:#8795a7;font-weight:600;white-space:nowrap}
 .tree-row.tree-empty{min-height:27px;padding-left:16px;color:#8290a1;font-size:10px;font-style:italic}
+
+/* Feedback táctil y hover del dock: resalta la opción y muestra el punto verde */
+#onshapeDock button{position:relative;transition:background .14s ease,border-color .14s ease,box-shadow .14s ease}
+#onshapeDock button:hover:not(:disabled),#onshapeDock button:focus-visible,#onshapeDock button:active:not(:disabled),#onshapeDock button[aria-pressed="true"],#onshapeDock button[aria-expanded="true"]{
+ background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important;box-shadow:inset 2px 0 0 #c4a8ca,0 2px 9px #0005
+}
+#onshapeDock button:hover:not(:disabled)::after,#onshapeDock button:focus-visible::after,#onshapeDock button:active:not(:disabled)::after,#onshapeDock button[aria-pressed="true"]::after,#onshapeDock button[aria-expanded="true"]::after{
+ content:"";position:absolute;right:7px;top:6px;width:6px;height:6px;border-radius:50%;background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none
+}
+#onshapeDock button:disabled::after{display:none}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -1005,8 +1015,8 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
    }
   };
   window.addEventListener('nocturne-toggle-sketch-mode',()=>setSketchMode(!sketchMode));
-  dockSketchButton.addEventListener('click',()=>setSketchMode(!sketchMode));
-  function chooseTool(tool){setTool(activeTool===tool?'select':tool);closeDrawPalette();}
+  // El botón ya emite nocturne-toggle-sketch-mode desde el dock; no registrar un segundo toggle.
+  function chooseTool(tool){if(tool!=='select'&&!sketchMode)setSketchMode(true);setTool(activeTool===tool?'select':tool);closeDrawPalette();}
   drawMenuButton.addEventListener('click',toggleDrawPalette);
   document.getElementById('bottomSketch').addEventListener('click',toggleDrawPalette);
   drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('[data-palette-tool]');if(toolButton){const tool=toolButton.dataset.paletteTool;const target=document.getElementById(({select:'selectTool',line:'lineTool',rect:'rectTool',circle:'circleTool',polygon:'polygonTool',ellipse:'ellipseTool',arc:'arcTool',trim:'trimTool',extend:'extendTool'})[tool]);if(target)target.click();closeDrawPalette();return;}const constraint=event.target.closest('[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
