@@ -1061,9 +1061,12 @@ function startSketchDimension(type){
  const meta=selectedObject?sketchMetaForObject(selectedObject):null;
  const supported=selectedObject&&!meta.fixed&&(type==='distance'?['polyline','rect','line'].includes(meta.type)&&(selectedObject.userData.controlPoints||[]).length>=2:['circle','arc'].includes(meta.type));
  if(supported){pendingDimensionType=null;applySketchDimension(type);return;}
- pendingDimensionType=type;
+ // Cota es un modo de selección, no una herramienta de dibujo:
+ // salir de Línea/Equidistancia/etc. para que pointerup llegue a finishSketch.
+ if(activeTool!=='select')setTool('select');
  setSelectedObject(null);
- setSketchConstraintHint(type==='distance'?'Cota lineal activa · toca una línea o un segmento del croquis.':type==='radius'?'Cota de radio activa · toca un círculo o arco.':'Cota de diámetro activa · toca un círculo o arco.');
+ pendingDimensionType=type;
+ setSketchConstraintHint(type==='distance'?'Cota lineal activa · toca directamente el segmento que quieres medir.':type==='radius'?'Cota de radio activa · toca directamente un círculo o arco.':'Cota de diámetro activa · toca directamente un círculo o arco.');
 }
 document.getElementById('radiusDimensionTool')?.addEventListener('click',()=>startSketchDimension('radius'));
 document.getElementById('diameterDimensionTool')?.addEventListener('click',()=>startSketchDimension('diameter'));
