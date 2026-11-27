@@ -629,7 +629,7 @@
 #workPlaneSwitcher{display:none!important}
 #orientationCube{cursor:pointer;touch-action:manipulation}
 #orientationCube:focus-visible{outline:2px solid #9bc5f4;outline-offset:5px}
-#orientationMenu{position:absolute;z-index:80;top:92px;right:10px;width:min(224px,calc(100vw - 24px));max-height:min(68vh,470px);overflow:auto;padding:9px;border:1px solid #66566a;border-radius:13px;background:rgba(35,29,38,.97);box-shadow:0 14px 38px #0009;backdrop-filter:blur(14px)}
+#orientationMenu{position:absolute;z-index:80;top:8px;right:78px;width:min(224px,calc(100vw - 24px));max-height:min(68vh,470px);overflow:auto;padding:9px;border:1px solid #66566a;border-radius:13px;background:rgba(35,29,38,.97);box-shadow:0 14px 38px #0009;backdrop-filter:blur(14px)}
 #orientationMenu[hidden]{display:none!important}
 #orientationMenu .orientation-menu-title{padding:5px 8px 8px;color:#bcaec0;font-size:10px;font-weight:800;letter-spacing:.12em}
 #orientationMenu button{display:block;width:100%;min-height:39px;margin:2px 0;padding:8px 11px;text-align:left;border:1px solid transparent;border-radius:8px;background:transparent;color:#eee7f0;font-size:12px;touch-action:manipulation}
@@ -2166,6 +2166,7 @@ function updateFatStroke(obj,points){
 }
 function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject,...inferenceGuideObjects].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
+function setIsometricView(){if(activeTool!=='select')setTool('select');const target=controls.target.clone(),distance=Math.max(5,camera.position.distanceTo(target));camera.up.set(0,1,0);camera.position.copy(target).add(new THREE.Vector3(1,1,1).normalize().multiplyScalar(distance));controls.update();setWorkPlane('VIEW',false,true);}
 function setView(name){
  if(activeTool!=='select')setTool('select');
  const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;
