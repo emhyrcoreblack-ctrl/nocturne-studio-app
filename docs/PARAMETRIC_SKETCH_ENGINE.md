@@ -155,3 +155,11 @@ La posición de división se calcula con el parámetro (t) del segmento más pr�
 
 **Alcance actual:** solo geometrías abiertas. Los perfiles cerrados se rechazan sin modificarlos. Las curvas representadas por polilíneas muestreadas se dividen sobre su aproximación poligonal actual; no se reconstruye todavía una curva analítica exacta ni se transfieren todas sus restricciones paramétricas. La matriz de aceptación mantiene Partir como `not_verified` hasta las pruebas E2E en Android y stylus.
 
+## Edición táctil: Equidistancia
+
+La herramienta **Equidistancia** crea una copia desplazada de la geometría que el usuario toca en el plano activo. Acepta polilíneas abiertas y perfiles cerrados; el desplazamiento firmado permite elegir el lado. La distancia se introduce en centímetros y se convierte en un desplazamiento local del plano mediante `offsetPolyline`. El perfil original no se modifica.
+
+Antes de añadir la copia se comprueba coplanaridad, número de vértices, longitud mínima de los tramos y cruces interiores del contorno resultante. En perfiles cerrados se elimina un vértice final duplicado antes de calcular el offset. La nueva entidad conserva el grupo de croquis y registra la distancia, el origen y el tipo de la entidad fuente; la creación se guarda como una sola operación de historial.
+
+**Alcance actual:** el offset de curvas se calcula sobre la polilínea muestreada visible, no como offset analítico exacto. La herramienta no resuelve automáticamente colisiones locales complejas ni reconstruye restricciones paramétricas de la fuente. Su aceptación permanece como `not_verified` hasta pruebas E2E Android/stylus.
+
