@@ -563,6 +563,20 @@
  #onshapeDock #dockToolGroup{gap:4px}
  #onshapeDock #dockToolGroup #activeToolToggle{width:29px!important;min-width:29px!important;height:29px!important;flex-basis:29px!important}
 }
+
+/* La herramienta activa queda debajo de Herramientas, sin ampliar la barra */
+#onshapeDock #dockToolGroup{display:flex;flex-direction:column;align-items:stretch;gap:3px}
+#onshapeDock #dockToolGroup #activeToolToggle{
+ align-self:center!important;margin-top:1px!important;
+ width:29px!important;min-width:29px!important;height:27px!important;flex-basis:27px!important;
+ border-radius:7px!important;font-size:15px!important
+}
+@media(max-width:640px){
+ #onshapeDock #dockToolGroup{align-items:stretch;gap:2px}
+ #onshapeDock #dockToolGroup #activeToolToggle{
+  align-self:center!important;width:27px!important;min-width:27px!important;height:26px!important;flex-basis:26px!important
+ }
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -825,7 +839,7 @@ async function startViewport(){
    line.visible=false;line.frustumCulled=false;line.renderOrder=10002;
    scene.add(line);inferenceGuideObjects.push(line);
   }
-  camera=new THREE.PerspectiveCamera(42,1,.1,10000);camera.position.set(105,82,105);
+  camera=new THREE.PerspectiveCamera(42,1,.1,10000);camera.up.set(0,0,-1);camera.position.set(105,145,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
   inferenceOverlay=document.createElementNS('http://www.w3.org/2000/svg','svg');inferenceOverlay.setAttribute('aria-hidden','true');inferenceOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:24';host.appendChild(inferenceOverlay);inferenceOverlayLines=[];for(let i=0;i<2;i++){const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke','#e8c45b');line.setAttribute('stroke-width','1.4');line.setAttribute('stroke-dasharray','6 5');line.setAttribute('stroke-linecap','round');line.setAttribute('visibility','hidden');inferenceOverlay.appendChild(line);inferenceOverlayLines.push(line);}
@@ -855,7 +869,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
    updateCube();
   });
   // Los planos se seleccionan directamente desde el panel de coordenadas.
-  setWorkPlane('VIEW',false,true);
+  setWorkPlane('XZ',false);
   // Selector visible de planos de croquis: antes setWorkPlane existía, pero
   // no había controles conectados y el usuario quedaba atrapado en VIEW.
   coordinatePanel=document.createElement('div');
