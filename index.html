@@ -2191,7 +2191,7 @@ function splitSelectedAtScreen(clientX,clientY){
   if(!split||split.first.length<2||split.second.length<2)return false;
   const originalColor=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff);
   const makePart=(part,side)=>{
-   const vectors=part.map(p=>new THREE.Vector3(p.u,p.v,p.w));
+   const splitVector=points[bestIndex].clone().lerp(points[bestIndex+1],bestT);const vectors=part.map(p=>Number.isFinite(p.w)?new THREE.Vector3(p.u,p.v,p.w):splitVector.clone());
    const obj=makeFatStroke(vectors,originalColor,1,false);if(!obj)return null;
    const source=sketchMetaForObject(target);
    obj.userData.sketch=createSketchDefinition('polyline',vectors,source.plane||activePlane,{...(source.parameters||{}),split:true,operation:'split',sourceType:source.type,splitSide:side});
