@@ -1045,11 +1045,11 @@ async function applySketchDimension(type){
  if(linear&&!['polyline','rect','line'].includes(meta.type)){setSketchConstraintHint('Selecciona una línea o un croquis con segmentos para aplicar una cota lineal.');return;}
  if(linear&&points.length<2){setSketchConstraintHint('La geometría no contiene un segmento acotable.');return;}
  if(!linear&&!['circle','arc'].includes(meta.type)){setSketchConstraintHint('Selecciona un círculo o arco para acotar su radio o diámetro.');return;}
- const current=linear?points[0].distanceTo(points[1]):(meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1)*(type==='diameter'?2:1);
+ const segmentIndex=linear?Math.max(0,Math.min(Number.isInteger(obj.userData.lastPickedSegmentIndex)?obj.userData.lastPickedSegmentIndex:0,meta.type==='rect'?points.length-1:points.length-2)):0;const segmentEnd=linear?(meta.type==='rect'?(segmentIndex+1)%points.length:segmentIndex+1):1;const current=linear?points[segmentIndex].distanceTo(points[segmentEnd]):(meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1)*(type==='diameter'?2:1);
  const title=linear?'Cota lineal':type==='radius'?'Cota de radio':'Cota de diámetro';
  const value=await requestDimensionValue(title,current);
  if(value===null)return;
- const dimension={id:'d-'+(++sketchEntitySequence).toString(36),type:linear?'distance':type,value,enabled:true,...(linear?{a:0,b:1}:{})};
+ const dimension={id:'d-'+(++sketchEntitySequence).toString(36),type:linear?'distance':type,value,enabled:true,...(linear?{a:segmentIndex,b:segmentEnd}:{})};
  meta.dimensions=Array.isArray(meta.dimensions)?meta.dimensions:[];
  meta.dimensions.push(dimension);
  const result=solveSketchConstraints(obj);
@@ -2298,7 +2298,7 @@ function findSelectableObject(clientX,clientY){
  if(!camera||!drawnObjects.length)return null;
  camera.updateMatrixWorld(true);
  const rect=renderer.domElement.getBoundingClientRect();
- let best=null,bestPixels=14,bestDepth=Infinity;
+ let best=null,bestPixels=14,bestDepth=Infinity,bestSegmentIndex=-1;
  const px=(clientX-rect.left),py=(clientY-rect.top);
  const projected=new THREE.Vector3();
  const segmentDistance=(p,a,b)=>{
@@ -2321,10 +2321,11 @@ function findSelectableObject(clientX,clientY){
    const hit=segmentDistance({x:px,y:py},a,b);
    if(hit.depth< -1||hit.depth>1)continue;
    if(hit.distance<bestPixels||(Math.abs(hit.distance-bestPixels)<.25&&hit.depth<bestDepth)){
-    best=obj;bestPixels=hit.distance;bestDepth=hit.depth;
+    best=obj;bestPixels=hit.distance;bestDepth=hit.depth;bestSegmentIndex=i;
    }
   }
  }
+ if(best&&best.userData)best.userData.lastPickedSegmentIndex=bestSegmentIndex;
  return best;
 }
 function refreshWorkspacePanels(){
