@@ -170,3 +170,15 @@ test('equal-length constraint solves the first and second segment lengths',()=>{
   near(length(first),length(second));
   assert.notEqual(result.status,'conflict');
 });
+
+
+test('equal-length constraint can square a rectangle by matching adjacent edges',()=>{
+  const sketch=new ParametricSketch();
+  const bottom=sketch.addLine({u:0,v:0},{u:8,v:0});
+  const right=sketch.addLine({u:8,v:0},{u:8,v:3});
+  sketch.addConstraint('equal',[bottom,right]);
+  const result=solveParametricSketch(sketch);
+  const length=id=>{const l=sketch.entities[id],a=sketch.entities[l.a],b=sketch.entities[l.b];return Math.hypot(b.u-a.u,b.v-a.v);};
+  near(length(bottom),length(right));
+  assert.notEqual(result.status,'conflict');
+});
