@@ -42,14 +42,21 @@ test('Croquis starts and finishes independent sketch sessions on the selected pl
   assert.doesNotMatch(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
 });
 
-test('Tools palette remains independent from the Croquis session button', () => {
-  assert.match(app, /getElementById\('dockTools'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-open-sketch-tools'\)\)\)/);
-  assert.match(app, /addEventListener\('nocturne-open-sketch-tools',toggleDrawPalette\)/);
-  assert.match(app, /function chooseTool\(tool\)\{if\(tool!=='select'&&!sketchMode\)setSketchMode\(true\);setTool\(activeTool===tool\?'select':tool\)/);
+test('Tools palette toggles independently and stays open during tool selection', () => {
+  assert.match(app, /getElementById\('dockTools'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-toggle-sketch-tools'\)\)\)/);
+  assert.match(app, /addEventListener\('nocturne-open-sketch-tools',\(\)=>setDrawPaletteOpen\(true\)\)/);
+  assert.match(app, /addEventListener\('nocturne-toggle-sketch-tools',\(\)=>setDrawPaletteOpen\(!drawPaletteOpen\)\)/);
+  assert.match(app, /function chooseTool\(tool\)[\s\S]*?setDrawPaletteOpen\(true\)[\s\S]*?setTool\(activeTool===tool\?'select':tool\)/);
   assert.match(app, /activeToggle\.hidden=!lastDrawingTool/);
-  assert.match(app, /activeToggle\.setAttribute\('aria-pressed',String\(!!lastDrawingTool&&activeTool===lastDrawingTool\)\)/);
+  assert.match(app, /activeToggle\.setAttribute\('aria-pressed',String\(!!lastDrawingTool&&activeTool===shownTool\)\)/);
 });
 
+test('Selecting a sketch tool does not reset it during same-plane synchronization', () => {
+  assert.match(app, /const planeChanged=requestedPlane!==sketchPlane/);
+  assert.match(app, /if\(hasGeometry&&planeChanged\)/);
+  assert.match(app, /if\(planeChanged\){[\s\S]*?if\(activeTool!=='select'\)setTool\('select'\)/);
+  assert.match(app, /function setTool\(tool\)[\s\S]*?setWorkPlane\(activePlane,activePlane!=='VIEW'\)/);
+});
 test('Each sketch is persisted as a feature-tree group with its geometry', () => {
   assert.match(app, /sketchLayers=\[\],activeSketchId=null/);
   assert.match(app, /sketchId:activeSketchId\|\|null/);
