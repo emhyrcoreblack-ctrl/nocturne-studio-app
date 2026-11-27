@@ -224,3 +224,69 @@ export function rectangleFromCenter(center, corner) {
     {u:center.u+dx,v:center.v+dy},{u:center.u-dx,v:center.v+dy}
   ];
 }
+
+
+// Replaces one polyline corner with a tangent circular arc. Coordinates are
+// local 2D sketch coordinates; closed paths are supported without duplicating
+// the seam vertex. Returns null for degenerate or over-sized radii.
+export function filletPolylineVertex(points, vertexIndex, radius, closed = false, arcSegments = 8) {
+  if (!Array.isArray(points) || points.length < (closed ? 3 : 3) ||
+      !Number.isInteger(vertexIndex) || vertexIndex < 0 || vertexIndex >= points.length ||
+      !(Number.isFinite(radius) && radius > EPSILON)) return null;
+  if (!closed && (vertexIndex === 0 || vertexIndex === points.length - 1)) return null;
+  const count = points.length;
+  const prev = points[(vertexIndex - 1 + count) % count];
+  const vertex = points[vertexIndex];
+  const next = points[(vertexIndex + 1) % count];
+  const ax = prev.u - vertex.u, ay = prev.v - vertex.v;
+  const bx = next.u - vertex.u, by = next.v - vertex.v;
+  const la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
+  if (la <= EPSILON || lb <= EPSILON) return null;
+  const a = { u: ax / la, v: ay / la }, b = { u: bx / lb, v: by / lb };
+  const dot = Math.max(-1, Math.min(1, a.u * b.u + a.v * b.v));
+  const angle = Math.acos(dot);
+  if (angle <= 1e-5 || Math.PI - angle <= 1e-5) return null;
+  const tangentDistance = radius / Math.tan(angle / 2);
+  if (!Number.isFinite(tangentDistance) || tangentDistance >= Math.min(la, lb) - EPSILON) return null;
+  const start = { u: vertex.u + a.u * tangentDistance, v: vertex.v + a.v * tangentDistance };
+  const end = { u: vertex.u + b.u * tangentDistance, v: vertex.v + b.v * tangentDistance };
+  const turn = (vertex.u - prev.u) * (next.v - vertex.v) - (vertex.v - prev.v) * (next.u - vertex.u);
+  if (Math.abs(turn) <= EPSILON) return null;
+  const sign = Math.sign(turn);
+  const incoming = { u: (vertex.u - prev.u) / la, v: (vertex.v - prev.v) / la };
+  const center = { u: start.u - sign * incoming.v * radius, v: start.v + sign * incoming.u * radius };
+  const startAngle = Math.atan2(start.v - center.v, start.u - center.u);
+  const endAngle = Math.atan2(end.v - center.v, end.u - center.u);
+  let sweep = endAngle - startAngle;
+  if (sign > 0) while (sweep <= 0) sweep += Math.PI * 2;
+  else while (sweep >= 0) sweep -= Math.PI * 2;
+  if (Math.abs(sweep) > Math.PI + 1e-5) return null;
+  const segments = Math.max(2, Math.min(64, Math.floor(arcSegments)));
+  const arc = Array.from({ length: segments + 1 }, (_, i) => {
+    const t = startAngle + sweep * i / segments;
+    return { u: center.u + Math.cos(t) * radius, v: center.v + Math.sin(t) * radius };
+  });
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    if (i === vertexIndex) result.push(...arc);
+    else result.push({ ...points[i] });
+  }
+  return result;
+}
+
+// Replaces one corner with two equal-distance bevel points.
+export function chamferPolylineVertex(points, vertexIndex, distance, closed = false) {
+  if (!Array.isArray(points) || points.length < 3 ||
+      !Number.isInteger(vertexIndex) || vertexIndex < 0 || vertexIndex >= points.length ||
+      !(Number.isFinite(distance) && distance > EPSILON)) return null;
+  if (!closed && (vertexIndex === 0 || vertexIndex === points.length - 1)) return null;
+  const count = points.length, vertex = points[vertexIndex];
+  const prev = points[(vertexIndex - 1 + count) % count], next = points[(vertexIndex + 1) % count];
+  const la = Math.hypot(prev.u - vertex.u, prev.v - vertex.v);
+  const lb = Math.hypot(next.u - vertex.u, next.v - vertex.v);
+  if (la <= EPSILON || lb <= EPSILON || distance >= Math.min(la, lb) - EPSILON) return null;
+  const first = { u: vertex.u + (prev.u - vertex.u) * distance / la, v: vertex.v + (prev.v - vertex.v) * distance / la };
+  const second = { u: vertex.u + (next.u - vertex.u) * distance / lb, v: vertex.v + (next.v - vertex.v) * distance / lb };
+  const result = points.map((point, index) => index === vertexIndex ? [first, second] : [{ ...point }]).flat();
+  return result;
+}
