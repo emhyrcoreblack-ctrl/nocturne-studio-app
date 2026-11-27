@@ -187,4 +187,7 @@ test('Centered rectangle is wired to the active-plane touch and pointer drawing 
   assert.match(app, /type==='rectCenter'\?'rect':type/);
   assert.match(app, /type==='rect'\|\|type==='rectCenter'\)\{meta\.constraints=/);
   assert.match(app, /rectCenter:'Marca el centro y arrastra hasta una esquina'/);
+  assert.match(app, /shapeTouchDragPointerId===event\.pointerId&&drawStart/);
+  assert.match(app, /activeTool==='rectCenter'\?2:1/);
+  assert.match(app, /activeTool==='rectCenter'\)\?makeShape/);
 });
