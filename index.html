@@ -1040,7 +1040,6 @@ function setTool(tool){
  if(tool!=='select')lastDrawingTool=tool;
  ['select','line','rect','circle','polygon','ellipse','arc','trim','extend'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
  const activeToggle=document.getElementById('activeToolToggle');
- const shownTool=lastDrawingTool&&tool===lastDrawingTool?lastDrawingTool:'select';
  activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
  activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
  activeToggle.title='Herramienta '+labels[shownTool]+' · '+(activeTool===shownTool?'Desactivar':'Activar');
@@ -1105,7 +1104,7 @@ function setWorkPlane(name,orientCamera=true,recaptureView=false){
  }
  if(!config||!groundPlane)return;
  activePlane=name;
- if(sketchMode){sketchPlane=name==='VIEW'?(config.sourcePlane||'XZ'):name;lastDrawingTool=null;if(activeTool!=='select')setTool('select');}
+ if(sketchMode){const requestedPlane=name==='VIEW'?(config.sourcePlane||'XZ'):name;const layer=sketchLayers.find(item=>item.id===activeSketchId);const hasGeometry=drawnObjects.some(obj=>sketchMetaForObject(obj).sketchId===activeSketchId);if(hasGeometry&&requestedPlane!==sketchPlane){setWorkPlane(sketchPlane,true);return;}sketchPlane=requestedPlane;if(layer)layer.plane=requestedPlane;lastDrawingTool=null;if(activeTool!=='select')setTool('select');}
  refreshWorkspacePanels();
  groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
  if(gridObject){
@@ -1897,7 +1896,7 @@ function trimSegmentAtScreen(clientX,clientY){
  const color=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff);
  const objects=replacements.map(part=>{
   const obj=makeFatStroke(part,color,1,false);
-  if(obj)obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:sketchMetaForObject(target).type});
+  if(obj){obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:sketchMetaForObject(target).type});obj.userData.sketch.sketchId=sketchMetaForObject(target).sketchId||activeSketchId||null;}
   return obj;
  }).filter(Boolean);
  if(!objects.length)return false;
