@@ -39,5 +39,7 @@ test('Croquis is a dedicated mode with plane-aware entry and finish control', ()
   assert.match(app, /setWorkPlane\(initialPlane,true\)/);
   assert.match(app, /dockSketchButton\.setAttribute\('aria-pressed','true'\)/);
   assert.match(app, /dockSketchButton\.setAttribute\('aria-pressed','false'\)/);
-  assert.match(app, /activeToggle\.hidden=!sketchMode\|\|!lastDrawingTool/);
+  assert.match(app, /activeToggle\.hidden=!sketchMode/);
+  assert.match(app, /glyphs\[lastDrawingTool\]:glyphs\.select/);
+  assert.match(app, /Herramienta de selección activa/);
 });
