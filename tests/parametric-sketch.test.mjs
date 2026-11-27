@@ -142,3 +142,14 @@ test('stores arcs with center, radius, start angle and signed sweep',()=>{
   const result=solveParametricSketch(restored);
   assert.equal(result.dof,5);
 });
+
+
+test('applies a radius dimension to a parametric arc',()=>{
+  const sketch=new ParametricSketch();
+  const arc=sketch.addArc({u:0,v:0},2,0,Math.PI/2);
+  sketch.addConstraint('radius',[arc],{value:6});
+  const restored=ParametricSketch.fromJSON(sketch.toJSON());
+  const result=solveParametricSketch(restored);
+  near(restored.entities[arc].radius,6);
+  assert.notEqual(result.status,'conflict');
+});
