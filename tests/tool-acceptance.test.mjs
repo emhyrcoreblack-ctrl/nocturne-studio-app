@@ -142,3 +142,21 @@ test('Radius and diameter controls are disabled for unsupported or fixed selecti
   assert.match(app,/window\.prompt\(type==='radius'\?/);
   assert.match(app,/saveViewportProject\(\);recordDrawingHistory\(\);refreshWorkspacePanels\(\)/);
 });
+
+test('Concentric relation is exposed only for exactly two selected circles',()=>{
+  assert.match(app,/data-sketch-constraint="concentric"/);
+  assert.match(app,/event\.shiftKey\|\|event\.ctrlKey\|\|event\.metaKey/);
+  assert.match(app,/function setSelectedObject\(obj,additive=false\)/);
+  assert.match(app,/selectedObjects=\[\]/);
+  assert.match(app,/selectedObjects\.length!==2\|\|pair\.length!==2/);
+  assert.match(app,/modelA\.addConstraint\('concentric',\[circleA,circleB\]/);
+  assert.match(app,/meta\.parametricModel=model\.toJSON\(\)/);
+  assert.match(app,/updateCircle\(a,ma,modelA,circleA,mb\.id\)/);
+  assert.match(app,/updateCircle\(b,mb,modelA,circleB,ma\.id\)/);
+});
+
+test('Concentric relation rejects different planes and fixed circles',()=>{
+  assert.match(app,/ma\.plane!==mb\.plane/);
+  assert.match(app,/ma\.fixed\|\|mb\.fixed/);
+  assert.match(app,/type==='concentric'\?\(selectedObjects\.length!==2/);
+});
