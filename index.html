@@ -538,6 +538,31 @@
  #featurePanel{top:92px!important;left:83px!important;width:calc(100vw - 92px)!important;bottom:8px!important}
  #inspectorPanel{top:92px!important;right:5px!important;width:calc(100vw - 92px)!important;bottom:8px!important}
 }
+
+/* Herramienta seleccionada integrada junto a Herramientas, no flotante */
+#onshapeDock #dockToolGroup{display:flex;align-items:center;gap:5px;pointer-events:auto}
+#onshapeDock #dockToolGroup #dockTools{flex:0 0 auto}
+#onshapeDock #dockToolGroup #activeToolToggle{
+ display:grid!important;place-items:center!important;flex:0 0 31px!important;
+ width:31px!important;min-width:31px!important;height:31px!important;
+ padding:0!important;border:1px solid #78677d!important;border-radius:8px!important;
+ background:rgba(75,61,78,.94)!important;color:#f5edf6!important;
+ font-size:17px!important;font-weight:600!important;line-height:1!important;
+ box-shadow:0 2px 8px #0005!important;opacity:1!important;
+}
+#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="true"]{
+ background:#725d78!important;border-color:#c4a9c9!important;color:#fff!important;
+ box-shadow:0 0 0 1px #c4a9c955,0 3px 10px #0005!important
+}
+#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="false"]{
+ background:rgba(49,42,51,.94)!important;border-color:#655968!important;color:#c9bacb!important
+}
+#onshapeDock #dockToolGroup #activeToolToggle[hidden]{display:none!important}
+#onshapeDock #dockToolGroup #activeToolToggle:active{transform:scale(.94)}
+@media(max-width:640px){
+ #onshapeDock #dockToolGroup{gap:4px}
+ #onshapeDock #dockToolGroup #activeToolToggle{width:29px!important;min-width:29px!important;height:29px!important;flex-basis:29px!important}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -579,7 +604,7 @@
   <button type="button" id="dockSketch" title="Abrir herramientas de croquis"><span>⌒</span><small>Croquis</small></button>
   <button type="button" disabled title="Añadir sólido · próximamente"><span>⊞</span><small>Añadir</small></button>
   <button type="button" disabled title="Transformar sólido · próximamente"><span>✣</span><small>Transformar</small></button>
-  <button type="button" id="dockTools" title="Herramientas de croquis"><span>⚒</span><small>Herramientas</small></button>
+  <div id="dockToolGroup"><button type="button" id="dockTools" title="Herramientas de croquis"><span>⚒</span><small>Herramientas</small></button></div>
  </div>
  <div class="dock-bottom">
   <button type="button" id="dockMeasure" title="Medir"><span>↔</span><small>Medir</small></button>
@@ -664,6 +689,7 @@
  document.getElementById('dockItems').addEventListener('click',()=>document.getElementById('propertiesToggle').click());
  document.getElementById('dockSketch').addEventListener('click',()=>document.getElementById('drawMenuButton').click());
  document.getElementById('dockTools').addEventListener('click',()=>document.getElementById('drawMenuButton').click());
+ const dockToolGroup=document.getElementById('dockToolGroup');dockToolGroup.appendChild(document.getElementById('activeToolToggle'));
  document.getElementById('dockMeasure').addEventListener('click',()=>document.getElementById('bottomMeasure').click());
  document.getElementById('dockUndo').addEventListener('click',()=>document.getElementById('undoButton').click());
  document.getElementById('dockRedo').addEventListener('click',()=>document.getElementById('redoButton').click());
