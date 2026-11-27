@@ -2171,8 +2171,16 @@ function trimSegmentAtScreen(clientX,clientY){
  return true;
 }
 function splitSelectedAtScreen(clientX,clientY){
+  if(!camera)return false;
+  const picked=findSelectableObject(clientX,clientY);
+  if(!selectedObject||(picked&&picked!==selectedObject)){
+   if(!picked)return false;
+   setSelectedObject(picked);
+   document.getElementById('saveState').textContent='Geometría seleccionada · toca el punto donde dividirla';
+   return true;
+  }
   const target=selectedObject;
-  if(!camera||!target||!drawnObjects.includes(target))return false;
+  if(!target||!drawnObjects.includes(target))return false;
   const meta=sketchMetaForObject(target),points=target.userData.controlPoints||[];
   if(target.userData.closed||points.length<2){document.getElementById('saveState').textContent='Partir solo admite geometrías abiertas';return false;}
   if(meta&&meta.plane&&meta.plane!==activePlane){document.getElementById('saveState').textContent='Partir requiere activar el plano de la geometría';return false;}
