@@ -48,7 +48,7 @@ test('Tools palette toggles independently and closes after choosing a drawing to
   assert.match(app, /addEventListener\('nocturne-toggle-sketch-tools',\(\)=>setDrawPaletteOpen\(!drawPaletteOpen\)\)/);
   assert.match(app, /function chooseTool\(tool\)[\s\S]*?setTool\(activeTool===tool\?'select':tool\);[\s\S]*?if\(tool!=='select'\)closeDrawPalette\(\)/);
   assert.match(app, /activeToggle\.hidden=!lastDrawingTool/);
-  assert.match(app, /activeToggle\\.setAttribute\\('aria-pressed',String\\(!!lastDrawingTool&&activeTool===lastDrawingTool\\)\\)/);
+  assert.match(app, /activeToggle\.setAttribute\('aria-pressed',String\(!!lastDrawingTool&&activeTool===lastDrawingTool\)\)/);
 });
 
 test('Selecting a sketch tool does not reset it during same-plane synchronization', () => {
@@ -60,7 +60,7 @@ test('Selecting a sketch tool does not reset it during same-plane synchronizatio
 test('Each sketch is persisted as a feature-tree group with its geometry', () => {
   assert.match(app, /sketchLayers=\[\],activeSketchId=null/);
   assert.match(app, /sketchId:activeSketchId\|\|null/);
-  assert.match(app, /sketches:sketchLayers\\.map\\(layer=>\\(\\{\\.\\.\\.layer\\}\\)\\)/);
+  assert.match(app, /sketches:sketchLayers\.map\(layer=>\(\{\.\.\.layer\}\)\)/);
   assert.match(app, /sketchLayers=data&&Array\.isArray\(data\.sketches\)/);
   assert.match(app, /className='tree-row tree-sketch'/);
   assert.match(app, /members=drawnObjects\.filter\(obj=>sketchMetaForObject\(obj\)\.sketchId===layer\.id\)/);
@@ -92,7 +92,7 @@ test('Croquis autosaves active sessions, partial line and arc input, and restore
   assert.match(app, /activeSketchId,sketchMode,sketchPlane,activeLine:[\s\S]*?activeArc:/);
   assert.match(app, /if\(arcPoints\.length<2\)[\s\S]*?saveViewportProject\(\);recordDrawingHistory\(\)/);
   assert.match(app, /activeSketchId=data&&typeof data\.activeSketchId==='string'/);
-  assert.match(app, /arcPoints=data&&Array\\.isArray\\(data\\.activeArc\\)/);
+  assert.match(app, /arcPoints=data&&Array\.isArray\(data\.activeArc\)/);
   assert.match(app, /visibilitychange[\s\S]*?saveViewportProject\(\)/);
   assert.match(app, /pagehide',saveViewportProject/);
 });
