@@ -173,6 +173,23 @@
       ]
     },
     {
+      "id": "split",
+      "buttonId": "splitTool",
+      "label": "Partir",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "División de polilínea en un parámetro interior con punto compartido y sin mutar el original: cad-geometry.test.mjs.",
+        "Integración táctil sobre geometría abierta seleccionada, conservando plano y grupo de croquis; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar una línea o curva abierta y activar Partir.",
+        "Tocar un punto interior del tramo y comprobar que aparecen dos entidades.",
+        "Comprobar que ambas partes comparten exactamente el punto de división y conservan el plano.",
+        "Verificar que perfiles cerrados y toques fuera de tolerancia no alteran la geometría.",
+        "Comprobar guardado, reapertura y deshacer/rehacer con dedo y stylus."
+      ]
+    },
+    {
       "id": "trim",
       "buttonId": "trimTool",
       "label": "Recortar",
