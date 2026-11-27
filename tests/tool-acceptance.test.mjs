@@ -269,10 +269,10 @@ test('CAD dimensions use the parametric solver and the mobile expression calcula
 
 test('dimension tools can start without a preselected entity and select geometry by touch',()=>{
   assert.match(app,/function startSketchDimension\(type\)[\s\S]*?pendingDimensionType=type;[\s\S]*?setSelectedObject\(null\)/);
-  assert.match(app,/radiusDimensionTool[\s\S]*?startSketchDimension\('radius'\)/);
-  assert.match(app,/diameterDimensionTool[\s\S]*?startSketchDimension\('diameter'\)/);
-  assert.match(app,/linearDimensionTool[\s\S]*?startSketchDimension\('distance'\)/);
-  assert.match(app,/if\(pendingDimensionType\)\{[\s\S]*?findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)[\s\S]*?setSelectedObject\(target\);applySketchDimension\(requested\)/);
+  assert.match(app,/bindDimensionActivation\('radiusDimensionTool','radius'\)/);
+  assert.match(app,/bindDimensionActivation\('diameterDimensionTool','diameter'\)/);
+  assert.match(app,/bindDimensionActivation\('linearDimensionTool','distance'\)/);
+  assert.match(app,/if\(pendingDimensionType\)\{[\s\S]*?findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)[\s\S]*?setSelectedObject\(target\);const pickedMeta=sketchMetaForObject\(target\)[\s\S]*?if\(resolved\)applySketchDimension\(resolved\)/);
   assert.match(app,/function setTool\(tool\)\{\s*pendingDimensionType=null;/);
 });
 
@@ -313,9 +313,9 @@ test('Automatic dimension selection resolves line, circle and arc to supported d
 });
 
 
-test('Dimension activation feedback is rendered outside the hidden legacy toolbar',()=>{
-  assert.match(app,/const sketchConstraintHint=document\.getElementById\('sketchConstraintHint'\);if\(sketchConstraintHint\)document\.body\.appendChild\(sketchConstraintHint\)/);
-  assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?el\.hidden=true[\s\S]*?status\.textContent=message/);
+test('Dimension status is shown in the workspace status bar, not in a floating message element',()=>{
+  assert.doesNotMatch(app,/id="sketchConstraintHint"/);
+  assert.match(app,/function setSketchConstraintHint\\(message\\)[\\s\\S]*?status\\.textContent=message/);
 });
 
 test('Android palette starts dimension mode on pointerdown and keeps keyboard activation',()=>{
