@@ -30,3 +30,14 @@ test('approval status requires reproducible evidence fields', () => {
 test('global acceptance criteria are defined', () => {
   assert.ok(matrix.globalAcceptance.length >= 8);
 });
+
+test('Croquis is a dedicated mode with plane-aware entry and finish control', () => {
+  assert.match(app, /let activeTool='select',lastDrawingTool=null,sketchMode=false,sketchPlane='XZ'/);
+  assert.match(app, /nocturne-toggle-sketch-mode/);
+  assert.match(app, /nocturne-open-sketch-tools/);
+  assert.match(app, /const setSketchMode=enabled=>/);
+  assert.match(app, /setWorkPlane\(initialPlane,true\)/);
+  assert.match(app, /dockSketchButton\.setAttribute\('aria-pressed','true'\)/);
+  assert.match(app, /dockSketchButton\.setAttribute\('aria-pressed','false'\)/);
+  assert.match(app, /activeToggle\.hidden=!sketchMode\|\|!lastDrawingTool/);
+});
