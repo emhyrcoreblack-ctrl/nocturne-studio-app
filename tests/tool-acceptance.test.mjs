@@ -261,5 +261,5 @@ test('CAD dimensions use the parametric solver and the mobile expression calcula
   assert.match(app, /addConstraint\('distance',\[meta\.id\+'-p'\+dimension\.a,meta\.id\+'-p'\+dimension\.b\]/);
   assert.match(app, /function requestDimensionValue\(title,initial\)/);
   assert.match(app, /evaluateDimensionExpression\(input\.value\)/);
-  assert.doesNotMatch(app, /window\.prompt\(type==='radius'\?/);
+  assert.match(app, /await requestDimensionValue\(title,current\)/);
 });
