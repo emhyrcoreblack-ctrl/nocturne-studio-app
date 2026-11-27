@@ -120,6 +120,22 @@
       ]
     },
     {
+      "id": "bezier",
+      "buttonId": "bezierTool",
+      "label": "Bézier cuadrática",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Muestreo cuadrático de Bézier con extremos exactos mediante sampleBezier.",
+        "Integración de tres puntos, previsualización y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Marcar inicio, punto de control y final con tres toques.",
+        "Comprobar que la curva pasa por los extremos y se aproxima al control sin obligatoriamente atravesarlo.",
+        "Probar curvas cóncavas y convexas y puntos cercanos.",
+        "Comprobar previsualización, guardado, reapertura y deshacer con dedo y lápiz táctil."
+      ]
+    },
+    {
       "id": "polygon",
       "buttonId": "polygonTool",
       "label": "Polígono",
