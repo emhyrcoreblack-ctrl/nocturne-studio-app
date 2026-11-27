@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'circle', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'circle', 'circle3', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -167,4 +167,15 @@ test('Concentric relation rejects different planes and fixed circles',()=>{
   assert.match(app,/ma\.plane!==mb\.plane/);
   assert.match(app,/ma\.fixed\|\|mb\.fixed/);
   assert.match(app,/type==='concentric'\?\(selectedObjects\.length!==2/);
+});
+
+test('Three-point circle is wired to mouse and Android touch input with preview and autosave', () => {
+  assert.match(app, /data-palette-tool="circle3"/);
+  assert.match(app, /getElementById\('circle3Tool'\)\.addEventListener\('click'/);
+  assert.match(app, /if\(activeTool==='circle3'\)\{addCircleThreePoint\(p\);return;\}/);
+  assert.match(app, /activeTool==='circle3'\?makeCircleThreePointShape/);
+  assert.match(app, /function addCircleThreePoint\(point\)/);
+  assert.match(app, /circleThroughThreePoints\(planeCoords\(first\),planeCoords\(second\),planeCoords\(third\)\)/);
+  assert.match(app, /Círculo: segundo punto fijado · marca el tercero/);
+  assert.match(app, /saveViewportProject\(\);recordDrawingHistory\(\);return true;/);
 });
