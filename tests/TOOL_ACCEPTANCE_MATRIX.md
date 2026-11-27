@@ -55,3 +55,19 @@ Añadir una fila por ejecución real:
 ## Fuera del inventario activo
 
 El botón **Punto** está deshabilitado en la interfaz y marcado como «próximamente». No se considera una herramienta disponible ni aprobada.
+
+
+## Sesiones de Croquis y árbol de operaciones
+
+| Escenario | Resultado esperado |
+|---|---|
+| Elegir XZ, XY o YZ antes de pulsar Croquis | El croquis nuevo queda asociado al plano elegido |
+| Pulsar Croquis | Se crea una sesión y una entrada independiente en el árbol |
+| Dibujar varias entidades | Todas quedan anidadas bajo el croquis activo |
+| Pulsar Croquis de nuevo | La sesión termina y queda guardada como croquis completado |
+| Iniciar otro croquis en otro plano | Se crea otra entrada; no se mezclan geometrías ni planos |
+| Abrir/cerrar el proyecto | Se conservan croquis, planos y entidades en el árbol |
+| Pulsar Herramientas | Abre/cierra la paleta sin iniciar ni terminar el croquis |
+| Activar/desactivar herramienta | El control compacto bajo Herramientas conserva su estado y función |
+
+**No aprobado hasta validar en navegador:** persistencia real al recargar, separación de geometría entre dos croquis, selección de planos y ausencia de regresiones en las herramientas existentes.
