@@ -1962,7 +1962,7 @@ function moveSketch(event){
  else if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
  const p=pointForSketch(event);if(!p)return;
  
- if((activeTool==='arc'||activeTool==='circle3'||activeTool==='slot'||activeTool==='bezier')&&arcPoints.length>=2){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=activeTool==='circle3'?makeCircleThreePointShape(arcPoints[0],arcPoints[1],p,true):activeTool==='slot'?makeSlotShape(arcPoints[0],arcPoints[1],p,true):activeTool==='bezier'?makeBezierShape(arcPoints[0],arcPoints[1],p,true):makeArcShape(arcPoints[0],arcPoints[1],p,true);if(previewObject)scene.add(previewObject);updateMeasureAt(activeTool==='circle3'?'Círculo · 3 puntos':activeTool==='slot'?'Ranura · ancho':'Arco · 3 puntos','Define el tercer punto',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));return;}
+ if((activeTool==='arc'||activeTool==='circle3'||activeTool==='slot'||activeTool==='bezier')&&arcPoints.length>=2){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=activeTool==='circle3'?makeCircleThreePointShape(arcPoints[0],arcPoints[1],p,true):activeTool==='slot'?makeSlotShape(arcPoints[0],arcPoints[1],p,true):activeTool==='bezier'?makeBezierShape(arcPoints[0],arcPoints[1],p,true):makeArcShape(arcPoints[0],arcPoints[1],p,true);if(previewObject)scene.add(previewObject);updateMeasureAt(activeTool==='circle3'?'Círculo · 3 puntos':activeTool==='slot'?'Ranura · ancho':activeTool==='bezier'?'Bézier · 3 puntos':'Arco · 3 puntos','Define el tercer punto',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));return;}
  if(activeTool==='line'&&linePoints.length){
   if(lineDragStart&&lineDragPointerId===event.pointerId&&p.distanceTo(lineDragStart)>.02)lineDragMoved=true;
   updateContinuousLine(p);return;
@@ -2251,12 +2251,12 @@ function refreshWorkspacePanels(){
  const projectName=document.getElementById('documentTitle')?.textContent||'Proyecto';
  const treeName=document.getElementById('treeProjectName');if(treeName)treeName.textContent=projectName;
  const count=document.getElementById('inspectorCount');if(count)count.textContent=String(drawnObjects.length);
- const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar',extend:'Extender'}[activeTool]||activeTool);
+ const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',slot:'Ranura',bezier:'Bézier',trim:'Recortar',extend:'Extender'}[activeTool]||activeTool);
  const plane=document.getElementById('inspectorPlane');if(plane)plane.textContent=({VIEW:'Vista',XZ:'Suelo · XZ',XY:'Frente · XY',YZ:'Lado · YZ'}[activePlane]||activePlane);
  const selection=document.getElementById('inspectorSelection');
  if(selection){
   if(!selectedObject)selection.textContent='Ningún elemento seleccionado. Elige una geometría en el lienzo o en el árbol.';
-  else{const pts=selectedObject.userData.controlPoints||[],meta=sketchMetaForObject(selectedObject);selection.textContent=(meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos · '+sketchConstraintSummary(selectedObject);}
+  else{const pts=selectedObject.userData.controlPoints||[],meta=sketchMetaForObject(selectedObject);selection.textContent=(meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='slot'?'Ranura':meta.type==='bezier'?'Bézier':meta.type==='polyline'?'Polilínea':selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos · '+sketchConstraintSummary(selectedObject);}
  }
  list.replaceChildren();
  const groups=sketchLayers.slice();
@@ -2294,7 +2294,7 @@ function refreshWorkspacePanels(){
    objectIndex++;
    const row=document.createElement('div');row.className='tree-object-row';
    const selectObject=document.createElement('button');selectObject.type='button';selectObject.className='tree-row'+(selectedObjects.includes(obj)?' active':'');
-   const meta=sketchMetaForObject(obj),label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';
+   const meta=sketchMetaForObject(obj),label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='slot'?'Ranura':meta.type==='bezier'?'Bézier':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';
    const glyph=document.createElement('span');glyph.className='tree-icon';glyph.textContent=obj.userData.closed?'□':'／';
    const text=document.createElement('span');text.textContent=label+' '+objectIndex;selectObject.append(glyph,text);
    selectObject.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});
