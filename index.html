@@ -978,8 +978,8 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   updateHistoryButtons();
   const drawMenuButton=document.getElementById('drawMenuButton');
   const drawToolsPanel=document.getElementById('drawToolsPanel');
-  const toggleDrawPalette=()=>{const open=!drawToolsPanel.classList.contains('open');drawToolsPanel.classList.toggle('open',open);drawToolsPanel.setAttribute('aria-hidden',String(!open));drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));};
-  const closeDrawPalette=()=>{drawToolsPanel.classList.remove('open');drawToolsPanel.setAttribute('aria-hidden','true');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');};
+  const toggleDrawPalette=()=>{const open=!drawToolsPanel.classList.contains('open');drawToolsPanel.classList.toggle('open',open);drawToolsPanel.setAttribute('aria-hidden',String(!open));drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));document.getElementById('dockTools').setAttribute('aria-expanded',String(open));};
+  const closeDrawPalette=()=>{drawToolsPanel.classList.remove('open');drawToolsPanel.setAttribute('aria-hidden','true');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');document.getElementById('dockTools').setAttribute('aria-expanded','false');};
   window.addEventListener('nocturne-open-sketch-tools',toggleDrawPalette);
   const dockSketchButton=document.getElementById('dockSketch');
   const setSketchMode=enabled=>{
