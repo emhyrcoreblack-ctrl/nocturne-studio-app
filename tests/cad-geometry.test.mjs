@@ -179,3 +179,12 @@ test('constructs a circle through three non-collinear points', () => {
 test('rejects a three-point circle when points are collinear', () => {
   assert.equal(circleThroughThreePoints({u:0,v:0},{u:1,v:1},{u:2,v:2}), null);
 });
+
+test('offsets a closed profile inward and outward without mutating its source',()=>{
+  const square=[{u:0,v:0},{u:4,v:0},{u:4,v:4},{u:0,v:4}];
+  const inward=offsetPolyline(square,1,true),outward=offsetPolyline(square,-1,true);
+  assert.equal(inward.length,4);assert.equal(outward.length,4);
+  assert.deepEqual(inward,[{u:1,v:1},{u:3,v:1},{u:3,v:3},{u:1,v:3}]);
+  assert.deepEqual(outward,[{u:-1,v:-1},{u:5,v:-1},{u:5,v:5},{u:-1,v:5}]);
+  assert.deepEqual(square,[{u:0,v:0},{u:4,v:0},{u:4,v:4},{u:0,v:4}]);
+});
