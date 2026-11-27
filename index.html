@@ -348,6 +348,327 @@
 }
 #editorToolbar #undoButton:disabled,#editorToolbar #redoButton:disabled{opacity:.28!important}
 @media(max-width:640px){#editorToolbar #undoButton,#editorToolbar #redoButton,#editorToolbar #drawMenuButton{flex-basis:32px!important;width:32px!important;min-width:32px!important;height:32px!important}}
+
+
+/* Acceso directo a la última herramienta elegida, junto al lápiz */
+#editorToolbar #activeToolToggle{
+ display:inline-grid!important;flex:0 0 32px!important;width:32px!important;min-width:32px!important;
+ height:32px!important;min-height:32px!important;padding:0!important;place-items:center!important;
+ border:1px solid #405873!important;border-radius:7px!important;background:#20354c!important;
+ color:#dceaff!important;font-size:20px!important;line-height:1!important;
+}
+#editorToolbar #activeToolToggle[aria-pressed="false"]{
+ opacity:.48!important;background:transparent!important;color:#9aacc1!important;border-color:#34475e!important;
+}
+#editorToolbar #activeToolToggle[hidden]{display:none!important}
+#editorToolbar #activeToolToggle:not([hidden]):hover{
+ background:#294766!important;border-color:#6b91bc!important;color:#fff!important;opacity:1!important;
+}
+
+
+
+/* NOCTURNE STUDIO — interfaz compacta de trabajo */
+#workspace{background:#080f18!important;color:#dce7f4!important}
+#documentHeader{
+ height:56px!important;padding:0 12px!important;gap:12px!important;
+ background:linear-gradient(105deg,#10243a 0%,#132e4b 58%,#102238 100%)!important;
+ border-bottom:1px solid #263c55!important;box-shadow:0 5px 18px #0003!important
+}
+.document-heading div{font-size:15px!important;font-weight:650!important;letter-spacing:.01em}
+.document-heading small{font-size:10px!important;color:#91a8c2!important}
+.header-actions{gap:5px!important}
+.header-actions button{width:34px!important;height:34px!important;border-radius:9px!important;color:#c8d8ea!important}
+.header-actions #treeToggle{border:1px solid #38516e!important;background:#1a3049!important}
+.header-actions #helpButton{width:30px!important;height:30px!important}
+#editorToolbar{
+ top:56px!important;height:48px!important;padding:0 9px!important;gap:3px!important;
+ background:#0e1927!important;border-bottom:1px solid #26394f!important;
+ box-shadow:0 3px 12px #0002!important;overflow-x:auto!important;overflow-y:hidden!important;
+ scrollbar-width:none!important
+}
+#editorToolbar::-webkit-scrollbar{display:none}
+#editorToolbar button{
+ flex:0 0 auto!important;min-width:34px!important;width:auto;height:36px!important;
+ padding:0 8px!important;border:1px solid transparent!important;border-radius:8px!important;
+ color:#b8c9dc!important;background:transparent!important;font-size:18px!important
+}
+#editorToolbar button:hover{background:#1a2c42!important;border-color:#304a67!important}
+#editorToolbar button.tool-active{background:#1b3c5e!important;border-color:#426b94!important;color:#f1f7ff!important}
+#editorToolbar .tool-separator{height:24px!important;background:#30445b!important;margin:0 3px!important}
+#activeToolToggle{border-radius:9px!important}
+#sketchConstraintCard{transform:scale(.9);transform-origin:left center}
+#viewport{inset:104px 0 0!important;background:#080f18!important}
+#workspaceBottom{display:none!important;height:0!important;visibility:hidden!important;pointer-events:none!important}
+#workspaceTabs,#featureActions{display:none!important}
+#featurePanel{
+ top:112px!important;bottom:12px!important;left:10px!important;
+ width:min(286px,calc(100vw - 20px))!important;
+ background:rgba(15,27,42,.97)!important;color:#dce7f4!important;
+ border:1px solid #30465f!important;border-radius:13px!important;
+ box-shadow:0 18px 48px #0009!important;backdrop-filter:blur(14px)!important;
+ z-index:30!important
+}
+#featurePanel .panel-heading{height:44px!important;color:#9fb5ce!important;border-color:#2a3e55!important}
+#featurePanel .panel-section,#featurePanel .tree-row{border-color:#293e55!important;color:#c9d8e8!important}
+#featurePanel .tree-row:hover{background:#1a3049!important}
+#featurePanel .tree-row.active{background:#1c3b5b!important;color:#e5f1ff!important}
+#featurePanel .panel-kicker{color:#7f98b4!important}
+#workspace:not(.show-tree) #featurePanel{display:none!important}
+#inspectorPanel{display:none!important}
+#workspace.hide-inspector #inspectorPanel,
+#workspace.show-inspector #inspectorPanel{display:block!important;top:112px!important;bottom:12px!important;z-index:30!important;background:#101c2b!important;color:#dce7f4!important;border-color:#30465f!important;border-radius:13px!important;box-shadow:0 18px 48px #0009!important}
+#workPlaneSwitcher{
+ top:10px!important;left:10px!important;gap:4px!important;padding:4px!important;
+ max-width:calc(100% - 128px)!important;border:1px solid #30465b!important;
+ border-radius:10px!important;background:rgba(12,22,35,.88)!important;
+ box-shadow:0 5px 18px #0004!important;backdrop-filter:blur(10px)!important
+}
+#workPlaneSwitcher button{
+ min-height:29px!important;padding:5px 8px!important;border-radius:7px!important;
+ font-size:9px!important;letter-spacing:.035em!important
+}
+.viewcube{top:8px!important;right:8px!important;width:82px!important;height:82px!important;transform:scale(.78)!important;transform-origin:top right!important;z-index:4!important}
+#sceneStatus{
+ left:10px!important;bottom:10px!important;padding:5px 9px!important;
+ background:rgba(12,23,37,.82)!important;color:#91a9c4!important;
+ border:1px solid #2b4058!important;border-radius:8px!important;
+ font-size:9px!important;letter-spacing:.025em!important;backdrop-filter:blur(8px)!important
+}
+#measureLabel{background:#13243a!important;color:#e7f0fb!important;border-color:#527da9!important}
+#helpPanel{top:112px!important;background:#101c2b!important;color:#e1ebf7!important;border-color:#30465f!important}
+#helpPanel p{color:#aebfd2!important}
+@media(max-width:640px){
+ #documentHeader{height:54px!important;padding:0 8px!important;gap:7px!important}
+ .document-heading div{font-size:13px!important;max-width:48vw!important}
+ .document-heading small{font-size:9px!important}
+ .header-actions{gap:2px!important}
+ .header-actions #treeToggle{width:31px!important;height:31px!important}
+ #editorToolbar{top:54px!important;height:46px!important;padding:0 6px!important;gap:1px!important}
+ #editorToolbar button{min-width:32px!important;height:34px!important;padding:0 6px!important;font-size:17px!important}
+ #editorToolbar .tool-separator{height:21px!important;margin:0 2px!important}
+ #viewport{inset:100px 0 0!important}
+ #workPlaneSwitcher{max-width:calc(100% - 102px)!important;gap:3px!important;padding:3px!important}
+ #workPlaneSwitcher button{min-height:28px!important;padding:4px 6px!important;font-size:8px!important}
+ .viewcube{top:5px!important;right:2px!important;transform:scale(.64)!important}
+ #featurePanel{top:106px!important;bottom:8px!important;left:7px!important;width:min(280px,calc(100vw - 14px))!important}
+ #sceneStatus{left:7px!important;bottom:7px!important;font-size:8px!important}
+ #helpPanel{top:106px!important;right:8px!important}
+}
+
+/* Ajuste de limpieza solicitado tras la prueba real en Android */
+#sceneStatus{display:none!important}
+#viewport{inset:104px 0 0!important}
+#workPlaneSwitcher{left:9px!important;top:9px!important;max-width:calc(100% - 112px)!important;gap:3px!important;padding:4px!important}
+#workPlaneSwitcher button{min-height:28px!important;padding:5px 7px!important;font-size:9px!important}
+@media(max-width:640px){
+ #viewport{inset:100px 0 0!important}
+ #workPlaneSwitcher{left:8px!important;top:8px!important;max-width:calc(100% - 96px)!important;gap:2px!important}
+ #workPlaneSwitcher button{min-height:27px!important;padding:4px 6px!important;font-size:8px!important}
+}
+
+/* NOCTURNE — disposición inspirada en el espacio de modelado de referencia */
+#workspace{background:#1b171b!important;color:#e8e4e8!important}
+#documentHeader{
+ top:8px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+ width:min(420px,calc(100% - 150px))!important;height:42px!important;padding:0 9px!important;
+ gap:8px!important;border:1px solid #3c343c!important;border-radius:11px!important;
+ background:rgba(48,42,49,.88)!important;box-shadow:0 4px 18px #0005!important;
+ backdrop-filter:blur(12px)!important
+}
+#backProjects{display:none!important}
+.document-heading{flex:1!important;align-items:center!important;min-width:0!important}
+.document-heading div{font-size:12px!important;font-weight:600!important;max-width:100%!important}
+.document-heading small{display:none!important}
+.header-actions{margin:0!important;gap:3px!important}
+.header-actions button{width:32px!important;height:32px!important;font-size:17px!important;border-radius:8px!important;color:#ddd5df!important}
+.header-actions #treeToggle,.header-actions #propertiesToggle{display:none!important}
+.header-actions #helpButton{display:none!important}
+.header-actions #moreButton{width:28px!important;height:30px!important}
+#moreMenu{top:46px!important;right:0!important;background:#29232a!important;border-color:#514650!important}
+#editorToolbar{top:0!important;left:0!important;right:auto!important;width:0!important;height:0!important;overflow:visible!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+#editorToolbar>*{display:none!important}
+#editorToolbar #undoButton,#editorToolbar #redoButton,#editorToolbar #drawMenuButton{display:none!important}
+#viewport{inset:0!important;background:#1b171b!important}
+#onshapeDock{position:absolute;z-index:12;inset:0 auto 0 5px;width:84px;display:flex;flex-direction:column;justify-content:space-between;padding:10px 0 14px;pointer-events:none}
+#onshapeDock>div{display:grid;gap:4px;pointer-events:auto}
+#onshapeDock button{display:flex;align-items:center;gap:7px;min-width:0;height:34px;padding:0 7px;border:1px solid transparent;border-radius:7px;background:rgba(48,42,49,.76);color:#ddd6df;text-align:left;font:500 10px/1 system-ui;backdrop-filter:blur(9px)}
+#onshapeDock button span{display:grid;place-items:center;flex:0 0 22px;height:24px;font-size:16px;color:#e7e0e8}
+#onshapeDock button small{font-size:10px;white-space:nowrap}
+#onshapeDock button:hover:not(:disabled),#onshapeDock button:focus-visible{background:#443a45;border-color:#665966;outline:none}
+#onshapeDock button:disabled{opacity:.45}
+#onshapeDock .dock-project{align-self:flex-start;margin-top:48px}
+#onshapeDock .dock-tools{align-self:flex-start;margin-top:auto;margin-bottom:auto}
+#onshapeDock .dock-bottom{align-self:flex-start}
+#workPlaneSwitcher{top:12px!important;left:auto!important;right:96px!important;max-width:min(48vw,390px)!important;gap:3px!important;padding:4px!important;background:rgba(47,41,48,.86)!important;border-color:#514650!important;box-shadow:0 4px 16px #0005!important}
+#workPlaneSwitcher button{min-height:27px!important;padding:4px 7px!important;border-radius:6px!important;background:#39323b!important;border-color:#554a57!important;color:#ded6df!important;font-size:8px!important}
+#workPlaneSwitcher button[aria-pressed="true"]{background:#5b4c5d!important;border-color:#9b879d!important;color:#fff!important}
+.viewcube{top:8px!important;right:8px!important;transform:scale(.72)!important;transform-origin:top right!important}
+.viewcube .face{background:#39323b!important;border-color:#807483!important;color:#f0eaf1!important}
+#drawToolsPanel{top:76px!important;left:92px!important;max-height:calc(100dvh - 100px)!important;background:#29232a!important;border-color:#554a57!important;color:#eee7ef!important;box-shadow:0 12px 36px #0009!important}
+#drawToolsPanel button{color:#eee7ef!important}
+#drawToolsPanel .draw-section-title{color:#aa9bab!important;border-color:#514651!important}
+#drawToolsPanel .sketch-constraint-grid button{background:#39323b!important;border-color:#5a4e5c!important;color:#e8e0e9!important}
+#drawToolsPanel .sketch-constraint-grid button.active{background:#514253!important;border-color:#a58baa!important}
+#featurePanel,#inspectorPanel{top:58px!important;bottom:12px!important;background:rgba(40,34,41,.97)!important;color:#eee7ef!important;border-color:#554a57!important;border-radius:9px!important;box-shadow:0 12px 35px #0009!important}
+#featurePanel{left:88px!important;width:min(260px,calc(100vw - 105px))!important}
+#inspectorPanel{right:8px!important;width:min(260px,calc(100vw - 105px))!important}
+#featurePanel .panel-heading,#inspectorPanel .panel-heading{color:#c3b6c5!important;border-color:#554a57!important}
+#featurePanel .panel-section,#featurePanel .tree-row{color:#e5dce6!important;border-color:#4b414d!important}
+#featurePanel .tree-row:hover,#featurePanel .tree-row.active{background:#514453!important;color:#fff!important}
+#inspectorPanel .inspector-card{background:#342d36!important;border-color:#554a57!important}
+#inspectorPanel .inspector-card strong,#inspectorPanel .inspector-value span:last-child{color:#f0e8f1!important}
+#inspectorPanel .inspector-value span:first-child{color:#b8aaba!important}
+#workspaceBottom{display:none!important}
+#sceneStatus{display:none!important}
+#measureLabel{background:#39313b!important;border-color:#9a849c!important}
+#helpPanel{top:58px!important;background:#29232a!important;color:#eee7ef!important;border-color:#554a57!important}
+@media(max-width:640px){
+ #documentHeader{top:7px!important;width:min(330px,calc(100% - 130px))!important;height:38px!important;padding:0 7px!important}
+ .document-heading div{font-size:11px!important}
+ .header-actions button{width:27px!important;height:28px!important}
+ #onshapeDock{left:3px;width:80px;padding:8px 0 12px}
+ #onshapeDock .dock-project{margin-top:43px}
+ #onshapeDock button{height:31px;padding:0 5px;gap:5px}
+ #onshapeDock button span{flex-basis:20px;font-size:15px}
+ #onshapeDock button small{font-size:9px}
+ #workPlaneSwitcher{top:52px!important;left:5px!important;right:auto!important;max-width:calc(100% - 95px)!important;flex-wrap:wrap!important}
+ #workPlaneSwitcher button{font-size:7px!important;padding:4px 5px!important;min-height:24px!important}
+ .viewcube{top:48px!important;right:3px!important;transform:scale(.58)!important}
+ #drawToolsPanel{top:96px!important;left:84px!important;width:calc(100vw - 92px)!important;max-height:calc(100dvh - 110px)!important}
+ #featurePanel{top:92px!important;left:83px!important;width:calc(100vw - 92px)!important;bottom:8px!important}
+ #inspectorPanel{top:92px!important;right:5px!important;width:calc(100vw - 92px)!important;bottom:8px!important}
+}
+
+/* Herramienta seleccionada integrada junto a Herramientas, no flotante */
+#onshapeDock #dockToolGroup{display:flex;align-items:center;gap:5px;pointer-events:auto}
+#onshapeDock #dockToolGroup #dockTools{flex:0 0 auto}
+#onshapeDock #dockToolGroup #activeToolToggle{
+ display:grid!important;place-items:center!important;flex:0 0 31px!important;
+ width:31px!important;min-width:31px!important;height:31px!important;
+ padding:0!important;border:1px solid #78677d!important;border-radius:8px!important;
+ background:rgba(75,61,78,.94)!important;color:#f5edf6!important;
+ font-size:17px!important;font-weight:600!important;line-height:1!important;
+ box-shadow:0 2px 8px #0005!important;opacity:1!important;
+}
+#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="true"]{
+ background:#725d78!important;border-color:#c4a9c9!important;color:#fff!important;
+ box-shadow:0 0 0 1px #c4a9c955,0 3px 10px #0005!important
+}
+#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="false"]{
+ background:rgba(49,42,51,.94)!important;border-color:#655968!important;color:#c9bacb!important
+}
+#onshapeDock #dockToolGroup #activeToolToggle[hidden]{display:none!important}
+#onshapeDock #dockToolGroup #activeToolToggle:active{transform:scale(.94)}
+@media(max-width:640px){
+ #onshapeDock #dockToolGroup{gap:4px}
+ #onshapeDock #dockToolGroup #activeToolToggle{width:29px!important;min-width:29px!important;height:29px!important;flex-basis:29px!important}
+}
+
+/* La herramienta activa queda debajo de Herramientas, sin ampliar la barra */
+#onshapeDock #dockToolGroup{display:flex;flex-direction:column;align-items:stretch;gap:3px}
+#onshapeDock #dockToolGroup #activeToolToggle{
+ align-self:center!important;margin-top:1px!important;
+ width:29px!important;min-width:29px!important;height:27px!important;flex-basis:27px!important;
+ border-radius:7px!important;font-size:15px!important
+}
+@media(max-width:640px){
+ #onshapeDock #dockToolGroup{align-items:stretch;gap:2px}
+ #onshapeDock #dockToolGroup #activeToolToggle{
+  align-self:center!important;width:27px!important;min-width:27px!important;height:26px!important;flex-basis:26px!important
+ }
+}
+
+/* Modo Croquis: estado de sesión visible y coherente con el dock */
+#onshapeDock #dockSketch.sketch-active{
+ background:rgba(83,67,88,.96)!important;border-color:#a48aa9!important;
+ color:#fff!important;box-shadow:inset 2px 0 0 #c5a8ca,0 2px 10px #0004!important
+}
+#onshapeDock #dockSketch.sketch-active span{color:#fff!important}
+#onshapeDock #dockSketch.sketch-active small{color:#fff!important;font-weight:700!important}
+#onshapeDock #dockSketch[aria-pressed="true"]::after{
+ content:"";position:absolute;right:8px;top:7px;width:6px;height:6px;border-radius:50%;
+ background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none
+}
+#onshapeDock #dockSketch{position:relative}
+
+/* Indicador explícito: icono más nombre de la herramienta activa */
+#onshapeDock #dockToolGroup #activeToolToggle{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:5px!important;width:auto!important;min-width:86px!important;max-width:116px!important;
+ height:30px!important;min-height:30px!important;padding:0 8px!important;
+ font-size:12px!important;white-space:nowrap!important
+}
+#onshapeDock #dockToolGroup #activeToolToggle .active-tool-glyph{font-size:16px;line-height:1}
+#onshapeDock #dockToolGroup #activeToolToggle .active-tool-label{font-size:10px;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="false"]{
+ opacity:1!important;background:rgba(75,61,78,.94)!important;border-color:#78677d!important;color:#f5edf6!important
+}
+@media(max-width:640px){
+ #onshapeDock #dockToolGroup #activeToolToggle{min-width:86px!important;max-width:104px!important;height:29px!important;padding:0 6px!important}
+ #onshapeDock #dockToolGroup #activeToolToggle .active-tool-label{font-size:9px}
+}
+
+/* Árbol de operaciones: cada croquis agrupa sus entidades */
+.tree-sketch-group{margin:2px 0 6px}
+.tree-row.tree-sketch{display:flex;align-items:center;gap:7px;font-weight:700}
+.tree-sketch-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree-sketch-plane{font-size:9px;color:#8795a7;font-weight:600;white-space:nowrap}
+.tree-row.tree-empty{min-height:27px;padding-left:16px;color:#8290a1;font-size:10px;font-style:italic}
+
+/* Feedback táctil y hover del dock: resalta la opción y muestra el punto verde */
+#onshapeDock button{position:relative;transition:background .14s ease,border-color .14s ease,box-shadow .14s ease}
+/* El estado persistente depende solo de aria-pressed/expanded; el foco táctil no deja luces pegadas. */
+#onshapeDock button[aria-pressed="true"],#onshapeDock button[aria-expanded="true"]{
+ background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important;box-shadow:inset 2px 0 0 #c4a8ca,0 2px 9px #0005
+}
+#onshapeDock button[aria-pressed="true"]::after,#onshapeDock button[aria-expanded="true"]::after{
+ content:"";position:absolute;right:7px;top:6px;width:6px;height:6px;border-radius:50%;background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none
+}
+@media(hover:hover) and (pointer:fine){
+ #onshapeDock button:hover:not(:disabled){background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important}
+ #onshapeDock button:hover:not(:disabled)::after{content:"";position:absolute;right:7px;top:6px;width:6px;height:6px;border-radius:50%;background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none}
+}
+#onshapeDock button:active:not(:disabled){background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important}
+#onshapeDock button:active:not(:disabled)::after{content:"";position:absolute;right:7px;top:6px;width:6px;height:6px;border-radius:50%;background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none}
+#onshapeDock button:focus-visible{outline:2px solid #b9d8f5;outline-offset:2px}
+#onshapeDock button:disabled::after{display:none}
+
+/* Cubo de orientación: menú compacto para selección de vistas y planos */
+#workPlaneSwitcher{display:none!important}
+#orientationCube{cursor:pointer;touch-action:manipulation}
+#orientationMenu{position:absolute;z-index:90;top:132px;right:12px;width:min(224px,calc(100vw - 24px));max-height:min(68vh,470px);overflow:auto;padding:9px;border:1px solid #66566a;border-radius:13px;background:rgba(35,29,38,.97);box-shadow:0 14px 38px #0009;backdrop-filter:blur(14px)}
+#orientationMenu[hidden]{display:none!important}
+#orientationMenu .orientation-menu-title{padding:5px 8px 8px;color:#bcaec0;font-size:10px;font-weight:800;letter-spacing:.12em}
+#orientationMenu button{display:block;width:100%;min-height:39px;margin:2px 0;padding:8px 11px;text-align:left;border:1px solid transparent;border-radius:8px;background:transparent;color:#eee7f0;font-size:12px;touch-action:manipulation}
+#orientationMenu button:hover,#orientationMenu button:focus-visible,#orientationMenu button:active{background:#514354;border-color:#a58da9}
+#orientationMenu button.orientation-blocked{border-color:#d49b65;background:#49362f}
+#orientationMenu .orientation-menu-separator{height:1px;margin:6px 3px;background:#554956}
+
+/* Croquis mantiene su indicador dentro del botón y solo durante el modo activo */
+#dockSketch{position:relative}
+#dockSketch[aria-pressed="true"]{background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important;box-shadow:inset 2px 0 0 #c4a8ca,0 2px 9px #0005}
+#dockSketch[aria-pressed="false"]::after{display:none}
+#dockSketch:focus{outline:none}
+@media(hover:hover) and (pointer:fine){#dockSketch:hover:not([aria-pressed="true"]){background:#443a45;border-color:#665966}}
+
+/* Estados persistentes unificados para las opciones del dock */
+#onshapeDock .dock-project button[aria-pressed="true"],#onshapeDock .dock-tools button[aria-pressed="true"],#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="true"]{background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important;box-shadow:inset 2px 0 0 #c4a8ca,0 2px 9px #0005}
+#onshapeDock .dock-project button[aria-pressed="true"]::after,#onshapeDock .dock-tools button[aria-pressed="true"]::after,#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="true"]::after{content:"";position:absolute;right:7px;top:6px;width:6px;height:6px;border-radius:50%;background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none}
+
+/* Icono de Capas, inspirado en el lenguaje visual de Shapr3D */
+#onshapeDock #dockItems .layers-icon{display:grid;place-items:center;flex:0 0 22px;height:24px;color:#e7e0e8}
+#onshapeDock #dockItems .layers-icon svg{display:block;width:21px;height:21px}
+
+/* Estado activo visible en la paleta nueva de croquis */
+#drawToolsPanel .onshape-row button.tool-active,
+#drawToolsPanel .onshape-row button[aria-pressed="true"]{
+ background:#514253!important;
+ color:#fff!important;
+ outline:2px solid #b69abc!important;
+ outline-offset:-2px;
+ border-radius:8px!important;
+}
+.tree-layer-header{display:flex;align-items:center;gap:3px}.tree-layer-header>.tree-row{flex:1;min-width:0}.tree-object-row{display:flex;align-items:center;gap:2px}.tree-object-row>.tree-row{flex:1;min-width:0}.tree-visibility{flex:0 0 28px;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:#9fb5ce;font-size:15px}.tree-visibility:hover{background:#263d56;color:#fff}.tree-visibility-object{font-size:13px}.tree-layer-header.active>.tree-row{background:#1c3b5b;color:#e5f1ff}#dockModeling:disabled{opacity:.32!important;cursor:not-allowed!important;filter:grayscale(1)}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -379,6 +700,25 @@
 <div class="header-actions"><button id="treeToggle" title="Árbol del proyecto" aria-label="Mostrar árbol del proyecto">☷</button><button id="propertiesToggle" title="Propiedades" aria-label="Mostrar propiedades">▤</button><button id="helpButton" title="Ayuda" aria-label="Ayuda">?</button><button id="moreButton" title="Más opciones" aria-label="Más opciones">⋮</button></div>
 <div id="moreMenu"><button id="saveProject">Guardar proyecto</button><button id="closeProject">Volver a proyectos</button></div>
 </header>
+<nav id="onshapeDock" aria-label="Herramientas principales">
+ <div class="dock-project">
+  <button id="dockModeling" type="button" aria-pressed="false" aria-disabled="true" disabled title="Modelado · próximamente"><span>⬡</span><small>Modelado</small></button>
+  <button id="dockItems" type="button" aria-pressed="false" title="Capas · croquis del proyecto"><span class="layers-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></svg></span><small>Capas</small></button>
+ </div>
+ <div class="dock-tools">
+  <button type="button" id="dockSearch" disabled title="Búsqueda · próximamente"><span>⌕</span><small>Buscar</small></button>
+  <button type="button" id="dockSketch" aria-pressed="false" title="Iniciar un croquis en el plano seleccionado"><span>⌒</span><small>Croquis</small></button>
+  <button type="button" disabled title="Añadir sólido · próximamente"><span>⊞</span><small>Añadir</small></button>
+  <button type="button" disabled title="Transformar sólido · próximamente"><span>✣</span><small>Transformar</small></button>
+  <div id="dockToolGroup"><button type="button" id="dockTools" aria-pressed="false" title="Herramientas de croquis"><span>⚒</span><small>Herramientas</small></button></div>
+ </div>
+ <div class="dock-bottom">
+  <button type="button" id="dockMeasure" title="Medir"><span>↔</span><small>Medir</small></button>
+  <button type="button" id="dockUndo" title="Deshacer"><span>↶</span></button>
+  <button type="button" id="dockRedo" title="Rehacer"><span>↷</span></button>
+ </div>
+</nav>
+
 <nav id="editorToolbar" aria-label="Herramientas CAD">
 <button id="undoButton" title="Deshacer" aria-label="Deshacer">↶</button><button id="redoButton" title="Rehacer" aria-label="Rehacer">↷</button><span class="tool-separator"></span>
 <button id="drawMenuButton" title="Activar croquis" aria-label="Activar croquis">✎</button><button id="selectTool" class="tool-active" title="Seleccionar" aria-label="Seleccionar">⌖</button><button id="lineTool" title="Línea" aria-label="Línea">／</button><button id="rectTool" title="Rectángulo" aria-label="Rectángulo">▭</button><button id="circleTool" title="Círculo" aria-label="Círculo">○</button><button id="polygonTool" title="Polígono" aria-label="Polígono">⬡</button><button id="ellipseTool" title="Elipse" aria-label="Elipse">⬭</button><button id="arcTool" title="Arco de 3 puntos" aria-label="Arco de 3 puntos">⌒</button><button id="trimTool" title="Recortar segmento" aria-label="Recortar segmento">✂</button><button id="extendTool" title="Extender hasta intersección" aria-label="Extender">↗</button><button title="Punto · próximamente" aria-label="Punto" disabled>·</button><span class="tool-separator"></span>
@@ -390,7 +730,7 @@
 <button id="fitButton" title="Restablecer vista" aria-label="Restablecer vista">⟳</button><button id="activeToolToggle" type="button" hidden aria-label="Herramienta activa"></button><button id="gridButton" type="button" hidden aria-label="Cuadrícula"></button><button id="axesButton" type="button" hidden aria-label="Ejes"></button><span class="save-state" id="saveState" aria-live="polite">Seleccionar</span>
 </nav>
 <div id="drawToolsPanel" aria-hidden="true" role="dialog" aria-label="Herramientas de croquis"><div class="onshape-topbar"><button disabled>↶</button><button disabled>↷</button><i></i><button disabled>▣</button><i></i><button disabled>•••</button><i></i><button disabled>⇤</button><i></i><button disabled>◷</button><i></i><button disabled>▱</button><button disabled>⚖</button></div><div class="onshape-search"><span>⌕</span><input type="search" placeholder="Herramientas de búsqueda" aria-label="Herramientas de búsqueda"></div><div class="onshape-tools"><div class="onshape-row single"><button type="button" data-palette-tool="line" title="Línea" aria-label="Línea" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 39 39 8" stroke="#222" stroke-width="3"/><circle cx="8" cy="39" r="3.5" fill="white" stroke="#24649c"/><circle cx="39" cy="8" r="3.5" fill="white" stroke="#24649c"/></svg><span>Línea</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button" data-palette-tool="rect" title="Rectángulo por esquina" aria-label="Rectángulo por esquina" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 11H38V39H9Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="9" cy="39" r="3.5" fill="white" stroke="#24649c"/><circle cx="38" cy="11" r="3.5" fill="white" stroke="#24649c"/></svg><span>Rectángulo por esquina</span></button><button type="button"  title="Rectángulo por punto central" aria-label="Rectángulo por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8H40V40H8Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="40" cy="8" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/></svg><span>Rectángulo por punto central</span></button><button type="button" data-palette-tool="polygon" title="Polígono regular" aria-label="Polígono regular"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 40 15 40 33 24 43 8 33 8 15Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="2.5" fill="#24649c"/></svg><span>Polígono regular</span></button><button type="button" data-palette-tool="circle" title="Círculo por punto central" aria-label="Círculo por punto central" ><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="3" fill="white" stroke="#24649c"/></svg><span>Círculo por punto central</span></button><button type="button"  title="Círculo por 3 puntos" aria-label="Círculo por 3 puntos" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="8" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="9" cy="31" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="39" cy="31" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><path d="M20 24h8" stroke="#222" stroke-width="2.5"/></svg><span>Círculo por 3 puntos</span></button><button type="button" data-palette-tool="ellipse" title="Elipse" aria-label="Elipse"><svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="19" ry="12" transform="rotate(-35 24 24)" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Elipse</span></button><button type="button" data-palette-tool="trim" title="Recortar segmento" aria-label="Recortar segmento"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 9 40 39M8 39 40 9M13 8a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM35 30a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Recortar segmento</span></button><button type="button" data-palette-tool="extend" title="Extender hasta intersección" aria-label="Extender"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 39 25 21M20 8h20v20M40 8 27 21" fill="none" stroke="#222" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 39h13" stroke="#24649c" stroke-width="2.8"/></svg><span>Extender hasta intersección</span></button><button type="button" data-palette-tool="arc" title="Arco de 3 puntos" aria-label="Arco de 3 puntos"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 38 Q24 -1 41 38" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="7" cy="38" r="3" fill="#24649c"/><circle cx="24" cy="15" r="3" fill="#24649c"/><circle cx="41" cy="38" r="3" fill="#24649c"/></svg><span>Arco de 3 puntos</span></button><button type="button"  title="Polígono inscrito" aria-label="Polígono inscrito" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 42 18 35 40H13L6 18Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Polígono inscrito</span></button><button type="button"  title="Polígono circunscrito" aria-label="Polígono circunscrito" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="none" stroke="#24649c" stroke-width="2"/><path d="M24 6 42 20 35 41H13L6 20Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Polígono circunscrito</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid5"><button type="button"  title="Texto" aria-label="Texto" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 8h30v32H9z" fill="none" stroke="#999" stroke-dasharray="3 2"/><path d="M13 35 23 10h4l10 25M17 26h16" fill="none" stroke="#222" stroke-width="3"/></svg><span>Texto</span></button><button type="button"  title="Usar" aria-label="Usar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 8h29v32H9z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M15 8v32" stroke="#24649c" stroke-width="3"/></svg><span>Usar</span></button><button type="button"  title="Intersección" aria-label="Intersección" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 17h30v16H8z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M17 8c-3 18 4 28 17 31" fill="none" stroke="#24649c" stroke-width="3"/></svg><span>Intersección</span></button><button type="button"  title="Redondeo" aria-label="Redondeo" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 39V24Q10 9 25 9h13" fill="none" stroke="#222" stroke-width="4"/><path d="M10 24V39M25 9h13" stroke="#24649c" stroke-width="2"/></svg><span>Redondeo</span></button><button type="button"  title="Chaflán" aria-label="Chaflán" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 39V22L29 9" fill="none" stroke="#222" stroke-width="4"/><path d="M10 22V39h14" fill="none" stroke="#24649c" stroke-width="2"/></svg><span>Chaflán</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button"  title="Insertar DXF o DWG" aria-label="Insertar DXF o DWG" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 5h19l8 8v30H12zM31 5v9h8" fill="none" stroke="#222" stroke-width="2.5"/><text x="15" y="34" font-size="10">DXF</text></svg><span>Insertar DXF o DWG</span></button><button type="button"  title="Insertar imagen" aria-label="Insertar imagen" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="8" width="34" height="31" fill="none" stroke="#222" stroke-width="2.5"/><path d="m10 34 10-12 7 7 5-5 7 10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Insertar imagen</span></button></div><div class="onshape-divider"></div><div class="onshape-row single"><button type="button"  title="Cota" aria-label="Cota" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 10 40 38M8 10l8 1m-8-1 1 8M40 38l-8-1m8 1-1-8" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Cota</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid3"><button type="button" title="Arco por punto central" aria-label="Arco por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36A18 18 0 0 1 40 36" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="24" cy="24" r="3" fill="#24649c"/><path d="M24 24 8 36M24 24 40 36" stroke="#24649c" stroke-width="1.8" stroke-dasharray="3 2"/></svg><span>Arco por punto central</span></button><button type="button"  title="Arco tangente" aria-label="Arco tangente" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 15H22A16 16 0 0 1 22 43" fill="none" stroke="#222" stroke-width="3"/><path d="M8 15h9" stroke="#24649c" stroke-width="2.5"/><path d="M22 43h-9" stroke="#24649c" stroke-width="2.5"/><path d="M24 19v10m-5-5h10" stroke="#222" stroke-width="2.5"/></svg><span>Arco tangente</span></button><button type="button"  title="Arco por punto central" aria-label="Arco por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 34A19 19 0 0 1 29 9" fill="none" stroke="#222" stroke-width="3"/><circle cx="10" cy="34" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="29" cy="9" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="29" cy="34" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/></svg><span>Arco por punto central</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid3"><button type="button"  title="Spline" aria-label="Spline" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36C15 8 27 40 40 10" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="8" cy="36" r="3" fill="white" stroke="#24649c"/><circle cx="22" cy="25" r="3" fill="white" stroke="#24649c"/><circle cx="40" cy="10" r="3" fill="white" stroke="#24649c"/></svg><span>Spline</span></button><button type="button"  title="Punto de spline" aria-label="Punto de spline" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 35C10 13 22 36 40 10" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="24" cy="25" r="4" fill="white" stroke="#24649c" stroke-width="2.5"/><path d="M24 5v10m-5-5h10" stroke="#24649c" stroke-width="2.5"/></svg><span>Punto de spline</span></button><button type="button"  title="Punto" aria-label="Punto" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="8" fill="none" stroke="#24649c" stroke-width="3"/></svg><span>Punto</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid5"><button type="button" title="Bézier" aria-label="Bézier" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 38C14 5 34 5 41 38" fill="none" stroke="#222" stroke-width="2.8"/><path d="M7 38 24 13 41 38" fill="none" stroke="#24649c" stroke-width="1.8" stroke-dasharray="3 3"/><circle cx="7" cy="38" r="3" fill="#24649c"/><circle cx="24" cy="13" r="3" fill="#24649c"/><circle cx="41" cy="38" r="3" fill="#24649c"/></svg><span>Bézier</span></button><button type="button" title="Círculo por perímetro" aria-label="Círculo por perímetro" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="8" r="3" fill="#24649c"/><circle cx="10" cy="32" r="3" fill="#24649c"/><circle cx="38" cy="32" r="3" fill="#24649c"/></svg><span>Círculo por perímetro</span></button><button type="button"  title="Partir" aria-label="Partir" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36A16 16 0 0 1 40 36" fill="none" stroke="#24649c" stroke-width="3"/><circle cx="24" cy="11" r="4" fill="white" stroke="#222" stroke-width="2.5"/><path d="M24 15v8" stroke="#222" stroke-width="2" stroke-dasharray="2 2"/></svg><span>Partir</span></button><button type="button"  title="Equidistancia" aria-label="Equidistancia" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 39V18Q9 9 18 9h20v8H20v22z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M15 39V20Q15 15 20 15h18" fill="none" stroke="#24649c" stroke-width="2.5"/></svg><span>Equidistancia</span></button><button type="button"  title="Ranura" aria-label="Ranura" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="14" width="34" height="20" rx="10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Ranura</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid4"><button type="button"  title="Patrón lineal" aria-label="Patrón lineal" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#24649c" stroke-width="2.5"><rect x="7" y="7" width="13" height="13"/><rect x="28" y="7" width="13" height="13"/><rect x="7" y="28" width="13" height="13"/><rect x="28" y="28" width="13" height="13"/></g></svg><span>Patrón lineal</span></button><button type="button"  title="Simetría" aria-label="Simetría" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5v38" stroke="#888" stroke-width="2" stroke-dasharray="3 2"/><path d="M18 10H8V38H18M30 10H40V38H30" fill="none" stroke="#222" stroke-width="3"/><path d="M30 10v28" stroke="#24649c" stroke-width="2.5"/></svg><span>Simetría</span></button><button type="button"  title="Patrón circular" aria-label="Patrón circular" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#24649c" stroke-width="3"><circle cx="24" cy="7" r="4"/><circle cx="39" cy="17" r="4"/><circle cx="34" cy="35" r="4"/><circle cx="14" cy="35" r="4"/><circle cx="9" cy="17" r="4"/></g></svg><span>Patrón circular</span></button><button type="button"  title="Transformar" aria-label="Transformar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 13h18l-5-5m5 5-5 5M40 35H22l5-5m-5 5 5 5" fill="none" stroke="#222" stroke-width="2.5"/><rect x="8" y="25" width="10" height="10" fill="none" stroke="#222" stroke-width="2"/><path d="m31 8 9 9-9 9-9-9z" fill="none" stroke="#24649c" stroke-width="2.5"/></svg><span>Transformar</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button" data-palette-constraint="coincident" title="Coincidente" aria-label="Coincidente" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34 34 8M17 40 40 17" fill="none" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="5" fill="#222"/></svg><span>Coincidente</span></button><button type="button"  title="Concéntrico" aria-label="Concéntrico" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Concéntrico</span></button><button type="button" data-palette-constraint="parallel" title="Paralelo" aria-label="Paralelo" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m10 10 25 28M19 6l25 28" stroke="#222" stroke-width="3"/></svg><span>Paralelo</span></button><button type="button"  title="Tangente" aria-label="Tangente" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="29" cy="27" r="12" fill="none" stroke="#24649c" stroke-width="2.5"/><path d="M6 37 24 10" stroke="#222" stroke-width="4"/></svg><span>Tangente</span></button><button type="button" data-palette-constraint="horizontal" title="Horizontal" aria-label="Horizontal" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24h36" stroke="#222" stroke-width="4"/></svg><span>Horizontal</span></button><button type="button" data-palette-constraint="vertical" title="Vertical" aria-label="Vertical" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v36" stroke="#222" stroke-width="4"/></svg><span>Vertical</span></button><button type="button" data-palette-constraint="perpendicular" title="Perpendicular" aria-label="Perpendicular" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 34h34M15 34V8" fill="none" stroke="#222" stroke-width="4"/></svg><span>Perpendicular</span></button><button type="button"  title="Igual" aria-label="Igual" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 18h30M9 30h30" stroke="#222" stroke-width="4"/></svg><span>Igual</span></button><button type="button"  title="Punto medio" aria-label="Punto medio" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24h36" stroke="#24649c" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#222"/></svg><span>Punto medio</span></button><button type="button"  title="Normal" aria-label="Normal" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 36A24 24 0 0 1 29 9" fill="none" stroke="#24649c" stroke-width="3"/><path d="m25 28 15-17" stroke="#222" stroke-width="4"/></svg><span>Normal</span></button><button type="button"  title="Perforar" aria-label="Perforar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8A18 18 0 0 0 40 40" fill="none" stroke="#222" stroke-width="3"/><path d="M8 8 19 11M8 8l3 11" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="4" fill="#222"/></svg><span>Perforar</span></button><button type="button"  title="Simétrico" aria-label="Simétrico" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8 20 24 8 40M40 8 28 24 40 40" fill="none" stroke="#222" stroke-width="3"/><path d="M24 5v38" stroke="#24649c" stroke-width="2.5" stroke-dasharray="3 2"/></svg><span>Simétrico</span></button><button type="button" data-palette-constraint="fixed" title="Fijar" aria-label="Fijar" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 16h34M13 16l-4 8m14-8-4 8m14-8-4 8" stroke="#24649c" stroke-width="3"/></svg><span>Fijar</span></button></div></div><div class="onshape-close"><button type="button" data-palette-close>Cerrar</button></div></div><aside id="featurePanel" aria-label="Árbol del proyecto">
- <div class="panel-heading"><span>ÁRBOL DEL PROYECTO</span><span>⌄</span></div>
+ <div class="panel-heading"><span>CAPAS</span><span>⌄</span></div>
  <div class="panel-section">
   <button class="tree-row active" type="button"><span class="tree-icon">▾</span><strong id="treeProjectName">Proyecto</strong></button>
   <div class="tree-children">
@@ -415,8 +755,8 @@
 <div id="viewport" aria-label="Espacio de trabajo tridimensional"></div>
 
 <div id="workspaceBottom"><div id="workspaceTabs"><button class="workspace-tab active" id="partStudioTab" title="Part Studio 1" aria-label="Part Studio 1">▣</button><button class="workspace-tab" id="assemblyTab" title="Assembly 1" aria-label="Assembly 1" disabled>⬡</button></div><div id="featureActions"><button title="Croquis" id="bottomSketch">✎</button><span class="feature-sep"></span><button title="Extruir (próximamente)" disabled>▱</button><button title="Revolución (próximamente)" disabled>◉</button><button title="Barrido (próximamente)" disabled>〰</button><button title="Loft (próximamente)" disabled>◇</button><span class="feature-sep"></span><button title="Redondeo (próximamente)" disabled>⌒</button><button title="Chaflán (próximamente)" disabled>／</button><button title="Vaciado / Shell (próximamente)" aria-label="Vaciado" disabled>▣</button><button title="Ángulo de desmoldeo / Draft (próximamente)" aria-label="Desmoldeo" disabled>∠</button><button title="Operaciones booleanas (próximamente)" aria-label="Booleanas" disabled>⊕</button><button title="Patrón 3D (próximamente)" aria-label="Patrón 3D" disabled>▦</button><button title="Medir" id="bottomMeasure">↔</button></div></div>
-<div class="viewcube"><div class="cube" id="orientationCube">
-<button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
+<div class="viewcube"><div class="cube" id="orientationCube" role="button" tabindex="0" aria-label="Cubo de orientación: tocar para elegir una vista">
+<button class="face front" data-view="front" type="button">FRENTE</button><button class="face back" data-view="back" type="button">ATRÁS</button><button class="face right" data-view="right" type="button">DERECHA</button><button class="face left" data-view="left" type="button">IZQUIERDA</button><button class="face top" data-view="top" type="button">ARRIBA</button><button class="face bottom" data-view="bottom" type="button">ABAJO</button>
 </div></div>
 <div id="sceneStatus">ESPACIO VACÍO · <span id="activeProjectName">PROYECTO</span></div><div id="measureLabel"></div>
 <div id="helpPanel"><strong>Cómo dibujar</strong><p>Elige Línea, Rectángulo o Círculo y arrastra una sola vez desde el inicio hasta el final. Con Línea, cada arrastre añade un tramo; cambia a Seleccionar para terminar. Vista dibuja sobre la orientación actual de la cámara; Suelo, Frente y Lado fijan planos conocidos. En Seleccionar puedes girar la vista con un dedo.</p><button id="closeHelp">Entendido</button></div>
@@ -450,6 +790,15 @@
  document.getElementById('closeProject').addEventListener('click',()=>document.getElementById('backProjects').click());
  document.getElementById('moreButton').addEventListener('click',()=>document.getElementById('moreMenu').classList.toggle('show'));
  document.getElementById('saveProject').addEventListener('click',()=>{if(window.saveViewportProject)window.saveViewportProject();save();document.getElementById('saveState').textContent='Guardado';document.getElementById('moreMenu').classList.remove('show');});
+
+ 
+ document.getElementById('dockItems').addEventListener('click',()=>{document.getElementById('treeToggle').click();const open=workspace.classList.contains('show-tree');document.getElementById('dockItems').setAttribute('aria-pressed',String(open));document.getElementById('dockModeling').setAttribute('aria-pressed','false');});
+ document.getElementById('dockSketch').addEventListener('click',()=>window.dispatchEvent(new Event('nocturne-toggle-sketch-mode')));
+ document.getElementById('dockTools').addEventListener('click',()=>window.dispatchEvent(new Event('nocturne-toggle-sketch-tools')));
+ const dockToolGroup=document.getElementById('dockToolGroup');dockToolGroup.appendChild(document.getElementById('activeToolToggle'));
+ document.getElementById('dockMeasure').addEventListener('click',()=>document.getElementById('bottomMeasure').click());
+ document.getElementById('dockUndo').addEventListener('click',()=>document.getElementById('undoButton').click());
+ document.getElementById('dockRedo').addEventListener('click',()=>document.getElementById('redoButton').click());
  document.getElementById('treeToggle').addEventListener('click',()=>{workspace.classList.toggle('show-tree');workspace.classList.remove('show-inspector');});
  document.getElementById('propertiesToggle').addEventListener('click',()=>{const mobile=matchMedia('(max-width:850px)').matches;workspace.classList.toggle(mobile?'show-inspector':'hide-inspector');if(mobile)workspace.classList.remove('show-tree');});
  document.getElementById('helpButton').addEventListener('click',()=>document.getElementById('helpPanel').classList.toggle('show'));
@@ -460,20 +809,25 @@
 })();
 </script>
 <script type="module">
+import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance } from './cad-geometry.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
-let activeTool='select',lastDrawingTool=null,drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,cursorMarker,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null,arcPoints=[];
+let activeTool='select',lastDrawingTool=null,sketchMode=false,sketchPlane='XZ',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null,arcPoints=[];
 let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
-const activeTouchPointers=new Set();const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineStart=null,touchLineMoved=false,touchLinePointAdded=false,touchLineGuideActive=false,touchFirstAnchorStart=null,touchFirstAnchorMoved=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
-// Las coordenadas táctiles se usan tal como las entrega el navegador: el punto debe quedar donde se levanta el dedo.
+const activeTouchPointers=new Set();const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
+// En tacto se compensa la oclusión del dedo: el punto CAD sigue el cursor elevado, no la yema.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
-let sketchEntitySequence=0;
+let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null;
 const SKETCH_SCHEMA_VERSION=1;
 function createSketchDefinition(type,points,planeName=activePlane,parameters={}){
  const plane=workPlanes&&workPlanes[planeName]?planeName:(workPlanes&&workPlanes[activePlane]?activePlane:'XZ');
  const id='sk-'+Date.now().toString(36)+'-'+(++sketchEntitySequence).toString(36);
- return {schema:SKETCH_SCHEMA_VERSION,id,type,plane,parameters:{...parameters},constraints:[],dimensions:[],construction:false,fixed:false};
+ return {schema:SKETCH_SCHEMA_VERSION,id,type,plane,sketchId:activeSketchId||null,parameters:{...parameters},constraints:[],dimensions:[],construction:false,fixed:false};
+}
+function createSketchLayerRecord(plane,name){
+ const id='layer-'+Date.now().toString(36)+'-'+(++sketchLayerSequence).toString(36);
+ return {id,name:name||('Croquis '+(sketchLayers.length+1)),plane:plane||'XZ',status:'completed',visible:true,createdAt:new Date().toISOString()};
 }
 function normalizeSketchDefinition(meta,closed,points){
  if(meta&&typeof meta==='object'&&meta.schema===SKETCH_SCHEMA_VERSION&&typeof meta.id==='string')
@@ -481,7 +835,7 @@ function normalizeSketchDefinition(meta,closed,points){
  return createSketchDefinition(closed?'profile':'polyline',points,'XZ',{legacy:true});
 }
 function sketchMetaForObject(obj){if(!obj)return null;const points=obj.userData.controlPoints||[];obj.userData.sketch=normalizeSketchDefinition(obj.userData.sketch,obj.userData.closed,points);return obj.userData.sketch;}
-function serializeSketchObject(obj){const meta=sketchMetaForObject(obj);return {closed:!!obj.userData.closed,color:obj.userData&&obj.userData.selectionOriginalColor!==undefined?obj.userData.selectionOriginalColor:(obj.material&&obj.material.color?obj.material.color.getHex():0xe5efff),points:(obj.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z]),sketch:meta?JSON.parse(JSON.stringify(meta)):null};}
+function serializeSketchObject(obj){const meta=sketchMetaForObject(obj);return {closed:!!obj.userData.closed,visible:obj.userData.layerVisible!==false,color:obj.userData&&obj.userData.selectionOriginalColor!==undefined?obj.userData.selectionOriginalColor:(obj.material&&obj.material.color?obj.material.color.getHex():0xe5efff),points:(obj.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z]),sketch:meta?JSON.parse(JSON.stringify(meta)):null};}
 function attachSketchDefinition(obj,type,start,end){
  if(!obj)return obj;const a=planeCoords(start),b=planeCoords(end);let parameters={};
  if(type==='line')parameters={length:start.distanceTo(end),angle:Math.atan2(b.v-a.v,b.u-a.u)};
@@ -490,7 +844,7 @@ function attachSketchDefinition(obj,type,start,end){
  else if(type==='polygon')parameters={radius:Math.hypot(b.u-a.u,b.v-a.v),sides:6,center:[start.x,start.y,start.z]};
  else if(type==='ellipse')parameters={radiusU:Math.abs(b.u-a.u),radiusV:Math.abs(b.v-a.v),center:[start.x,start.y,start.z]};
  const meta=createSketchDefinition(type,obj.userData.controlPoints||[],activePlane,parameters);
- if(type==='rect'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,enabled:true}];}
+ if(type==='rect'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,b:0,enabled:true}];}
  obj.userData.sketch=meta;return obj;
 }
 function sketchConstraintSummary(obj){const m=sketchMetaForObject(obj);if(!m)return 'Sin definición paramétrica';const active=m.constraints.filter(c=>c&&c.enabled!==false).length;return active+' restricciones · '+m.dimensions.length+' cotas'+(m.fixed?' · Fijado':'');}
@@ -506,8 +860,9 @@ function solveSketchConstraints(obj){
   for(const c of meta.constraints.filter(x=>x&&x.enabled!==false)){
    const i=Number.isInteger(c.a)?c.a:0,j=Number.isInteger(c.b)?c.b:1;
    if(c.type==='horizontal'||c.type==='vertical'){
-    if(!uv[i]||!uv[i+1])continue;
-    if(c.type==='horizontal')uv[i+1].v=uv[i].v;else uv[i+1].u=uv[i].u;
+    const k=Number.isInteger(c.b)?c.b:i+1;
+    if(!uv[i]||!uv[k])continue;
+    if(c.type==='horizontal')uv[k].v=uv[i].v;else uv[k].u=uv[i].u;
    }else if(c.type==='coincident'){
     if(!uv[i]||!uv[j])continue;const u=(uv[i].u+uv[j].u)/2,v=(uv[i].v+uv[j].v)/2;uv[i].u=uv[j].u=u;uv[i].v=uv[j].v=v;
    }else if(c.type==='parallel'||c.type==='perpendicular'){
@@ -580,12 +935,12 @@ async function startViewport(){
    line.visible=false;line.frustumCulled=false;line.renderOrder=10002;
    scene.add(line);inferenceGuideObjects.push(line);
   }
-  camera=new THREE.PerspectiveCamera(42,1,.1,10000);camera.position.set(105,82,105);
+  camera=new THREE.PerspectiveCamera(42,1,.1,10000);camera.up.set(0,0,-1);camera.position.set(105,145,105);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
   inferenceOverlay=document.createElementNS('http://www.w3.org/2000/svg','svg');inferenceOverlay.setAttribute('aria-hidden','true');inferenceOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:24';host.appendChild(inferenceOverlay);inferenceOverlayLines=[];for(let i=0;i<2;i++){const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke','#e8c45b');line.setAttribute('stroke-width','1.4');line.setAttribute('stroke-dasharray','6 5');line.setAttribute('stroke-linecap','round');line.setAttribute('visibility','hidden');inferenceOverlay.appendChild(line);inferenceOverlayLines.push(line);}
   controls=new mod.TrackballControls(camera,renderer.domElement);controls.noRotate=false;controls.noZoom=false;controls.noPan=true;controls.staticMoving=true;controls.dynamicDampingFactor=.08;controls.rotateSpeed=1.05;controls.zoomSpeed=.9;controls.panSpeed=0;controls.minDistance=2;controls.maxDistance=5000;controls.target.set(0,0,0);controls.update();
-  raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);snapMarkerEl=document.createElement('div');snapMarkerEl.style.cssText='position:absolute;display:none;width:13px;height:13px;border:2px solid #39e6b0;background:#39e6b066;box-shadow:0 0 0 2px #0c1725,0 0 12px #39e6b0,0 0 20px #39e6b0;transform:translate(-50%,-50%);pointer-events:none;z-index:1001;border-radius:2px';host.appendChild(snapMarkerEl);edgeHighlightEl=document.createElement('div');edgeHighlightEl.style.cssText='position:absolute;display:none;height:5px;border-radius:5px;background:#62b8ff;box-shadow:0 0 0 1px rgba(8,22,38,.95),0 0 9px #62b8ff,0 0 18px rgba(98,184,255,.9);transform-origin:0 50%;pointer-events:none;z-index:1000';host.appendChild(edgeHighlightEl);levelHintEl=document.createElement('div');levelHintEl.style.cssText='position:absolute;display:none;height:1.5px;min-width:2px;border-radius:2px;background:linear-gradient(90deg,rgba(91,205,170,.18),#69cfae);box-shadow:0 0 3px rgba(91,205,170,.28);transform-origin:0 50%;pointer-events:none;z-index:9';levelHintEl.innerHTML='<span style="position:absolute;right:-3px;top:-2px;width:5px;height:5px;border:1px solid #d4f4e8;background:#69cfae;border-radius:50%;box-shadow:0 0 3px rgba(105,207,174,.35)"></span>';host.appendChild(levelHintEl);angleHintEl=document.createElement('div');angleHintEl.style.cssText='position:absolute;display:none;transform:translate(-50%,-145%);padding:2px 6px;border:1px solid rgba(105,207,174,.72);border-radius:5px;background:rgba(16,34,34,.94);color:#c5e9dc;font-size:10px;font-weight:650;letter-spacing:.01em;white-space:nowrap;pointer-events:none;z-index:19;box-shadow:0 1px 4px #0006;font-variant-numeric:tabular-nums';host.appendChild(angleHintEl);cursorMarker=null;lineGuideEl=document.createElement('div');lineGuideEl.style.cssText='position:absolute;display:none;left:0;top:0;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none;z-index:18';lineGuideEl.innerHTML='<span style="position:absolute;left:8px;top:0;width:1px;height:18px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:0;top:8px;width:18px;height:1px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:6px;top:6px;width:6px;height:6px;border:1px solid #dceaff;background:#24558b;border-radius:1px;box-sizing:border-box"></span>';host.appendChild(lineGuideEl);
+  raycaster=new THREE.Raycaster();ndc=new THREE.Vector2();groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);snapMarkerEl=document.createElement('div');snapMarkerEl.style.cssText='position:absolute;display:none;width:13px;height:13px;border:2px solid #39e6b0;background:#39e6b066;box-shadow:0 0 0 2px #0c1725,0 0 12px #39e6b0,0 0 20px #39e6b0;transform:translate(-50%,-50%);pointer-events:none;z-index:1001;border-radius:2px';host.appendChild(snapMarkerEl);edgeHighlightEl=document.createElement('div');edgeHighlightEl.style.cssText='position:absolute;display:none;height:5px;border-radius:5px;background:#62b8ff;box-shadow:0 0 0 1px rgba(8,22,38,.95),0 0 9px #62b8ff,0 0 18px rgba(98,184,255,.9);transform-origin:0 50%;pointer-events:none;z-index:1000';host.appendChild(edgeHighlightEl);levelHintEl=document.createElement('div');levelHintEl.style.cssText='position:absolute;display:none;height:1.5px;min-width:2px;border-radius:2px;background:linear-gradient(90deg,rgba(91,205,170,.18),#69cfae);box-shadow:0 0 3px rgba(91,205,170,.28);transform-origin:0 50%;pointer-events:none;z-index:9';levelHintEl.innerHTML='<span style="position:absolute;right:-3px;top:-2px;width:5px;height:5px;border:1px solid #d4f4e8;background:#69cfae;border-radius:50%;box-shadow:0 0 3px rgba(105,207,174,.35)"></span>';host.appendChild(levelHintEl);angleHintEl=document.createElement('div');angleHintEl.style.cssText='position:absolute;display:none;transform:translate(-50%,-145%);padding:2px 6px;border:1px solid rgba(105,207,174,.72);border-radius:5px;background:rgba(16,34,34,.94);color:#c5e9dc;font-size:10px;font-weight:650;letter-spacing:.01em;white-space:nowrap;pointer-events:none;z-index:19;box-shadow:0 1px 4px #0006;font-variant-numeric:tabular-nums';host.appendChild(angleHintEl);lineGuideEl=document.createElement('div');lineGuideEl.style.cssText='position:absolute;display:none;left:0;top:0;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none;z-index:18';lineGuideEl.innerHTML='<span style="position:absolute;left:8px;top:0;width:1px;height:18px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:0;top:8px;width:18px;height:1px;background:#8ebaff;box-shadow:0 0 3px #8ebaff"></span><span style="position:absolute;left:6px;top:6px;width:6px;height:6px;border:1px solid #dceaff;background:#24558b;border-radius:1px;box-sizing:border-box"></span>';host.appendChild(lineGuideEl);
   scene.add(new THREE.HemisphereLight(0xdceaff,0x202938,2));
   const key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(90,140,100);scene.add(key);
   const fill=new THREE.DirectionalLight(0x719bd0,.65);fill.position.set(-100,50,-80);scene.add(fill);
@@ -594,18 +949,7 @@ async function startViewport(){
 axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
 // Planos de referencia permanentes: están anclados al origen mundial y giran
 // únicamente porque la cámara orbita; nunca se pegan a la pantalla.
-const referencePlaneGroup=new THREE.Group();referencePlaneGroup.name="NOCTURNE_REFERENCE_PLANES";scene.add(referencePlaneGroup);
-function addReferencePlane(label,color,rotation,position){
- const geometry=new THREE.PlaneGeometry(76,76);
- const material=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.105,side:THREE.DoubleSide,depthWrite:false});
- const mesh=new THREE.Mesh(geometry,material);mesh.rotation.set(rotation[0],rotation[1],rotation[2]);mesh.position.set(position[0],position[1],position[2]);mesh.renderOrder=1;referencePlaneGroup.add(mesh);
- const border=new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color,transparent:true,opacity:.72,depthWrite:false}));
- border.rotation.copy(mesh.rotation);border.position.copy(mesh.position);border.renderOrder=2;referencePlaneGroup.add(border);
- // Se conservan los planos geométricos sin rótulos superpuestos en el origen.
-}
-addReferencePlane("FRONT",0x3b82c4,[0,0,0],[0,0,0.12]);
-addReferencePlane("RIGHT",0x21a8a0,[0,Math.PI/2,0],[0.12,0,0]);
-addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
+// Los planos de referencia adicionales se ocultan: solo se muestra la cuadrícula del plano activo.
 
   // Identificación discreta de los ejes positivos y del origen del sistema mundial.
   axisLabelEls=[];
@@ -620,8 +964,32 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
    // ejes globales permanecen fijos hasta que el usuario seleccione otro plano.
    updateCube();
   });
-  // Los planos se seleccionan directamente desde el panel de coordenadas.
-  setWorkPlane('VIEW',false,true);
+  // El selector de planos vive en el cubo de orientación, como en Onshape.
+  // Se elimina la barra permanente para liberar espacio de dibujo.
+  const planeMenu=document.createElement('div');
+  planeMenu.id='orientationMenu';
+  planeMenu.setAttribute('role','menu');
+  planeMenu.setAttribute('aria-label','Orientación y planos de trabajo');
+  planeMenu.hidden=true;
+  planeMenu.innerHTML='<div class="orientation-menu-title">VISTAS</div><button type="button" data-orient="top">Superior · Suelo XZ</button><button type="button" data-orient="front">Frontal · Frente XY</button><button type="button" data-orient="right">Derecha · Lado YZ</button><button type="button" data-orient="bottom">Inferior · Suelo XZ</button><button type="button" data-orient="back">Posterior · Frente XY</button><button type="button" data-orient="left">Izquierda · Lado YZ</button><div class="orientation-menu-separator"></div><button type="button" data-orient="iso">Isométrica</button><button type="button" data-orient="fit">Ajustar vista</button>';
+  host.appendChild(planeMenu);
+  const toggleOrientationMenu=force=>{const open=typeof force==='boolean'?force:planeMenu.hidden;planeMenu.hidden=!open;cube.setAttribute('aria-expanded',String(open));};
+  // El cubo mismo abre el selector; no hay un icono auxiliar flotante.
+  cube.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();toggleOrientationMenu();},true);
+  cube.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleOrientationMenu();}});
+  planeMenu.addEventListener('click',event=>{
+   const button=event.target.closest('[data-orient]');if(!button)return;
+   const choice=button.dataset.orient;
+   if(choice==='fit'){document.getElementById('fitButton').click();toggleOrientationMenu(false);return;}
+   if(choice==='iso'){setIsometricView();toggleOrientationMenu(false);return;}
+   const plane={top:'XZ',bottom:'XZ',front:'XY',back:'XY',right:'YZ',left:'YZ'}[choice];
+   if(sketchMode&&plane!==sketchPlane){planeMenu.querySelectorAll('[data-orient]').forEach(b=>b.classList.toggle('orientation-blocked',b===button));return;}
+   setWorkPlane(plane,true);
+   const opposite={bottom:'top',back:'front',left:'right'}[choice];
+   if(opposite){const p={top:[0,150,.001],front:[0,0,150],right:[150,0,0]}[opposite];const target=controls.target.clone();camera.position.copy(target).add(new THREE.Vector3(...p).multiplyScalar(-1));camera.up=plane==='XZ'?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0);controls.update();}
+   toggleOrientationMenu(false);hideSnapFeedback();hideLineGuide();
+  });
+  setWorkPlane(activePlane,false);
   const canvas=renderer.domElement;
   // Rotación de cámara tipo roll con dos dedos: no sustituye el zoom nativo
   // de TrackballControls; solo añade el giro angular cuando ambos dedos giran.
@@ -662,15 +1030,70 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
   setLineAxisLock(null);
   updateHistoryButtons();
-  const drawMenuButton=document.getElementById('drawMenuButton');
   const drawToolsPanel=document.getElementById('drawToolsPanel');
-  const toggleDrawPalette=()=>{const open=!drawToolsPanel.classList.contains('open');drawToolsPanel.classList.toggle('open',open);drawToolsPanel.setAttribute('aria-hidden',String(!open));drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));};
-  const closeDrawPalette=()=>{drawToolsPanel.classList.remove('open');drawToolsPanel.setAttribute('aria-hidden','true');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');};
-  function chooseTool(tool){setTool(tool);closeDrawPalette();}
-  drawMenuButton.addEventListener('click',toggleDrawPalette);
-  document.getElementById('bottomSketch').addEventListener('click',toggleDrawPalette);
-  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('[data-palette-tool]');if(toolButton){const tool=toolButton.dataset.paletteTool;const target=document.getElementById(({select:'selectTool',line:'lineTool',rect:'rectTool',circle:'circleTool',polygon:'polygonTool',ellipse:'ellipseTool',arc:'arcTool',trim:'trimTool',extend:'extendTool'})[tool]);if(target)target.click();closeDrawPalette();return;}const constraint=event.target.closest('[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDrawPalette();});
+  const dockToolsButton=document.getElementById('dockTools');
+  let drawPaletteOpen=false;
+  const setDrawPaletteOpen=open=>{
+   drawPaletteOpen=!!open;
+   drawToolsPanel.classList.toggle('open',drawPaletteOpen);
+   drawToolsPanel.setAttribute('aria-hidden',String(!drawPaletteOpen));
+   dockToolsButton.classList.toggle('menu-open',drawPaletteOpen);
+   dockToolsButton.setAttribute('aria-expanded',String(drawPaletteOpen));
+   dockToolsButton.setAttribute('aria-pressed',String(drawPaletteOpen));
+  };
+  const closeDrawPalette=()=>setDrawPaletteOpen(false);
+  window.addEventListener('nocturne-open-sketch-tools',()=>setDrawPaletteOpen(true));
+  window.addEventListener('nocturne-toggle-sketch-tools',()=>setDrawPaletteOpen(!drawPaletteOpen));
+  const dockSketchButton=document.getElementById('dockSketch');
+  const setSketchMode=enabled=>{
+   if(enabled===sketchMode)return;
+   if(enabled){
+    const planeName=activePlane==='VIEW'?(workPlanes.VIEW&&workPlanes.VIEW.sourcePlane||'XZ'):activePlane;
+    sketchMode=true;sketchPlane=planeName;lastDrawingTool=null;
+    const layer=createSketchLayerRecord(planeName);
+    layer.status='active';sketchLayers.push(layer);activeSketchId=layer.id;
+    setWorkPlane(planeName,true);
+    setTool('select');
+    dockSketchButton.classList.add('sketch-active');
+    dockSketchButton.setAttribute('aria-pressed','true');
+    dockSketchButton.title='Terminar '+layer.name+' · '+({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[planeName]||planeName);
+    dockSketchButton.querySelector('small').textContent='Terminar';
+    document.getElementById('saveState').textContent=layer.name+' · '+({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[planeName]||planeName);
+    refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
+   }else{
+    if(activeTool==='line')finishContinuousLine();
+    if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}
+    if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+    arcPoints=[];
+    const finished=sketchLayers.find(layer=>layer.id===activeSketchId);
+    if(finished){finished.status='completed';finished.completedAt=new Date().toISOString();}
+    sketchMode=false;activeSketchId=null;lastDrawingTool=null;
+    setTool('select');
+    dockSketchButton.classList.remove('sketch-active');
+    dockSketchButton.setAttribute('aria-pressed','false');
+    dockSketchButton.title='Iniciar un croquis en el plano seleccionado';
+    dockSketchButton.querySelector('small').textContent='Croquis';
+    document.getElementById('saveState').textContent=finished?finished.name+' guardado':'Croquis terminado';
+    refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
+   }
+  };
+  window.addEventListener('nocturne-toggle-sketch-mode',()=>setSketchMode(!sketchMode));
+  // El botón ya emite nocturne-toggle-sketch-mode desde el dock; no registrar un segundo toggle.
+  function chooseTool(tool){
+   const validTools=new Set(['select','line','rect','circle','polygon','ellipse','arc','trim','extend']);
+   if(!validTools.has(tool))return;
+   if(tool!=='select'&&!sketchMode)setSketchMode(true);
+   setTool(activeTool===tool?'select':tool);
+   // Al elegir una herramienta de dibujo, cerrar la paleta y dejar libre el área de trabajo.
+   if(tool!=='select')closeDrawPalette();
+  }
+  // En táctil, mantener la paleta abierta desde el primer contacto, antes del click.
+  drawToolsPanel.addEventListener('pointerdown',event=>{
+   const toolButton=event.target.closest('button[data-palette-tool]');
+   if(toolButton&&!toolButton.disabled)setDrawPaletteOpen(true);
+  },true);
+  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
   document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
@@ -682,12 +1105,12 @@ addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
   document.getElementById('trimTool').addEventListener('click',()=>chooseTool('trim'));
   document.getElementById('extendTool').addEventListener('click',()=>chooseTool('extend'));
   observer=new ResizeObserver(resize);observer.observe(host);resize();started=true;errorBox.classList.remove('show');
-  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',event=>{event.stopPropagation();const v=b.dataset.view;setView(v);const plane={top:'XZ',bottom:'XZ',front:'XY',back:'XY',left:'YZ',right:'YZ'}[v];if(plane&&(!sketchMode||plane===sketchPlane))setWorkPlane(plane,false);else if(sketchMode&&plane!==sketchPlane)setWorkPlane(sketchPlane,true);toggleOrientationMenu(false);}));
   document.getElementById('gridButton').addEventListener('click',()=>{gridObject.visible=!gridObject.visible;document.getElementById('gridButton').classList.toggle('tool-active',gridObject.visible);});
   document.getElementById('axesButton').addEventListener('click',()=>{axesObject.visible=!axesObject.visible;document.getElementById('axesButton').classList.toggle('tool-active',axesObject.visible);});
   document.getElementById('fitButton').addEventListener('click',()=>{if(activeTool!=='select')setTool('select');camera.position.copy(defaultCameraPosition);controls.target.set(0,0,0);controls.update();});
   animate();
- }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;cursorMarker=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
+ }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
 }
 function setTool(tool){
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
@@ -696,16 +1119,18 @@ function setTool(tool){
  if(previewObject){disposePreview(previewObject);previewObject=null;}arcPoints=[];
  activeTool=tool;
  refreshWorkspacePanels();
- if(cursorMarker)cursorMarker.visible=false;
+ 
  if(tool!=='line')hideMeasure();
- const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar segmento',extend:'Extender'},glyphs={line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender'},glyphs={select:'⌖',line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
  if(tool!=='select')lastDrawingTool=tool;
  ['select','line','rect','circle','polygon','ellipse','arc','trim','extend'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
+ const palette=document.getElementById('drawToolsPanel');if(palette)palette.querySelectorAll('button[data-palette-tool]').forEach(button=>{const selected=button.dataset.paletteTool===tool;button.classList.toggle('tool-active',selected);button.setAttribute('aria-pressed',String(selected));});
  const activeToggle=document.getElementById('activeToolToggle');
- activeToggle.hidden=!lastDrawingTool;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:'';
- activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'';
- activeToggle.setAttribute('aria-label',activeToggle.title||'Herramienta');
- activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
+ activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
+ activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
+ activeToggle.title='Herramienta '+labels[shownTool]+' · '+(activeTool===shownTool?'Desactivar':'Activar');
+ activeToggle.setAttribute('aria-label',activeToggle.title);
+ activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===lastDrawingTool));
  const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
  if(controls){
@@ -714,7 +1139,7 @@ function setTool(tool){
   // El giro queda anulado por completo; el zoom táctil de dos dedos sigue habilitado.
   controls.noRotate=tool!=='select';
   controls.noZoom=tool!=='select';
-  controls.noPan=true;
+  controls.noPan=tool!=='select';
   if(tool!=='select'){
    controls.update();
    camera.updateMatrixWorld(true);
@@ -765,22 +1190,32 @@ function setWorkPlane(name,orientCamera=true,recaptureView=false){
  }
  if(!config||!groundPlane)return;
  activePlane=name;
+ if(sketchMode){
+  const requestedPlane=name==='VIEW'?(config.sourcePlane||'XZ'):name;
+  const planeChanged=requestedPlane!==sketchPlane;
+  const layer=sketchLayers.find(item=>item.id===activeSketchId);
+  const hasGeometry=drawnObjects.some(obj=>sketchMetaForObject(obj).sketchId===activeSketchId);
+  if(hasGeometry&&planeChanged){setWorkPlane(sketchPlane,true);return;}
+  // Solo cambiar a Seleccionar cuando el usuario cambia realmente el plano.
+  // setTool() también sincroniza el plano actual; no debe desactivar la
+  // herramienta recién elegida cuando vuelve a aplicar el mismo plano.
+  if(planeChanged){
+   sketchPlane=requestedPlane;
+   if(layer)layer.plane=requestedPlane;
+   lastDrawingTool=null;
+   if(activeTool!=='select')setTool('select');
+  }
+ }
  refreshWorkspacePanels();
  groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
  if(gridObject){
-  if(name==='VIEW'){
-   // GridHelper está construido en XZ con su normal local en +Y.
-   // Lleva X a la derecha de pantalla, Y hacia la cámara y Z hacia abajo de pantalla.
-   const gridZ=config.u.clone().cross(config.normal).normalize();
-   gridObject.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(config.u,config.normal,gridZ));
-  }else{
-   gridObject.quaternion.identity();
-   if(name==='XY')gridObject.rotation.x=Math.PI/2;
-   else if(name==='YZ')gridObject.rotation.z=-Math.PI/2;
-  }
+  // Construye la orientación de la cuadrícula desde la misma base ortonormal
+  // que usa el plano de dibujo. Evita rotaciones especiales inconsistentes en YZ.
+  const gridZ=config.u.clone().cross(config.normal).normalize();
+  gridObject.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(config.u,config.normal,gridZ));
   gridObject.position.set(0,0,0);
  }
- if(cursorMarker)cursorMarker.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),config.normal);
+ 
  coordinatePlaneButtons.forEach(item=>{
   const active=item.name===name;
   item.button.setAttribute('aria-pressed',String(active));
@@ -808,16 +1243,21 @@ function pointOnGroundAt(clientX,clientY){
  const p=new THREE.Vector3();
  return raycaster.ray.intersectPlane(groundPlane,p)?p:null;
 }
-function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';if(cursorMarker)cursorMarker.visible=false;}
+function hideLineGuide(){if(lineGuideEl)lineGuideEl.style.display='none';}
 function hideInferenceOverlay(){inferenceOverlayLines.forEach(line=>line.setAttribute('visibility','hidden'));}
 function hideSnapFeedback(){hideInferenceOverlay();if(snapMarkerEl)snapMarkerEl.style.display='none';if(edgeHighlightEl)edgeHighlightEl.style.display='none';if(levelHintEl)levelHintEl.style.display='none';if(angleHintEl)angleHintEl.style.display='none';if(snapEdgeObject)snapEdgeObject.visible=false;if(snapVertexObject)snapVertexObject.visible=false;inferenceGuideObjects.forEach(g=>g.visible=false);snapKind=null;}
-function lineGuideEvent(event){return event;}
+const TOUCH_AIM_OFFSET=56;
+function lineGuideEvent(event){
+ if(!event||event.pointerType!=='touch')return event;
+ const bounds=host.getBoundingClientRect();
+ return {clientX:event.clientX,clientY:Math.max(bounds.top+12,event.clientY-TOUCH_AIM_OFFSET),pointerType:event.pointerType,pointerId:event.pointerId};
+}
 function pointForSketch(event,commitCoordinate=false){if(commitCoordinate&&coordinateEntryPending){const p=coordinateEntryPending.clone();coordinateEntryPending=null;if(coordinateReadout)coordinateReadout.textContent='Punto fijado · X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);return p;}const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);if(!raw)return null;const p=resolveSnap(guide,raw);if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}return p;}
 function positionTouchCursor(event){
  if(!lineGuideEl||!event)return;
- const r=host.getBoundingClientRect();
- // El centro visual de la cruz coincide con el mismo pixel que pointOnGroundAt() proyecta.
- const x=event.clientX-r.left,y=event.clientY-r.top;
+ const guide=lineGuideEvent(event),r=host.getBoundingClientRect();
+ // La cruz y la geometría comparten el punto compensado; queda por encima del dedo.
+ const x=guide.clientX-r.left,y=guide.clientY-r.top;
  lineGuideEl.style.left=x+'px';lineGuideEl.style.top=y+'px';lineGuideEl.style.display='block';
 }
 function updateLineStartGuide(event){
@@ -825,7 +1265,7 @@ function updateLineStartGuide(event){
  // Cursor, punto de inicio y geometría comparten la misma coordenada táctil.
  const p=resolveSnap(guide,raw);
  if(coordinateReadout){coordinateReadout.textContent='X '+fmt(p.x)+'  Y '+fmt(p.y)+'  Z '+fmt(p.z);if(coordinateInputs.length===3)coordinateInputs.forEach((input,i)=>{if(document.activeElement!==input)input.value=Number(p.getComponent(i).toFixed(2));});}
- if(cursorMarker)cursorMarker.visible=false;
+ 
  positionTouchCursor(event);
  return p;
 }
@@ -953,6 +1393,28 @@ function resolveSnap(event,raw){
  }
 
  const pointerPx={x:event.clientX-rectNow.left,y:event.clientY-rectNow.top};
+ // El origen mundial es una referencia explícita y prioritaria en los tres
+ // planos. No dependemos de que el rayo encuentre una recta de eje estable.
+ const worldOrigin=new THREE.Vector3(),originNdc=worldOrigin.clone().project(camera);
+ const originPx=Math.hypot((originNdc.x+1)*rectNow.width*.5-pointerPx.x,(1-originNdc.y)*rectNow.height*.5-pointerPx.y);
+ if(originNdc.z>=-1&&originNdc.z<=1&&isWithinSnapTolerance(originPx,14)){
+  hideInferenceOverlay();inferenceGuideObjects.forEach(g=>g.visible=false);
+  if(snapEdgeObject)snapEdgeObject.visible=false;
+  if(snapVertexObject){
+   const depth=worldOrigin.clone().sub(ray.origin).dot(ray.direction);
+   const size=worldPerPixelAt(depth>0?depth:1)*14,half=size*.5;
+   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion).multiplyScalar(half);
+   const corners=[worldOrigin.clone().sub(right).sub(up),worldOrigin.clone().add(right).sub(up),worldOrigin.clone().add(right).add(up),worldOrigin.clone().sub(right).add(up),worldOrigin.clone().sub(right).sub(up)];
+   snapVertexObject.geometry.setPositions(corners.flatMap(p=>[p.x,p.y,p.z]));
+   snapVertexObject.computeLineDistances();snapVertexObject.visible=true;
+  }
+  if(snapMarkerEl)snapMarkerEl.style.display='none';
+  if(edgeHighlightEl)edgeHighlightEl.style.display='none';
+  if(levelHintEl)levelHintEl.style.display='none';
+  if(angleHintEl){angleHintEl.textContent='Origen · X 0  Y 0  Z 0';angleHintEl.style.left=(event.clientX-rectNow.left+12)+'px';angleHintEl.style.top=(event.clientY-rectNow.top+12)+'px';angleHintEl.style.display='block';}
+  snapKind='origin';return worldOrigin;
+ }
  const projectedLineDistance=(anchor,axis)=>{
   const a=anchor.clone().project(camera);
   if(a.z < -1 || a.z > 1)return Infinity;
@@ -1250,14 +1712,14 @@ function beginSketch(event){
    if(lineGestureCreatedAnchor){linePoints=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}}
    else if(lineObject&&linePoints.length>1)updateFatStroke(lineObject,linePoints);
    lineGestureCreatedAnchor=false;lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;shapeTouchDragPointerId=null;
-   touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;drawStart=null;
+   drawStart=null;
    if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
    return;
   }
   if(pinchGesture)return;
   if(activeTool==='arc'){
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
-   return;
+   positionTouchCursor(event);return;
   }
   if(activeTool==='line'){
    if(linePoints.length===0){
@@ -1271,7 +1733,7 @@ function beginSketch(event){
    lineGestureCreatedAnchor=false;
    lineDragStart=p;lineDragPointerId=event.pointerId;lineDragMoved=false;
    try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
-   touchLineStart=p.clone();touchLineMoved=false;touchLinePointAdded=false;
+   
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
    touchLineGuideActive=true;updateLineStartGuide(event);
    event.preventDefault();return;
@@ -1299,6 +1761,7 @@ function beginSketch(event){
 }function beginSketchNow(event){
  if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
   if(event.button!==0)return;
+  if(event.pointerType==='touch'&&activeTool!=='select')positionTouchCursor(event);
   selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
  }
  if(event.pointerType!=='touch'&&event.button!==0)return;
@@ -1319,6 +1782,7 @@ function beginSketch(event){
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
+ if(event.pointerType==='touch'&&(activeTool==='trim'||activeTool==='extend')){positionTouchCursor(event);return;}
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
   const p=pointForSketch(event);if(!p)return;
   positionTouchCursor(event);
@@ -1336,7 +1800,7 @@ function moveSketch(event){
  if(event.pointerType==='touch'&&shapeTouchDragPointerId!==null&&event.pointerId!==shapeTouchDragPointerId)return;
  if(event.pointerType==='touch'&&activeTool==='line'){
   if(touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;}
-  if(touchLineGuideActive){if(linePoints.length===0&&touchFirstAnchorStart&&Math.hypot(event.clientX-touchFirstAnchorStart.x,event.clientY-touchFirstAnchorStart.y)>8)touchFirstAnchorMoved=true;updateLineStartGuide(event);}
+  if(touchLineGuideActive){updateLineStartGuide(event);}
  }
  else if(event.pointerType==='touch'&&touchLineGuideActive){updateLineStartGuide(event);return;}
  else if(event.pointerType==='touch'&&touchPendingEvent&&activeTool==='arc'){
@@ -1346,7 +1810,7 @@ function moveSketch(event){
  }
  else if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
  const p=pointForSketch(event);if(!p)return;
- if(cursorMarker)cursorMarker.visible=false;
+ 
  if(activeTool==='arc'&&arcPoints.length>=2){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=makeArcShape(arcPoints[0],arcPoints[1],p,true);if(previewObject)scene.add(previewObject);updateMeasureAt('Arco · 3 puntos','Define el punto final',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));return;}
  if(activeTool==='line'&&linePoints.length){
   if(lineDragStart&&lineDragPointerId===event.pointerId&&p.distanceTo(lineDragStart)>.02)lineDragMoved=true;
@@ -1372,7 +1836,7 @@ function cancelSketch(event){
  if(event.pointerType==='touch'){
   activeTouchPointers.delete(event.pointerId);shapeTouchDragPointerId=null;
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-  touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;
+  touchPendingEvent=null;touchLineGuideActive=false;
   if(activeTouchPointers.size===0){cancelLineGesture();pinchGesture=false;}
  }else if(lineDragPointerId===event.pointerId){cancelLineGesture();}
  if(drawStart){drawStart=null;if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}}
@@ -1403,31 +1867,32 @@ function finishSketch(event){
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
   const p=updateLineStartGuide(event)||(()=>{const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);return raw?resolveSnap(guide,raw):drawStart.clone();})();
   const completed=finalizeShapeAtPoint(p);
-  shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+  shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;
   hideSnapFeedback();hideLineGuide();
   if(completed)return;
  }
  if(event.pointerType==='touch'){
-  if((activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=updateLineStartGuide(event)||pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;hideSnapFeedback();hideLineGuide();return;}
+  if((activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=updateLineStartGuide(event)||pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;hideSnapFeedback();hideLineGuide();return;}
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
    const p=updateLineStartGuide(event)||pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);
    if(p){linePoints=[p.clone()];saveViewportProject();recordDrawingHistory();}
-   activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+   activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;
    hideSnapFeedback();hideLineGuide();return;
   }
   if(shapeTouchDragPointerId!==null&&shapeTouchDragPointerId!==event.pointerId){activeTouchPointers.delete(event.pointerId);return;}
   activeTouchPointers.delete(event.pointerId);
-  if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;hideLineGuide();}return;}
+  if(pinchGesture){if(activeTouchPointers.size===0){pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;if(touchStartTimer)clearTimeout(touchStartTimer);touchStartTimer=null;hideLineGuide();}return;}
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
-  touchPendingEvent=null;touchLineGuideActive=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;
+  touchPendingEvent=null;touchLineGuideActive=false;
  }
  if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
   const down=selectionPointerDown;selectionPointerDown=null;
   if(down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
-   if(activeTool==='trim'){const changed=trimSegmentAtScreen(event.clientX,event.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
-   else if(activeTool==='extend'){const changed=extendEndpointAtScreen(event.clientX,event.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un extremo con intersección delante';}
+   const aim=lineGuideEvent(event);
+   if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
+   else if(activeTool==='extend'){const changed=extendEndpointAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un extremo con intersección delante';}
    else{const picked=findSelectableObject(event.clientX,event.clientY);setSelectedObject(picked);}
   }
   return;
@@ -1456,43 +1921,92 @@ function finishSketch(event){
 function trimSegmentAtScreen(clientX,clientY){
  if(!camera||!drawnObjects.length)return false;
  camera.updateMatrixWorld(true);
- const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),plane=workPlanes[activePlane];
+ const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),plane=workPlanes[activePlane],origin=new THREE.Vector3();
  let target=null,targetIndex=-1,targetT=0,bestPixels=12;
- const distance=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/l,0,1):0;return{d:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};};
+ const segmentDistance=(p,a,b)=>{
+  const dx=b.x-a.x,dy=b.y-a.y,lenSq=dx*dx+dy*dy,t=lenSq?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/lenSq,0,1):0;
+  return {distance:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};
+ };
+ // 1) Seleccionar el segmento visible más cercano al punto de mira.
  for(const obj of drawnObjects){
-  const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;
+  const pts=obj.userData.controlPoints||[],closed=!!obj.userData.closed,count=closed?pts.length:pts.length-1;
+  if(pts.length<2)continue;
   obj.updateWorldMatrix(true,false);
   const screen=pts.map(p=>{projected.copy(p);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};});
-  for(let i=0;i<screen.length-1;i++){const a=screen[i],b=screen[i+1];if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;const h=distance({x:px,y:py},a,b);if(h.d<bestPixels){bestPixels=h.d;target=obj;targetIndex=i;targetT=h.t;}}
- }
- if(!target)return false;
- const pts=target.userData.controlPoints||[],a3=pts[targetIndex],b3=pts[targetIndex+1],origin=new THREE.Vector3();
- if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05){document.getElementById('saveState').textContent='Recortar requiere el plano activo';return false;}
- const a=planeCoords(a3),b=planeCoords(b3),rx=b.u-a.u,ry=b.v-a.v;
- const cross=(x,y,u,v)=>x*v-y*u,hits=[];
- for(const obj of drawnObjects){
-  const other=obj.userData.controlPoints||[],count=obj.userData.closed?other.length:other.length-1;
-  for(let j=0;j<count;j++){
-   if(obj===target&&j===targetIndex)continue;
-   const p3=other[j],q3=other[(j+1)%other.length];
-   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
-   const p=planeCoords(p3),q=planeCoords(q3),sx=q.u-p.u,sy=q.v-p.v,den=cross(rx,ry,sx,sy);
-   if(Math.abs(den)<1e-9)continue;
-   const dx=p.u-a.u,dy=p.v-a.v,t=cross(dx,dy,sx,sy)/den,u=cross(dx,dy,rx,ry)/den;
-   if(t>1e-5&&t<1-1e-5&&u>=-1e-5&&u<=1+1e-5)hits.push(t);
+  for(let i=0;i<count;i++){
+   const a=screen[i],b=screen[(i+1)%screen.length];
+   if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;
+   const hit=segmentDistance({x:px,y:py},a,b);
+   if(hit.distance<bestPixels){bestPixels=hit.distance;target=obj;targetIndex=i;targetT=hit.t;}
   }
  }
- hits.sort((x,y)=>x-y);
- const lo=[...hits].reverse().find(t=>t<targetT-1e-4),hi=hits.find(t=>t>targetT+1e-4);
- if(lo===undefined||hi===undefined){document.getElementById('saveState').textContent='Recortar: selecciona un tramo entre dos intersecciones';return false;}
- const cut=t=>a3.clone().lerp(b3,t),left=pts.slice(0,targetIndex+1).map(p=>p.clone()),right=[cut(hi),...pts.slice(targetIndex+1).map(p=>p.clone())];
- left.push(cut(lo));
- const replacements=[left,right].filter(p=>p.length>=2).map(part=>{const obj=makeFatStroke(part,0xe5efff,1,false);if(obj)obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:'intersection-trim'});return obj;}).filter(Boolean);
- if(!replacements.length)return false;
- scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);replacements.forEach(o=>{scene.add(o);drawnObjects.push(o);});
- setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Tramo entre intersecciones recortado';return true;
+ if(!target)return false;
+ const points=target.userData.controlPoints||[],closed=!!target.userData.closed,n=points.length,edgeCount=closed?n:n-1;
+ if(n<2)return false;
+ // 2) Construir la longitud acumulada de la polilínea en el plano activo.
+ const uv=points.map(p=>planeCoords(p)),cumulative=[0];
+ for(let i=0;i<edgeCount;i++){
+  const a=uv[i],b=uv[(i+1)%n];
+  cumulative.push(cumulative[i]+Math.hypot(b.u-a.u,b.v-a.v));
+ }
+ const total=cumulative[cumulative.length-1],selectedA=uv[targetIndex],selectedB=uv[(targetIndex+1)%n];
+ const selectedLength=Math.hypot(selectedB.u-selectedA.u,selectedB.v-selectedA.v);
+ const targetS=cumulative[targetIndex]+targetT*selectedLength;
+ if(!Number.isFinite(total)||total<1e-8)return false;
+ // 3) Encontrar todas las intersecciones de la figura seleccionada con las demás geometrías.
+ const hits=[];
+ for(const otherObj of drawnObjects){
+  if(otherObj===target)continue;
+  const other=otherObj.userData.controlPoints||[],otherClosed=!!otherObj.userData.closed,otherCount=otherClosed?other.length:other.length-1;
+  for(let j=0;j<otherCount;j++){
+   const p3=other[j],q3=other[(j+1)%other.length];
+   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
+   const p=planeCoords(p3),q=planeCoords(q3);
+   for(let i=0;i<edgeCount;i++){
+    const a3=points[i],b3=points[(i+1)%n];
+    if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05)continue;
+    const a=uv[i],b=uv[(i+1)%n],intersection=intersectSegments2D(a,b,p,q);
+    if(intersection){
+     const edgeLength=Math.hypot(b.u-a.u,b.v-a.v),s=cumulative[i]+intersection.t*edgeLength;
+     hits.push({s,point:a3.clone().lerp(b3,intersection.t)});
+    }
+   }
+  }
+ }
+ // 4) Identificar las dos intersecciones que delimitan el tramo bajo el cursor.
+ const bounds=selectTrimBounds(hits,targetS,total,closed);
+ if(!bounds){document.getElementById('saveState').textContent='Recortar: el cursor debe estar entre dos intersecciones';return false;}
+ const {previous,next}=bounds;
+ const replacements=[];
+ if(closed){
+  // En un contorno cerrado se elimina el arco que contiene el cursor y se conserva el arco complementario.
+  const startHit=next,endHit={...previous,s:previous.s+(next.s<=previous.s?total:0)};
+  let endS=endHit.s;
+  if(endS<=startHit.s)endS+=total;
+  const kept=[startHit.point.clone()];
+  for(const index of closedPathVertexIndices(cumulative,startHit.s,endS,total))kept.push(points[index].clone());
+  kept.push(previous.point.clone());
+  if(kept.length>=2)replacements.push(kept);
+ }else{
+  const left=points.filter((p,i)=>cumulative[i]<previous.s-1e-5).map(p=>p.clone());
+  left.push(previous.point.clone());
+  const right=[next.point.clone(),...points.filter((p,i)=>cumulative[i]>next.s+1e-5).map(p=>p.clone())];
+  if(left.length>=2)replacements.push(left);
+  if(right.length>=2)replacements.push(right);
+ }
+ const color=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff);
+ const objects=replacements.map(part=>{
+  const obj=makeFatStroke(part,color,1,false);
+  if(obj){obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:sketchMetaForObject(target).type});obj.userData.sketch.sketchId=sketchMetaForObject(target).sketchId||activeSketchId||null;}
+  return obj;
+ }).filter(Boolean);
+ if(!objects.length)return false;
+ scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);
+ objects.forEach(obj=>{scene.add(obj);drawnObjects.push(obj);});
+ setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
+ document.getElementById('saveState').textContent=closed?'Perfil cerrado recortado':'Tramo entre intersecciones recortado';
+ return true;
 }
-
 function extendEndpointAtScreen(clientX,clientY){
  if(!camera||drawnObjects.length<2)return false;
  camera.updateMatrixWorld(true);
@@ -1523,10 +2037,8 @@ function extendEndpointAtScreen(clientX,clientY){
   for(let j=0;j<count;j++){
    const p3=other[j],q3=other[(j+1)%other.length];
    if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
-   const p=planeCoords(p3),q=planeCoords(q3),sx=q.u-p.u,sy=q.v-p.v,den=cross(rx,ry,sx,sy);
-   if(Math.abs(den)<1e-9)continue;
-   const ax=p.u-e.u,ay=p.v-e.v,t=cross(ax,ay,sx,sy)/den,u=cross(ax,ay,rx,ry)/den;
-   if(t>1e-4&&u>=-1e-5&&u<=1+1e-5&&t<nearest){nearest=t;intersection=planePoint(e.u+rx*t,e.v+ry*t);}
+   const p=planeCoords(p3),q=planeCoords(q3),hit=intersectRaySegment2D(e,{u:rx,v:ry},p,q);
+   if(hit&&hit.t<nearest){nearest=hit.t;intersection=planePoint(e.u+rx*hit.t,e.v+ry*hit.t);}
   }
  }
  if(!intersection)return false;
@@ -1586,8 +2098,54 @@ function refreshWorkspacePanels(){
   else{const pts=selectedObject.userData.controlPoints||[],meta=sketchMetaForObject(selectedObject);selection.textContent=(meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos · '+sketchConstraintSummary(selectedObject);}
  }
  list.replaceChildren();
- if(!drawnObjects.length){const empty=document.createElement('div');empty.className='tree-row';empty.innerHTML='<span class="tree-icon">◇</span><span>Sin geometría todavía</span>';list.appendChild(empty);}
- drawnObjects.forEach((obj,i)=>{const row=document.createElement('button');row.type='button';row.className='tree-row'+(selectedObject===obj?' active':'');const meta=sketchMetaForObject(obj);const label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';row.innerHTML='<span class="tree-icon">'+(obj.userData.closed?'□':'／')+'</span><span>'+label+' '+(i+1)+'</span>';row.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});list.appendChild(row);});
+ const groups=sketchLayers.slice();
+ const assigned=new Set(groups.map(layer=>layer.id));
+ const ungrouped=drawnObjects.filter(obj=>{const meta=sketchMetaForObject(obj);return !meta.sketchId||!assigned.has(meta.sketchId);});
+ if(ungrouped.length){
+  const legacy=createSketchLayerRecord(sketchMetaForObject(ungrouped[0]).plane,'Croquis recuperado');
+  legacy.status='completed';sketchLayers.push(legacy);
+  ungrouped.forEach(obj=>{sketchMetaForObject(obj).sketchId=legacy.id;});
+  groups.push(legacy);
+ }
+ if(!groups.length){const empty=document.createElement('div');empty.className='tree-row';empty.textContent='Sin croquis todavía';list.appendChild(empty);}
+ let objectIndex=0;
+ groups.forEach(layer=>{
+  const section=document.createElement('div');section.className='tree-sketch-group';
+  const header=document.createElement('div');header.className='tree-layer-header'+(layer.id===activeSketchId?' active':'');
+  const selectLayer=document.createElement('button');selectLayer.type='button';selectLayer.className='tree-row tree-sketch'+(layer.id===activeSketchId?' active':'');
+  const planeLabel=({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[layer.plane]||layer.plane||'Plano');
+  const icon=document.createElement('span');icon.className='tree-icon';icon.textContent='▱';
+  const name=document.createElement('span');name.className='tree-sketch-name';name.textContent=layer.name||'Croquis';
+  const detail=document.createElement('small');detail.className='tree-sketch-plane';detail.textContent=planeLabel;
+  selectLayer.append(icon,name,detail);
+  selectLayer.addEventListener('click',()=>{if(layer.plane&&workPlanes[layer.plane])setWorkPlane(layer.plane,true);});
+  const layerVisibility=document.createElement('button');layerVisibility.type='button';layerVisibility.className='tree-visibility';layerVisibility.textContent=layer.visible===false?'◌':'◉';layerVisibility.title=layer.visible===false?'Mostrar croquis':'Ocultar croquis';layerVisibility.setAttribute('aria-label',layerVisibility.title);
+  layerVisibility.addEventListener('click',event=>{
+   event.stopPropagation();layer.visible=layer.visible===false;
+   drawnObjects.filter(obj=>sketchMetaForObject(obj).sketchId===layer.id).forEach(obj=>{obj.visible=layer.visible&&obj.userData.layerVisible!==false;});
+   saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
+  });
+  header.append(selectLayer,layerVisibility);section.appendChild(header);
+  const children=document.createElement('div');children.className='tree-children tree-indent';
+  const members=drawnObjects.filter(obj=>sketchMetaForObject(obj).sketchId===layer.id);
+  if(!members.length){const empty=document.createElement('div');empty.className='tree-row tree-empty';empty.textContent='Sin geometría';children.appendChild(empty);}
+  members.forEach(obj=>{
+   objectIndex++;
+   const row=document.createElement('div');row.className='tree-object-row';
+   const selectObject=document.createElement('button');selectObject.type='button';selectObject.className='tree-row'+(selectedObject===obj?' active':'');
+   const meta=sketchMetaForObject(obj),label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';
+   const glyph=document.createElement('span');glyph.className='tree-icon';glyph.textContent=obj.userData.closed?'□':'／';
+   const text=document.createElement('span');text.textContent=label+' '+objectIndex;selectObject.append(glyph,text);
+   selectObject.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});
+   const objectVisibility=document.createElement('button');objectVisibility.type='button';objectVisibility.className='tree-visibility tree-visibility-object';objectVisibility.textContent=obj.userData.layerVisible===false?'◌':'◉';objectVisibility.title=obj.userData.layerVisible===false?'Mostrar elemento':'Ocultar elemento';objectVisibility.setAttribute('aria-label',objectVisibility.title);
+   objectVisibility.addEventListener('click',event=>{
+    event.stopPropagation();obj.userData.layerVisible=obj.userData.layerVisible===false;obj.visible=layer.visible!==false&&obj.userData.layerVisible;
+    saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
+   });
+   row.append(selectObject,objectVisibility);children.appendChild(row);
+  });
+  section.appendChild(children);list.appendChild(section);
+ });
 }
 function setSelectedObject(obj){
  if(selectedObject===obj)return;
@@ -1631,7 +2189,7 @@ function updateContinuousLine(cursor,fromPoint){
 function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);lineObject.userData.sketch=createSketchDefinition('polyline',linePoints,activePlane,{segmentCount:linePoints.length-1});drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function addArcPoint(point){
  if(!point)return false;
- if(arcPoints.length<2){arcPoints.push(point.clone());const status=arcPoints.length===1?'Arco: punto inicial fijado':'Arco: punto de curva fijado · marca el final';document.getElementById('saveState').textContent=status;hideMeasure();return true;}
+ if(arcPoints.length<2){arcPoints.push(point.clone());const status=arcPoints.length===1?'Arco: punto inicial fijado':'Arco: punto de curva fijado · marca el final';document.getElementById('saveState').textContent=status;hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
  const start=arcPoints[0],through=arcPoints[1],end=point.clone();
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
  const obj=makeArcShape(start,through,end,false);
@@ -1690,6 +2248,7 @@ function updateFatStroke(obj,points){
 }
 function resize(){if(!renderer||!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight,false);const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);[...drawnObjects,lineObject,previewObject,snapEdgeObject,snapVertexObject,...inferenceGuideObjects].filter(Boolean).forEach(obj=>{if(obj.material&&obj.material.resolution)obj.material.resolution.set(width,height);});}
 function updateCube(){if(!camera||!controls)return;const d=camera.position.clone().sub(controls.target).normalize();cube.style.transform='rotateX('+(-Math.asin(d.y)*180/Math.PI)+'deg) rotateY('+(Math.atan2(d.x,d.z)*180/Math.PI)+'deg)';}
+function setIsometricView(){if(activeTool!=='select')setTool('select');const target=controls.target.clone(),distance=Math.max(5,camera.position.distanceTo(target));camera.up.set(0,1,0);camera.position.copy(target).add(new THREE.Vector3(1,1,1).normalize().multiplyScalar(distance));controls.update();setWorkPlane('VIEW',false,true);}
 function setView(name){
  if(activeTool!=='select')setTool('select');
  const p={front:[0,0,150],back:[0,0,-150],top:[0,150,.001],bottom:[0,-150,.001],left:[-150,0,0],right:[150,0,0]}[name];if(!p)return;
@@ -1698,9 +2257,9 @@ function setView(name){
 }function updateAxisIndicators(){if(!camera||!host)return;const r=host.getBoundingClientRect();const place=(el,point)=>{const p=point.clone().project(camera);const visible=p.z>-1&&p.z<1&&p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1;el.style.display=visible?'block':'none';if(visible){el.style.left=((p.x+1)*r.width/2)+'px';el.style.top=((1-p.y)*r.height/2)+'px';}};axisLabelEls.forEach(item=>place(item.el,item.point));if(originMarkerEl)place(originMarkerEl,new THREE.Vector3(0,0,0));}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls){controls.update();}if(renderer&&scene&&camera){renderer.render(scene,camera);updateAxisIndicators();positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
-function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(serializeSketchObject);window.nocturneProjectData.set(activeProjectId,{schema:SKETCH_SCHEMA_VERSION,objects,activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;touchFirstAnchorStart=null;touchFirstAnchorMoved=false;touchLineStart=null;touchLineMoved=false;touchLinePointAdded=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);if(data&&Array.isArray(data.objects)){data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;obj.userData.sketch=normalizeSketchDefinition(item.sketch,!!item.closed,pts);scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';refreshWorkspacePanels();if(resetHistory)resetDrawingHistory();}
-function captureDrawingState(){return {schema:SKETCH_SCHEMA_VERSION,objects:drawnObjects.map(serializeSketchObject),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
+function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return false;const objects=drawnObjects.map(serializeSketchObject);window.nocturneProjectData.set(activeProjectId,{schema:SKETCH_SCHEMA_VERSION,objects,sketches:sketchLayers.map(layer=>({...layer})),activeSketchId,sketchMode,sketchPlane,activeLine:linePoints.map(p=>[p.x,p.y,p.z]),activeArc:arcPoints.map(p=>[p.x,p.y,p.z])});return true;}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);sketchLayers=data&&Array.isArray(data.sketches)?data.sketches.filter(layer=>layer&&typeof layer.id==='string').map(layer=>({...layer,visible:layer.visible!==false})):[];activeSketchId=data&&typeof data.activeSketchId==='string'&&sketchLayers.some(layer=>layer.id===data.activeSketchId)?data.activeSketchId:null;sketchMode=!!activeSketchId;sketchPlane=data&&data.sketchPlane||((sketchLayers.find(layer=>layer.id===activeSketchId)||{}).plane)||'XZ';arcPoints=data&&Array.isArray(data.activeArc)?data.activeArc.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2])):[];if(data&&Array.isArray(data.objects)){let legacyLayer=null;data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;obj.userData.sketch=normalizeSketchDefinition(item.sketch,!!item.closed,pts);obj.userData.layerVisible=item.visible!==false;const owningLayer=sketchLayers.find(layer=>layer.id===obj.userData.sketch.sketchId);obj.visible=obj.userData.layerVisible&&(!owningLayer||owningLayer.visible!==false);if(!obj.userData.sketch.sketchId||!sketchLayers.some(layer=>layer.id===obj.userData.sketch.sketchId)){if(!legacyLayer){legacyLayer=createSketchLayerRecord(obj.userData.sketch.plane,'Croquis recuperado');legacyLayer.status='completed';sketchLayers.push(legacyLayer);}obj.userData.sketch.sketchId=legacyLayer.id;}scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}const dockSketch=document.getElementById('dockSketch');if(dockSketch){dockSketch.classList.toggle('sketch-active',sketchMode);dockSketch.setAttribute('aria-pressed',String(sketchMode));dockSketch.title=sketchMode?'Terminar croquis · '+sketchPlane:'Iniciar un croquis en el plano seleccionado';const dockLabel=dockSketch.querySelector('small');if(dockLabel)dockLabel.textContent=sketchMode?'Terminar':'Croquis';}if(sketchMode&&workPlanes[sketchPlane])setWorkPlane(sketchPlane,true);document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';refreshWorkspacePanels();if(resetHistory)resetDrawingHistory();}
+function captureDrawingState(){return {schema:SKETCH_SCHEMA_VERSION,objects:drawnObjects.map(serializeSketchObject),sketches:sketchLayers.map(layer=>({...layer})),activeSketchId,sketchMode,sketchPlane,activeLine:linePoints.map(p=>[p.x,p.y,p.z]),activeArc:arcPoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
 function commitDrawingHistory(){if(!activeProjectId)return;if(historyProjectId!==activeProjectId){resetDrawingHistory();return;}const state=captureDrawingState(),serialized=JSON.stringify(state);if(drawingHistoryIndex>0&&JSON.stringify(drawingHistory[drawingHistoryIndex-1])===serialized){drawingHistory.splice(drawingHistoryIndex,1);drawingHistoryIndex--;}else if(drawingHistoryIndex>=0){drawingHistory[drawingHistoryIndex]=state;}else{recordDrawingHistory();return;}updateHistoryButtons();}
@@ -1708,7 +2267,7 @@ function recordDrawingHistory(){if(restoringHistory||!activeProjectId)return;if(
 function applyDrawingHistory(index){if(index<0||index>=drawingHistory.length||!activeProjectId)return;restoringHistory=true;drawingHistoryIndex=index;window.nocturneProjectData.set(activeProjectId,JSON.parse(JSON.stringify(drawingHistory[index])));loadViewportProject(activeProjectId,false);restoringHistory=false;updateHistoryButtons();}
 function undoDrawing(){if(drawingHistoryIndex>0)applyDrawingHistory(drawingHistoryIndex-1);}
 function redoDrawing(){if(drawingHistoryIndex<drawingHistory.length-1)applyDrawingHistory(drawingHistoryIndex+1);}
-window.saveViewportProject=saveViewportProject;window.loadViewportProject=loadViewportProject;window.startViewport=startViewport;window.stopViewport=stopViewport;window.addEventListener('nocturne-start-3d',startViewport);
+window.saveViewportProject=saveViewportProject;window.loadViewportProject=loadViewportProject;window.startViewport=startViewport;window.stopViewport=stopViewport;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveViewportProject();});window.addEventListener('pagehide',saveViewportProject);window.addEventListener('nocturne-start-3d',startViewport);
 </script>
 </body>
 </html>
