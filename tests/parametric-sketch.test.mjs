@@ -182,3 +182,17 @@ test('equal-length constraint can square a rectangle by matching adjacent edges'
   near(length(bottom),length(right));
   assert.notEqual(result.status,'conflict');
 });
+
+test('concentric constraint aligns two circle centers while preserving their radii',()=>{
+  const sketch=new ParametricSketch({plane:'XY'});
+  const first=sketch.addCircle({u:1,v:2},4,{id:'first-circle'});
+  const second=sketch.addCircle({u:8,v:-3},2,{id:'second-circle'});
+  sketch.addConstraint('concentric',[first,second],{id:'circles-concentric'});
+  const result=solveParametricSketch(sketch);
+  const a=sketch.entities[sketch.entities[first].center],b=sketch.entities[sketch.entities[second].center];
+  near(a.u,b.u);near(a.v,b.v);
+  near(sketch.entities[first].radius,4);near(sketch.entities[second].radius,2);
+  assert.notEqual(result.status,'conflict');
+  const restored=ParametricSketch.fromJSON(sketch.toJSON());
+  assert.equal(restored.constraints[0].type,'concentric');
+});
