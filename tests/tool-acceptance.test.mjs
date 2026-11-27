@@ -118,7 +118,7 @@ test('Polyline and rectangle constraints use the parametric solver and update re
 test('equal-length relation is exposed and connected for two-segment polylines',()=>{
   assert.match(app,/data-sketch-constraint="equal"/);
   assert.match(app,/c\.type==='parallel'\|\|c\.type==='perpendicular'\|\|c\.type==='equal'/);
-  assert.match(app,/type==='parallel'\|\|type==='perpendicular'\|\|type==='equal'/);
+  assert.match(app,/else if\(type==='parallel'\|\|type==='perpendicular'\)/);\n  assert.match(app,/else if\(type==='equal'\)/);
 });
 
 
