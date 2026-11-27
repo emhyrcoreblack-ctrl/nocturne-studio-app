@@ -1079,10 +1079,10 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   function chooseTool(tool){
    const validTools=new Set(['select','line','rect','circle','polygon','ellipse','arc','trim','extend']);
    if(!validTools.has(tool))return;
-   // Fijar primero el estado visible: la activación del croquis nunca puede cerrar la paleta.
-   setDrawPaletteOpen(true);
    if(tool!=='select'&&!sketchMode)setSketchMode(true);
    setTool(activeTool===tool?'select':tool);
+   // Al elegir una herramienta de dibujo, cerrar la paleta y dejar libre el área de trabajo.
+   if(tool!=='select')closeDrawPalette();
   }
   // En táctil, mantener la paleta abierta desde el primer contacto, antes del click.
   drawToolsPanel.addEventListener('pointerdown',event=>{
