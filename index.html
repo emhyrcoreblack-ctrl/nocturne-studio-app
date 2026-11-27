@@ -590,6 +590,23 @@
  position:absolute;margin-left:63px;margin-top:-20px;box-shadow:0 0 7px #9fe0b0
 }
 #onshapeDock #dockSketch{position:relative}
+
+/* Indicador explícito: icono más nombre de la herramienta activa */
+#onshapeDock #dockToolGroup #activeToolToggle{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:5px!important;width:auto!important;min-width:86px!important;max-width:116px!important;
+ height:30px!important;min-height:30px!important;padding:0 8px!important;
+ font-size:12px!important;white-space:nowrap!important
+}
+#onshapeDock #dockToolGroup #activeToolToggle .active-tool-glyph{font-size:16px;line-height:1}
+#onshapeDock #dockToolGroup #activeToolToggle .active-tool-label{font-size:10px;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+#onshapeDock #dockToolGroup #activeToolToggle[aria-pressed="false"]{
+ opacity:1!important;background:rgba(75,61,78,.94)!important;border-color:#78677d!important;color:#f5edf6!important
+}
+@media(max-width:640px){
+ #onshapeDock #dockToolGroup #activeToolToggle{min-width:86px!important;max-width:104px!important;height:29px!important;padding:0 6px!important}
+ #onshapeDock #dockToolGroup #activeToolToggle .active-tool-label{font-size:9px}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -954,7 +971,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
     dockSketchButton.classList.add('sketch-active');
     dockSketchButton.setAttribute('aria-pressed','true');
     dockSketchButton.title='Terminar croquis · '+({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[sketchPlane]||sketchPlane);
-    dockSketchButton.querySelector('small').textContent='Croquis';
+    dockSketchButton.querySelector('small').textContent='Terminar';
     drawToolsPanel.classList.add('open');drawToolsPanel.setAttribute('aria-hidden','false');
     drawMenuButton.classList.add('menu-open');drawMenuButton.setAttribute('aria-expanded','true');
     document.getElementById('saveState').textContent='Croquis · '+({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[sketchPlane]||sketchPlane);
@@ -1004,14 +1021,15 @@ function setTool(tool){
  refreshWorkspacePanels();
  
  if(tool!=='line')hideMeasure();
- const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar segmento',extend:'Extender'},glyphs={select:'↖',line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender'},glyphs={select:'⌖',line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
  if(tool!=='select')lastDrawingTool=tool;
  ['select','line','rect','circle','polygon','ellipse','arc','trim','extend'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
  const activeToggle=document.getElementById('activeToolToggle');
- activeToggle.hidden=!sketchMode;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:glyphs.select;
- activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'Herramienta de selección activa';
+ const shownTool=lastDrawingTool&&tool===lastDrawingTool?lastDrawingTool:'select';
+ activeToggle.hidden=!sketchMode;activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
+ activeToggle.title=shownTool==='select'?'Herramienta Seleccionar activa':'Herramienta '+labels[shownTool]+' activa';
  activeToggle.setAttribute('aria-label',activeToggle.title);
- activeToggle.setAttribute('aria-pressed',String(lastDrawingTool?tool===lastDrawingTool:tool==='select'));
+ activeToggle.setAttribute('aria-pressed',String(shownTool!=='select'));
  const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
  if(controls){
