@@ -120,3 +120,8 @@ test('equal-length relation is exposed and connected for two-segment polylines',
   assert.match(app,/c\.type==='parallel'\|\|c\.type==='perpendicular'\|\|c\.type==='equal'/);
   assert.match(app,/type==='parallel'\|\|type==='perpendicular'\|\|type==='equal'/);
 });
+
+
+test('equal-length relation is available on rectangles but not other unsupported relation types',()=>{
+  assert.match(app,/type==='equal'&&\(!\['polyline','rect'\]\.includes\(meta\.type\)\|\|n<3\)/);
+});
