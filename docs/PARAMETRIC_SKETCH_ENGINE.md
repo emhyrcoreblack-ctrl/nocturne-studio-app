@@ -135,3 +135,15 @@ La integración actual ya permite aplicar cotas de radio y diámetro a círculos
 La selección múltiple del lienzo está diseñada para Android táctil: un toque sobre una geometría la añade a la selección sin perder las anteriores; un segundo toque sobre una geometría ya seleccionada la quita; tocar el espacio vacío limpia la selección. Un gesto multitáctil de cámara (dos dedos) cancela la selección pendiente para no convertir zoom/rotación en una selección accidental. La lista de entidades refleja todas las geometrías seleccionadas. No requiere Ctrl, Shift, teclado ni ratón. La relación **Concéntrico** está disponible al seleccionar exactamente dos círculos del mismo plano: el solver alinea sus centros, conserva sus radios y persiste el modelo combinado y la relación en ambos croquis. Se rechazan selecciones de tipos incompatibles, planos distintos, círculos fijados y relaciones duplicadas.
 
 **Limitaciones actuales:** la relación concéntrica de la interfaz está limitada a círculos (el núcleo matemático aún tipa esa relación para círculos, no arcos). La tangencia línea-círculo aún no valida contacto dentro del dominio finito del segmento; faltan cotas lineales/angulares editables y una UI visual completa de restricciones/estados. La reconstrucción paramétrica no es todavía universal para todos los tipos geométricos. La validación automatizada actual no sustituye pruebas E2E en escritorio, Android y stylus.
+
+## Herramientas táctiles de curva y perfil (iteración actual)
+
+La paleta de Croquis incorpora dos construcciones de tres puntos adicionales:
+
+- **Ranura:** el primer y segundo toque fijan los centros de los extremos; el tercero define la distancia perpendicular al eje y, por tanto, el radio de los extremos. La geometría se genera con `createSlotPath`, que construye dos semicircunferencias unidas por dos segmentos paralelos. Se rechazan ejes degenerados y anchos nulos. El contorno se guarda como perfil cerrado, con los centros y el radio en metadatos.
+- **Bézier cuadrática:** tres toques fijan inicio, punto de control y final. `sampleBezier` evalúa la curva cuadrática (B(t)=(1-t)^2P_0+2(1-t)tP_1+t^2P_2), con muestreo uniforme y extremos exactos. El punto de control dirige la curvatura, pero no tiene por qué pertenecer a la curva.
+
+Ambas herramientas comparten el flujo táctil de tres pasos con previsualización, cancelación al cambiar de herramienta, persistencia de puntos parciales, guardado de geometría final e historial. La geometría se crea en las coordenadas locales del plano activo; no depende de teclado ni de selección con modificadores.
+
+**Estado de aceptación:** las comprobaciones automáticas verifican integración de paleta, activación, generación, previsualización y persistencia. La matriz mantiene ambas herramientas como `not_verified` hasta registrar pruebas de interacción reales en navegador Android y con stylus. No se declaran certificadas por pasar CI.
+
