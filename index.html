@@ -739,7 +739,7 @@
  document.getElementById('dockModeling').addEventListener('click',()=>document.getElementById('treeToggle').click());
  document.getElementById('dockItems').addEventListener('click',()=>document.getElementById('propertiesToggle').click());
  document.getElementById('dockSketch').addEventListener('click',()=>window.dispatchEvent(new Event('nocturne-toggle-sketch-mode')));
- document.getElementById('dockTools').addEventListener('click',toggleDrawPalette);
+ document.getElementById('dockTools').addEventListener('click',()=>window.dispatchEvent(new Event('nocturne-open-sketch-tools')));
  const dockToolGroup=document.getElementById('dockToolGroup');dockToolGroup.appendChild(document.getElementById('activeToolToggle'));
  document.getElementById('dockMeasure').addEventListener('click',()=>document.getElementById('bottomMeasure').click());
  document.getElementById('dockUndo').addEventListener('click',()=>document.getElementById('undoButton').click());
@@ -970,12 +970,13 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   const drawToolsPanel=document.getElementById('drawToolsPanel');
   const toggleDrawPalette=()=>{const open=!drawToolsPanel.classList.contains('open');drawToolsPanel.classList.toggle('open',open);drawToolsPanel.setAttribute('aria-hidden',String(!open));drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));};
   const closeDrawPalette=()=>{drawToolsPanel.classList.remove('open');drawToolsPanel.setAttribute('aria-hidden','true');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');};
+  window.addEventListener('nocturne-open-sketch-tools',toggleDrawPalette);
   const dockSketchButton=document.getElementById('dockSketch');
   const setSketchMode=enabled=>{
    if(enabled===sketchMode)return;
    if(enabled){
     const planeName=activePlane==='VIEW'?(workPlanes.VIEW&&workPlanes.VIEW.sourcePlane||'XZ'):activePlane;
-    sketchMode=true;sketchPlane=planeName;
+    sketchMode=true;sketchPlane=planeName;lastDrawingTool=null;
     const layer=createSketchLayerRecord(planeName);
     layer.status='active';sketchLayers.push(layer);activeSketchId=layer.id;
     setWorkPlane(planeName,true);
@@ -1003,6 +1004,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
     refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
    }
   };
+  window.addEventListener('nocturne-toggle-sketch-mode',()=>setSketchMode(!sketchMode));
   dockSketchButton.addEventListener('click',()=>setSketchMode(!sketchMode));
   function chooseTool(tool){setTool(activeTool===tool?'select':tool);closeDrawPalette();}
   drawMenuButton.addEventListener('click',toggleDrawPalette);
