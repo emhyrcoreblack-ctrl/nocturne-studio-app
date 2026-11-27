@@ -2364,7 +2364,7 @@ function makeCircleThreePointShape(first,second,third,preview){
 }
 function addCircleThreePoint(point){
  if(!point)return false;
- if(arcPoints.length<2){arcPoints.push(point.clone());document.getElementById('saveState').textContent=arcPoints.length===1?'Círculo: primer punto fijado':'Círculo: segundo punto fijado · marca el tercero';hideMeasure();return true;}
+ if(arcPoints.length<2){arcPoints.push(point.clone());document.getElementById('saveState').textContent=arcPoints.length===1?'Círculo: primer punto fijado':'Círculo: segundo punto fijado · marca el tercero';hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
  const first=arcPoints[0],second=arcPoints[1],third=point.clone();
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
  const obj=makeCircleThreePointShape(first,second,third,false);
