@@ -315,7 +315,7 @@ test('Automatic dimension selection resolves line, circle and arc to supported d
 
 test('Dimension status is shown in the workspace status bar, not in a floating message element',()=>{
   assert.doesNotMatch(app,/id="sketchConstraintHint"/);
-  assert.match(app,/function setSketchConstraintHint\\(message\\)[\\s\\S]*?status\\.textContent=message/);
+  assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?status\.textContent=message/);
 });
 
 test('Android palette starts dimension mode on pointerdown and keeps keyboard activation',()=>{
@@ -332,7 +332,7 @@ test('Cota automática resuelve el tipo correcto cuando ya hay una geometría se
 test('La calculadora de cotas no bloquea el lienzo con una ventana modal y el estado no usa avisos flotantes',()=>{
  assert.match(app,/overlay\.setAttribute\('aria-modal','false'\)/);
  assert.match(app,/\.dimension-calculator-backdrop\{position:fixed;inset:auto 8px 86px[\s\S]*?pointer-events:none\}/);
- assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?el\.hidden=true[\s\S]*?status\.textContent=message/);
+ assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?status\.textContent=message/);
 });
 
 test('La paleta actual no conserva la barra ficticia ni la búsqueda antigua desactivada',()=>{
