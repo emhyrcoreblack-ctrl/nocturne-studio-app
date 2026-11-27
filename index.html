@@ -1027,18 +1027,18 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   document.getElementById('redoButton').addEventListener('click',redoDrawing);
   setLineAxisLock(null);
   updateHistoryButtons();
-  const drawMenuButton=document.getElementById('drawMenuButton');
   const drawToolsPanel=document.getElementById('drawToolsPanel');
+  const dockToolsButton=document.getElementById('dockTools');
+  let drawPaletteOpen=false;
   const setDrawPaletteOpen=open=>{
-   drawToolsPanel.classList.toggle('open',!!open);
-   drawToolsPanel.setAttribute('aria-hidden',String(!open));
-   drawMenuButton.classList.toggle('menu-open',!!open);
-   drawMenuButton.setAttribute('aria-expanded',String(!!open));
-   const dockToolsButton=document.getElementById('dockTools');
-   dockToolsButton.setAttribute('aria-expanded',String(!!open));
-   dockToolsButton.setAttribute('aria-pressed',String(!!open));
+   drawPaletteOpen=!!open;
+   drawToolsPanel.classList.toggle('open',drawPaletteOpen);
+   drawToolsPanel.setAttribute('aria-hidden',String(!drawPaletteOpen));
+   dockToolsButton.classList.toggle('menu-open',drawPaletteOpen);
+   dockToolsButton.setAttribute('aria-expanded',String(drawPaletteOpen));
+   dockToolsButton.setAttribute('aria-pressed',String(drawPaletteOpen));
   };
-  const toggleDrawPalette=()=>setDrawPaletteOpen(!drawToolsPanel.classList.contains('open'));
+  const toggleDrawPalette=()=>setDrawPaletteOpen(!drawPaletteOpen);
   const closeDrawPalette=()=>setDrawPaletteOpen(false);
   window.addEventListener('nocturne-open-sketch-tools',()=>setDrawPaletteOpen(true));
   const dockSketchButton=document.getElementById('dockSketch');
@@ -1079,16 +1079,18 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   function chooseTool(tool){
    const validTools=new Set(['select','line','rect','circle','polygon','ellipse','arc','trim','extend']);
    if(!validTools.has(tool))return;
+   // Fijar primero el estado visible: la activación del croquis nunca puede cerrar la paleta.
+   setDrawPaletteOpen(true);
    if(tool!=='select'&&!sketchMode)setSketchMode(true);
    setTool(activeTool===tool?'select':tool);
-   // Elegir una herramienta no cambia la visibilidad de la paleta.
-   // El panel permanece disponible para cambiar de herramienta durante el croquis.
-   setDrawPaletteOpen(true);
   }
-  drawMenuButton.addEventListener('click',toggleDrawPalette);
-  document.getElementById('bottomSketch').addEventListener('click',toggleDrawPalette);
-  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();const tool=toolButton.dataset.paletteTool;chooseTool(tool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDrawPalette();});
+  // En táctil, mantener la paleta abierta desde el primer contacto, antes del click.
+  drawToolsPanel.addEventListener('pointerdown',event=>{
+   const toolButton=event.target.closest('button[data-palette-tool]');
+   if(toolButton&&!toolButton.disabled)setDrawPaletteOpen(true);
+  },true);
+  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
   document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
