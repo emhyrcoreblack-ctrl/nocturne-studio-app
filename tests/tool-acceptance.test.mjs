@@ -263,7 +263,7 @@ test('CAD dimensions use the parametric solver and the mobile expression calcula
   assert.match(app, /id="linearDimensionTool"/);
   assert.match(app, /addConstraint\('distance',\[meta\.id\+'-p'\+dimension\.a,meta\.id\+'-p'\+dimension\.b\]/);
   assert.match(app, /function requestDimensionValue\(title,initial\)/);
-  assert.match(app, /evaluateDimensionExpression\(input\.value\)/);
+  assert.match(app, /evaluateDimensionExpression\\(input\\.value,\\{expectedUnit:'length'\\}\\)/);
   assert.match(app, /await requestDimensionValue\(title,current\)/);
 });
 
