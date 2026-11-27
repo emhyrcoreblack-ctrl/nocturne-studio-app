@@ -77,7 +77,9 @@ export class ParametricSketch {
   _validateConstraint(c) {
     const r=c.refs;
     if(c.type==='coincident'||c.type==='midpoint'||c.type==='fixed') {
-      if(c.type==='midpoint') { if(r.length!==3) throw new Error('midpoint expects [point, line]'); point(this,r[0]); line(this,r[1]); }
+      if(c.type==='coincident') { if(r.length!==2) throw new Error('coincident expects two points'); r.forEach(id=>point(this,id)); }
+      else if(c.type==='fixed') { if(r.length!==1) throw new Error('fixed expects one point'); point(this,r[0]); }
+      else if(c.type==='midpoint') { if(r.length!==3) throw new Error('midpoint expects [point, line]'); point(this,r[0]); line(this,r[1]); }
       else { if(r.length!==1 && r.length!==2) throw new Error(`${c.type} expects point references`); r.forEach(id=>point(this,id)); }
     } else if(c.type==='horizontal'||c.type==='vertical') {
       if(r.length!==1) throw new Error(`${c.type} expects one line`); line(this,r[0]);
@@ -122,9 +124,8 @@ function residuals(model) {
   for(const c of model.constraints) {
     const r=c.refs;
     if(c.type==='coincident') {
-      const a=point(model,r[0]),b=point(model,r[1]||r[0]);
-      if(r.length===1) { result.push(a.u-c.target?.u||0,a.v-c.target?.v||0); }
-      else result.push(a.u-b.u,a.v-b.v);
+      const a=point(model,r[0]),b=point(model,r[1]);
+      result.push(a.u-b.u,a.v-b.v);
     } else if(c.type==='horizontal'||c.type==='vertical') {
       const d=direction({model,entity:line(model,r[0])});
       result.push(c.type==='horizontal'?d.v:d.u);
