@@ -465,6 +465,79 @@
  #workPlaneSwitcher{left:8px!important;top:8px!important;max-width:calc(100% - 96px)!important;gap:2px!important}
  #workPlaneSwitcher button{min-height:27px!important;padding:4px 6px!important;font-size:8px!important}
 }
+
+/* NOCTURNE — disposición inspirada en el espacio de modelado de referencia */
+#workspace{background:#1b171b!important;color:#e8e4e8!important}
+#documentHeader{
+ top:8px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+ width:min(420px,calc(100% - 150px))!important;height:42px!important;padding:0 9px!important;
+ gap:8px!important;border:1px solid #3c343c!important;border-radius:11px!important;
+ background:rgba(48,42,49,.88)!important;box-shadow:0 4px 18px #0005!important;
+ backdrop-filter:blur(12px)!important
+}
+#backProjects{display:none!important}
+.document-heading{flex:1!important;align-items:center!important;min-width:0!important}
+.document-heading div{font-size:12px!important;font-weight:600!important;max-width:100%!important}
+.document-heading small{display:none!important}
+.header-actions{margin:0!important;gap:3px!important}
+.header-actions button{width:32px!important;height:32px!important;font-size:17px!important;border-radius:8px!important;color:#ddd5df!important}
+.header-actions #treeToggle,.header-actions #propertiesToggle{display:none!important}
+.header-actions #helpButton{display:none!important}
+.header-actions #moreButton{width:28px!important;height:30px!important}
+#moreMenu{top:46px!important;right:0!important;background:#29232a!important;border-color:#514650!important}
+#editorToolbar{top:0!important;left:0!important;right:auto!important;width:0!important;height:0!important;overflow:visible!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+#editorToolbar>*{display:none!important}
+#editorToolbar #undoButton,#editorToolbar #redoButton,#editorToolbar #drawMenuButton{display:none!important}
+#viewport{inset:0!important;background:#1b171b!important}
+#onshapeDock{position:absolute;z-index:12;inset:0 auto 0 5px;width:84px;display:flex;flex-direction:column;justify-content:space-between;padding:10px 0 14px;pointer-events:none}
+#onshapeDock>div{display:grid;gap:4px;pointer-events:auto}
+#onshapeDock button{display:flex;align-items:center;gap:7px;min-width:0;height:34px;padding:0 7px;border:1px solid transparent;border-radius:7px;background:rgba(48,42,49,.76);color:#ddd6df;text-align:left;font:500 10px/1 system-ui;backdrop-filter:blur(9px)}
+#onshapeDock button span{display:grid;place-items:center;flex:0 0 22px;height:24px;font-size:16px;color:#e7e0e8}
+#onshapeDock button small{font-size:10px;white-space:nowrap}
+#onshapeDock button:hover:not(:disabled),#onshapeDock button:focus-visible{background:#443a45;border-color:#665966;outline:none}
+#onshapeDock button:disabled{opacity:.45}
+#onshapeDock .dock-project{align-self:flex-start;margin-top:48px}
+#onshapeDock .dock-tools{align-self:flex-start;margin-top:auto;margin-bottom:auto}
+#onshapeDock .dock-bottom{align-self:flex-start}
+#workPlaneSwitcher{top:12px!important;left:auto!important;right:96px!important;max-width:min(48vw,390px)!important;gap:3px!important;padding:4px!important;background:rgba(47,41,48,.86)!important;border-color:#514650!important;box-shadow:0 4px 16px #0005!important}
+#workPlaneSwitcher button{min-height:27px!important;padding:4px 7px!important;border-radius:6px!important;background:#39323b!important;border-color:#554a57!important;color:#ded6df!important;font-size:8px!important}
+#workPlaneSwitcher button[aria-pressed="true"]{background:#5b4c5d!important;border-color:#9b879d!important;color:#fff!important}
+.viewcube{top:8px!important;right:8px!important;transform:scale(.72)!important;transform-origin:top right!important}
+.viewcube .face{background:#39323b!important;border-color:#807483!important;color:#f0eaf1!important}
+#drawToolsPanel{top:76px!important;left:92px!important;max-height:calc(100dvh - 100px)!important;background:#29232a!important;border-color:#554a57!important;color:#eee7ef!important;box-shadow:0 12px 36px #0009!important}
+#drawToolsPanel button{color:#eee7ef!important}
+#drawToolsPanel .draw-section-title{color:#aa9bab!important;border-color:#514651!important}
+#drawToolsPanel .sketch-constraint-grid button{background:#39323b!important;border-color:#5a4e5c!important;color:#e8e0e9!important}
+#drawToolsPanel .sketch-constraint-grid button.active{background:#514253!important;border-color:#a58baa!important}
+#featurePanel,#inspectorPanel{top:58px!important;bottom:12px!important;background:rgba(40,34,41,.97)!important;color:#eee7ef!important;border-color:#554a57!important;border-radius:9px!important;box-shadow:0 12px 35px #0009!important}
+#featurePanel{left:88px!important;width:min(260px,calc(100vw - 105px))!important}
+#inspectorPanel{right:8px!important;width:min(260px,calc(100vw - 105px))!important}
+#featurePanel .panel-heading,#inspectorPanel .panel-heading{color:#c3b6c5!important;border-color:#554a57!important}
+#featurePanel .panel-section,#featurePanel .tree-row{color:#e5dce6!important;border-color:#4b414d!important}
+#featurePanel .tree-row:hover,#featurePanel .tree-row.active{background:#514453!important;color:#fff!important}
+#inspectorPanel .inspector-card{background:#342d36!important;border-color:#554a57!important}
+#inspectorPanel .inspector-card strong,#inspectorPanel .inspector-value span:last-child{color:#f0e8f1!important}
+#inspectorPanel .inspector-value span:first-child{color:#b8aaba!important}
+#workspaceBottom{display:none!important}
+#sceneStatus{display:none!important}
+#measureLabel{background:#39313b!important;border-color:#9a849c!important}
+#helpPanel{top:58px!important;background:#29232a!important;color:#eee7ef!important;border-color:#554a57!important}
+@media(max-width:640px){
+ #documentHeader{top:7px!important;width:min(330px,calc(100% - 130px))!important;height:38px!important;padding:0 7px!important}
+ .document-heading div{font-size:11px!important}
+ .header-actions button{width:27px!important;height:28px!important}
+ #onshapeDock{left:3px;width:80px;padding:8px 0 12px}
+ #onshapeDock .dock-project{margin-top:43px}
+ #onshapeDock button{height:31px;padding:0 5px;gap:5px}
+ #onshapeDock button span{flex-basis:20px;font-size:15px}
+ #onshapeDock button small{font-size:9px}
+ #workPlaneSwitcher{top:52px!important;left:5px!important;right:auto!important;max-width:calc(100% - 95px)!important;flex-wrap:wrap!important}
+ #workPlaneSwitcher button{font-size:7px!important;padding:4px 5px!important;min-height:24px!important}
+ .viewcube{top:48px!important;right:3px!important;transform:scale(.58)!important}
+ #drawToolsPanel{top:96px!important;left:84px!important;width:calc(100vw - 92px)!important;max-height:calc(100dvh - 110px)!important}
+ #featurePanel{top:92px!important;left:83px!important;width:calc(100vw - 92px)!important;bottom:8px!important}
+ #inspectorPanel{top:92px!important;right:5px!important;width:calc(100vw - 92px)!important;bottom:8px!important}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -496,6 +569,25 @@
 <div class="header-actions"><button id="treeToggle" title="Árbol del proyecto" aria-label="Mostrar árbol del proyecto">☷</button><button id="propertiesToggle" title="Propiedades" aria-label="Mostrar propiedades">▤</button><button id="helpButton" title="Ayuda" aria-label="Ayuda">?</button><button id="moreButton" title="Más opciones" aria-label="Más opciones">⋮</button></div>
 <div id="moreMenu"><button id="saveProject">Guardar proyecto</button><button id="closeProject">Volver a proyectos</button></div>
 </header>
+<nav id="onshapeDock" aria-label="Herramientas principales">
+ <div class="dock-project">
+  <button id="dockModeling" type="button" title="Modelado · árbol del proyecto"><span>⬡</span><small>Modelado</small></button>
+  <button id="dockItems" type="button" title="Elementos · propiedades"><span>▤</span><small>Elementos</small></button>
+ </div>
+ <div class="dock-tools">
+  <button type="button" id="dockSearch" disabled title="Búsqueda · próximamente"><span>⌕</span><small>Buscar</small></button>
+  <button type="button" id="dockSketch" title="Abrir herramientas de croquis"><span>⌒</span><small>Croquis</small></button>
+  <button type="button" disabled title="Añadir sólido · próximamente"><span>⊞</span><small>Añadir</small></button>
+  <button type="button" disabled title="Transformar sólido · próximamente"><span>✣</span><small>Transformar</small></button>
+  <button type="button" id="dockTools" title="Herramientas de croquis"><span>⚒</span><small>Herramientas</small></button>
+ </div>
+ <div class="dock-bottom">
+  <button type="button" id="dockMeasure" title="Medir"><span>↔</span><small>Medir</small></button>
+  <button type="button" id="dockUndo" title="Deshacer"><span>↶</span></button>
+  <button type="button" id="dockRedo" title="Rehacer"><span>↷</span></button>
+ </div>
+</nav>
+
 <nav id="editorToolbar" aria-label="Herramientas CAD">
 <button id="undoButton" title="Deshacer" aria-label="Deshacer">↶</button><button id="redoButton" title="Rehacer" aria-label="Rehacer">↷</button><span class="tool-separator"></span>
 <button id="drawMenuButton" title="Activar croquis" aria-label="Activar croquis">✎</button><button id="selectTool" class="tool-active" title="Seleccionar" aria-label="Seleccionar">⌖</button><button id="lineTool" title="Línea" aria-label="Línea">／</button><button id="rectTool" title="Rectángulo" aria-label="Rectángulo">▭</button><button id="circleTool" title="Círculo" aria-label="Círculo">○</button><button id="polygonTool" title="Polígono" aria-label="Polígono">⬡</button><button id="ellipseTool" title="Elipse" aria-label="Elipse">⬭</button><button id="arcTool" title="Arco de 3 puntos" aria-label="Arco de 3 puntos">⌒</button><button id="trimTool" title="Recortar segmento" aria-label="Recortar segmento">✂</button><button id="extendTool" title="Extender hasta intersección" aria-label="Extender">↗</button><button title="Punto · próximamente" aria-label="Punto" disabled>·</button><span class="tool-separator"></span>
@@ -567,6 +659,14 @@
  document.getElementById('closeProject').addEventListener('click',()=>document.getElementById('backProjects').click());
  document.getElementById('moreButton').addEventListener('click',()=>document.getElementById('moreMenu').classList.toggle('show'));
  document.getElementById('saveProject').addEventListener('click',()=>{if(window.saveViewportProject)window.saveViewportProject();save();document.getElementById('saveState').textContent='Guardado';document.getElementById('moreMenu').classList.remove('show');});
+
+ document.getElementById('dockModeling').addEventListener('click',()=>document.getElementById('treeToggle').click());
+ document.getElementById('dockItems').addEventListener('click',()=>document.getElementById('propertiesToggle').click());
+ document.getElementById('dockSketch').addEventListener('click',()=>document.getElementById('drawMenuButton').click());
+ document.getElementById('dockTools').addEventListener('click',()=>document.getElementById('drawMenuButton').click());
+ document.getElementById('dockMeasure').addEventListener('click',()=>document.getElementById('bottomMeasure').click());
+ document.getElementById('dockUndo').addEventListener('click',()=>document.getElementById('undoButton').click());
+ document.getElementById('dockRedo').addEventListener('click',()=>document.getElementById('redoButton').click());
  document.getElementById('treeToggle').addEventListener('click',()=>{workspace.classList.toggle('show-tree');workspace.classList.remove('show-inspector');});
  document.getElementById('propertiesToggle').addEventListener('click',()=>{const mobile=matchMedia('(max-width:850px)').matches;workspace.classList.toggle(mobile?'show-inspector':'hide-inspector');if(mobile)workspace.classList.remove('show-tree');});
  document.getElementById('helpButton').addEventListener('click',()=>document.getElementById('helpPanel').classList.toggle('show'));
