@@ -1134,6 +1134,7 @@ function startSketchDimension(type){
  activeDimensionLabel=type==='distance'?'Cota lineal':type==='radius'?'Cota de radio':type==='diameter'?'Cota de diámetro':'Cota';
  const meta=selectedObject?sketchMetaForObject(selectedObject):null;
  const resolved=type==='auto'&&meta?(['polyline','rect','line'].includes(meta.type)?'distance':meta.type==='circle'?'diameter':meta.type==='arc'?'radius':null):type;
+ if(resolved)activeDimensionLabel=resolved==='distance'?'Cota lineal':resolved==='radius'?'Cota de radio':'Cota de diámetro';
  const supported=!!(selectedObject&&meta&&!meta.fixed&&resolved&&(resolved==='distance'?['polyline','rect','line'].includes(meta.type)&&(selectedObject.userData.controlPoints||[]).length>=2:['circle','arc'].includes(meta.type)));
  if(supported){pendingDimensionType=null;updateDimensionToolIndicator();applySketchDimension(resolved);return;}
  if(activeTool!=='select')setTool('select');
@@ -2199,7 +2200,7 @@ function finishSketch(event){
    if(pendingDimensionType){
     // La selección táctil debe usar el mismo punto compensado que muestra la cruz sobre el dedo.
     const target=findSelectableObject(aim.clientX,aim.clientY,event.pointerType);
-    if(target){const requested=pendingDimensionType;pendingDimensionType=null;updateDimensionToolIndicator();setSelectedObject(target);const pickedMeta=sketchMetaForObject(target);const resolved=requested==='auto'?(['polyline','rect','line'].includes(pickedMeta.type)?'distance':pickedMeta.type==='circle'?'diameter':pickedMeta.type==='arc'?'radius':null):requested;if(resolved)applySketchDimension(resolved);else{pendingDimensionType=requested;updateDimensionToolIndicator();setSketchConstraintHint('Esta geometría no admite una cota directa. Selecciona una línea, círculo o arco.');}}
+    if(target){const requested=pendingDimensionType;pendingDimensionType=null;setSelectedObject(target);const pickedMeta=sketchMetaForObject(target);const resolved=requested==='auto'?(['polyline','rect','line'].includes(pickedMeta.type)?'distance':pickedMeta.type==='circle'?'diameter':pickedMeta.type==='arc'?'radius':null):requested;if(resolved){activeDimensionLabel=resolved==='distance'?'Cota lineal':resolved==='radius'?'Cota de radio':'Cota de diámetro';updateDimensionToolIndicator();refreshWorkspacePanels();applySketchDimension(resolved);}else{pendingDimensionType=requested;updateDimensionToolIndicator();setSketchConstraintHint('Esta geometría no admite una cota directa. Selecciona una línea, círculo o arco.');}}
     else{pendingDimensionType=requested;setSketchConstraintHint('No se detectó geometría. Acércate a una línea, círculo o arco y vuelve a tocar.');}
    }
    else if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
