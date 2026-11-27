@@ -1088,7 +1088,7 @@ function updateDimensionToolIndicator(){
  activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
  activeToggle.title='Herramienta '+labels[shownTool]+' · '+(activeTool===shownTool?'Desactivar':'Activar');
  activeToggle.setAttribute('aria-label',activeToggle.title);
- activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===shownTool));
+ activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===lastDrawingTool));
 }
 function startSketchDimension(type){
  const meta=selectedObject?sketchMetaForObject(selectedObject):null;
