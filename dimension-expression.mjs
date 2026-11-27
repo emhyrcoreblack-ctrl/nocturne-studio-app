@@ -27,7 +27,20 @@ const compatible = (a, b) => {
 };
 
 export function evaluateDimensionExpression(source, options = {}) {
-  let input = String(source ?? '').trim().replace(/,/g, '.');
+  const rawInput = String(source ?? '').trim();
+  let input = '';
+  const functionParen = [];
+  for (let i = 0; i < rawInput.length; i++) {
+    const char = rawInput[i];
+    if (char === '(') {
+      const prefix = rawInput.slice(0, i).match(/([a-zA-Z_][a-zA-Z0-9_]*)\\s*$/);
+      functionParen.push(!!(prefix && FUNCTIONS.has(prefix[1].toLowerCase())));
+    } else if (char === ')') {
+      functionParen.pop();
+    }
+    if (char === ',' && !functionParen.some(Boolean) && /[0-9]/.test(rawInput[i - 1] || '') && /[0-9]/.test(rawInput[i + 1] || '')) input += '.';
+    else input += char;
+  }
   if (!input) throw new Error('Escribe una medida.');
   input = input.replace(/^\s*=\s*/, '');
   let index = 0;
