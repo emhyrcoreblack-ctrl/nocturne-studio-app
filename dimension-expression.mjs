@@ -33,7 +33,7 @@ export function evaluateDimensionExpression(source, options = {}) {
   for (let i = 0; i < rawInput.length; i++) {
     const char = rawInput[i];
     if (char === '(') {
-      const prefix = rawInput.slice(0, i).match(/([a-zA-Z_][a-zA-Z0-9_]*)\\s*$/);
+      const prefix = rawInput.slice(0, i).match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*$/);
       functionParen.push(!!(prefix && FUNCTIONS.has(prefix[1].toLowerCase())));
     } else if (char === ')') {
       functionParen.pop();
