@@ -122,3 +122,12 @@ La UI puede usar colores inspirados en Onshape (azul, negro, rojo), pero el esta
 8. Matriz de aceptación escritorio, Android táctil y stylus.
 
 Una herramienta solo se considera habilitada cuando tiene: interacción completa, matemática validada, entidad paramétrica persistente, cancelación/confirmación, Undo/Redo, guardado/recarga y pruebas. La validación del módulo por sí sola no acredita interacción real en navegador.
+
+
+## Estado del prototipo implementado
+
+El módulo inicial `parametric-sketch.mjs` ya contiene entidades de punto, línea, círculo y arco; serialización versionada; y un solver amortiguado con Jacobiano numérico central y análisis de rango. El conjunto actual de restricciones cubre coincidente, horizontal, vertical, paralela, perpendicular, igual, concéntrica, punto medio, fija, distancia, radio, diámetro, distancias horizontal/vertical, ángulo, punto sobre línea y tangencia línea-círculo mediante distancia firmada.
+
+La integración de `index.html` genera y guarda modelos paramétricos para geometría nueva de línea/polilínea, rectángulo, círculo y arco. El solver ya se usa al aplicar restricciones a polilíneas y rectángulos, y sincroniza sus coordenadas resueltas de vuelta a la geometría Three.js. Los estados de solver se conservan en los metadatos del croquis.
+
+**Limitaciones actuales:** la integración de edición y solver aún no cubre círculos/arcos como objetivos de selección de restricciones en la interfaz; la tangencia línea-círculo todavía no valida contacto dentro del dominio finito del segmento; no existe aún una UI completa para cotas/restricciones, ni reconstrucción universal de todas las entidades desde el modelo paramétrico. La validación automatizada actual no sustituye pruebas E2E en escritorio, Android y stylus.
