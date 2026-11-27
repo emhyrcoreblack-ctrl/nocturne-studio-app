@@ -139,7 +139,7 @@ test('Circle and arc dimensions are connected to the parametric solver and rende
 
 test('Radius and diameter controls are disabled for unsupported or fixed selections',()=>{
   assert.match(app,/!obj\|\|!\['circle','arc'\]\.includes\(meta\.type\)\|\|meta\.fixed/);
-  assert.match(app,/window\.prompt\(type==='radius'\?/);
+  assert.match(app,/await requestDimensionValue\(title,current\)/);
   assert.match(app,/saveViewportProject\(\);recordDrawingHistory\(\);refreshWorkspacePanels\(\)/);
 });
 
