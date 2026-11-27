@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'circle', 'circle3', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -178,4 +178,13 @@ test('Three-point circle is wired to mouse and Android touch input with preview 
   assert.match(app, /circleThroughThreePoints\(planeCoords\(first\),planeCoords\(second\),planeCoords\(third\)\)/);
   assert.match(app, /Círculo: segundo punto fijado · marca el tercero/);
   assert.match(app, /saveViewportProject\(\);recordDrawingHistory\(\);return true;/);
+});
+
+test('Centered rectangle is wired to the active-plane touch and pointer drawing flow', () => {
+  assert.match(app, /data-palette-tool="rectCenter"/);
+  assert.match(app, /getElementById\('rectCenterTool'\)\.addEventListener\('click'/);
+  assert.match(app, /function makeShape\(type,a,b,preview\)[\s\S]*?type==='rectCenter'[\s\S]*?rectangleFromCenter/);
+  assert.match(app, /type==='rectCenter'\?'rect':type/);
+  assert.match(app, /type==='rect'\|\|type==='rectCenter'\)\{meta\.constraints=/);
+  assert.match(app, /rectCenter:'Marca el centro y arrastra hasta una esquina'/);
 });
