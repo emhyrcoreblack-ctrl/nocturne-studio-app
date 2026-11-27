@@ -59,7 +59,7 @@ export class ParametricSketch {
     this.entities[key]={id:key,type:'circle',center:centerId,radius}; this.revision++; return key;
   }
   addConstraint(type,refs,options={}) {
-    const allowed=new Set(['coincident','horizontal','vertical','parallel','perpendicular','equal','concentric','midpoint','fixed','distance']);
+    const allowed=new Set(['coincident','horizontal','vertical','parallel','perpendicular','equal','concentric','midpoint','fixed','distance','radius','diameter','horizontalDistance','verticalDistance','angle','pointOnLine','tangentLineCircle']);
     if(!allowed.has(type)) throw new Error(`Unsupported constraint "${type}"`);
     if(!Array.isArray(refs)) throw new TypeError('Constraint refs must be an array');
     const constraint={id:options.id||this._id('constraint'),type,refs:[...refs]};
