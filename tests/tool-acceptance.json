@@ -57,6 +57,23 @@
       ]
     },
     {
+      "id": "rectCenter",
+      "buttonId": "rectCenterTool",
+      "label": "Rectángulo por centro",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Generación de cuatro vértices simétricos respecto al centro mediante rectangleFromCenter.",
+        "Integración como perfil rectangular paramétrico con cuatro restricciones ortogonales; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Marcar el centro y arrastrar hacia cada cuadrante para crear el rectángulo.",
+        "Comprobar que el centro coincide con el punto inicial y las dimensiones son el doble del desplazamiento.",
+        "Comprobar cierre, cuatro lados y restricciones horizontal/vertical.",
+        "Probar selección, guardado, reapertura y deshacer.",
+        "Repetir con dedo y lápiz táctil."
+      ]
+    },
+    {
       "id": "circle",
       "buttonId": "circleTool",
       "label": "Círculo",
@@ -66,6 +83,56 @@
         "Crear círculos con distintos radios.",
         "Comprobar centro y radio mediante referencias geométricas.",
         "Probar selección, guardado y recorte cuando intersecta otras entidades."
+      ]
+    },
+    {
+      "id": "circle3",
+      "buttonId": "circle3Tool",
+      "label": "Círculo por 3 puntos",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Construcción de circunferencia con tres puntos no colineales y rechazo de puntos colineales: suite cad-geometry.test.mjs.",
+        "Integración de previsualización, entrada táctil en tres pasos y persistencia parcial: inspección automatizada de fuentes; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Crear una circunferencia con tres puntos distintos sobre su perímetro.",
+        "Comprobar centro, radio y plano activo con referencias geométricas.",
+        "Comprobar que tres puntos colineales no crean geometría y permiten continuar.",
+        "Interrumpir tras el primer o segundo punto, reabrir el proyecto y continuar.",
+        "Repetir la creación con dedo y lápiz táctil."
+      ]
+    },
+    {
+      "id": "slot",
+      "buttonId": "slotTool",
+      "label": "Ranura por 3 puntos",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Construcción de contorno cerrado con dos extremos semicirculares mediante createSlotPath.",
+        "Integración táctil de tres puntos: dos centros y un punto que define el radio; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Marcar dos centros distintos sobre el eje longitudinal de la ranura.",
+        "Definir el ancho con un tercer toque perpendicular al eje.",
+        "Comprobar simetría, ancho constante y cierre del contorno.",
+        "Probar ambos sentidos del eje y diferentes anchos.",
+        "Comprobar guardado, reapertura y deshacer con dedo y lápiz táctil."
+      ]
+    },
+    {
+      "id": "bezier",
+      "buttonId": "bezierTool",
+      "label": "Bézier cuadrática",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Muestreo cuadrático de Bézier con extremos exactos mediante sampleBezier.",
+        "Integración de tres puntos, previsualización y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Marcar inicio, punto de control y final con tres toques.",
+        "Comprobar que la curva pasa por los extremos y se aproxima al control sin obligatoriamente atravesarlo.",
+        "Probar curvas cóncavas y convexas y puntos cercanos.",
+        "Comprobar previsualización, guardado, reapertura y deshacer con dedo y lápiz táctil."
       ]
     },
     {
@@ -106,12 +173,129 @@
       ]
     },
     {
+      "id": "split",
+      "buttonId": "splitTool",
+      "label": "Partir",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "División de polilínea en un parámetro interior con punto compartido y sin mutar el original: cad-geometry.test.mjs.",
+        "Integración táctil sobre geometría abierta seleccionada, conservando plano y grupo de croquis; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar una línea o curva abierta y activar Partir.",
+        "Tocar un punto interior del tramo y comprobar que aparecen dos entidades.",
+        "Comprobar que ambas partes comparten exactamente el punto de división y conservan el plano.",
+        "Verificar que perfiles cerrados y toques fuera de tolerancia no alteran la geometría.",
+        "Comprobar guardado, reapertura y deshacer/rehacer con dedo y stylus."
+      ]
+    },
+    {
+      "id": "offset",
+      "buttonId": "offsetTool",
+      "label": "Equidistancia",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Desplazamiento de polilíneas abiertas y cerradas mediante offsetPolyline.",
+        "Integración táctil con distancia firmada, copia persistente y control de coplanaridad; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Tocar una geometría abierta y definir una distancia positiva.",
+        "Repetir con distancia negativa y comprobar que cambia el lado.",
+        "Crear equidistancia de un perfil cerrado y revisar el sentido del contorno.",
+        "Probar curvas muestreadas, esquinas agudas, distancias grandes y geometrías coplanares.",
+        "Comprobar que la original no cambia y que la copia persiste y admite deshacer/rehacer."
+      ]
+    },
+    {
+      "id": "fillet",
+      "buttonId": "filletTool",
+      "label": "Redondeo",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Tangencias y arco de radio exacto en vértices abiertos/cerrados: cad-geometry.test.mjs.",
+        "Integración táctil y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Aplicar radio a un vértice interior abierto.",
+        "Verificar tangencia y radio.",
+        "Probar perfil cerrado y radio excesivo.",
+        "Comprobar undo/redo y reapertura.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
+      "id": "chamfer",
+      "buttonId": "chamferTool",
+      "label": "Chaflán",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Dos puntos de recorte equidistantes: cad-geometry.test.mjs.",
+        "Integración táctil y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Aplicar chaflán a un vértice.",
+        "Verificar distancias de recorte.",
+        "Probar perfiles cerrados, extremos y medidas excesivas.",
+        "Comprobar undo/redo y persistencia.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
+      "id": "mirror",
+      "buttonId": "mirrorTool",
+      "label": "Simetría",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Integración táctil de eje de simetría, copia geométrica y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar una geometría y definir dos puntos del eje de simetría.",
+        "Comprobar que la copia queda a igual distancia al otro lado del eje.",
+        "Probar eje horizontal, vertical y diagonal.",
+        "Comprobar que la original permanece intacta y undo/redo funciona.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
+      "id": "linearPattern",
+      "buttonId": "linearPatternTool",
+      "label": "Patrón lineal",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Generación de copias desplazadas mediante linearPattern y flujo táctil de dirección/separación; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar geometría y marcar dirección.",
+        "Introducir separación y número de instancias.",
+        "Comprobar distancias iguales entre copias y orientación.",
+        "Comprobar persistencia y undo/redo.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
+      "id": "circularPattern",
+      "buttonId": "circularPatternTool",
+      "label": "Patrón circular",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Generación de instancias alrededor de centro mediante circularPattern; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar geometría y marcar centro de patrón.",
+        "Introducir cantidad de instancias.",
+        "Comprobar distribución angular uniforme y ausencia de copia duplicada sobre el original.",
+        "Comprobar persistencia y undo/redo.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
       "id": "trim",
       "buttonId": "trimTool",
       "label": "Recortar",
       "status": "not_verified",
       "automatedCoverage": [
-        "Intersección 2D y límites de recorte: suite cad-geometry.test.mjs; requiere ampliar casos e integración."
+        "Intersecciones, límites abiertos/cerrados y vértices complementarios: cad-geometry.test.mjs.",
+        "Integración transforma geometría local a mundo, filtra plano activo, preserva color y metadatos; pendiente E2E Android."
       ],
       "manualScenarios": [
         "Recortar una línea abierta entre dos intersecciones.",
@@ -127,7 +311,10 @@
       "buttonId": "extendTool",
       "label": "Extender",
       "status": "not_verified",
-      "automatedCoverage": [],
+      "automatedCoverage": [
+        "Intersección de semirrecta con segmentos y rechazo de objetivos no válidos: cad-geometry.test.mjs.",
+        "Integración selecciona extremo visible, limita plano activo, conserva color y pertenencia al croquis; pendiente E2E Android."
+      ],
       "manualScenarios": [
         "Extender cada extremo de una línea hacia una intersección válida.",
         "Comprobar que no extiende en dirección contraria ni hasta un objeto fuera del plano.",

@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'circle', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'split', 'offset', 'fillet', 'chamfer', 'mirror', 'linearPattern', 'circularPattern', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -104,4 +104,262 @@ test('Capas controla visibilidad de croquis y entidades y conserva el estado', (
   assert.match(app, /obj\.userData\.layerVisible=obj\.userData\.layerVisible===false/);
   assert.match(app, /visible:obj\.userData\.layerVisible!==false/);
   assert.match(app, /obj\.visible=obj\.userData\.layerVisible&&\(!owningLayer\|\|owningLayer\.visible!==false\)/);
+});
+
+
+test('Polyline and rectangle constraints use the parametric solver and update rendered geometry',()=>{
+  assert.match(app,/import \{ ParametricSketch \} from '\.\/parametric-sketch\.mjs'/);
+  assert.match(app,/meta\.parametricModel=buildParametricSketchModel\(meta,obj\.userData\.controlPoints\|\|\[\]\)/);
+  assert.match(app,/function solveSketchConstraints\(obj\)[\s\S]*?ParametricSketch\.fromJSON\(meta\.parametricModel\)[\s\S]*?solveParametricSketch\(model\)[\s\S]*?updateFatStroke\(obj,next\)/);
+  assert.match(app,/model\.addConstraint\(c\.type,refs/);
+});
+
+
+test('equal-length relation is exposed and connected for two-segment polylines',()=>{
+  assert.match(app,/data-sketch-constraint="equal"/);
+  assert.match(app,/c\.type==='parallel'\|\|c\.type==='perpendicular'\|\|c\.type==='equal'/);
+  assert.match(app,/else if\(type==='parallel'\|\|type==='perpendicular'\)/);
+  assert.match(app,/else if\(type==='equal'\)/);
+});
+
+
+test('equal-length relation is available on rectangles but not other unsupported relation types',()=>{
+  assert.match(app,/type==='equal'&&\(!\['polyline','rect'\]\.includes\(meta\.type\)\|\|n<3\)/);
+});
+
+test('Circle and arc dimensions are connected to the parametric solver and rendered curve',()=>{
+  assert.match(app,/function applySketchDimension\(type\)/);
+  assert.match(app,/meta\.dimensions\.push\(dimension\)/);
+  assert.match(app,/const entityId=meta\.type==='circle'\?meta\.id\+'-circle':meta\.id\+'-arc'/);
+  assert.match(app,/model\.addConstraint\(dimension\.type,\[entityId\],\{id:constraintId,value:dimension\.value\}\)/);
+  assert.match(app,/meta\.type==='circle'\|\|meta\.type==='arc'[\s\S]*?solveParametricSketch\(model\)[\s\S]*?updateFatStroke\(obj,next\)/);
+  assert.match(app,/radiusDimensionTool/);
+  assert.match(app,/diameterDimensionTool/);
+});
+
+test('Dimension controls stay available for touch-first selection and validate geometry before solving',()=>{
+  assert.ok(app.includes("['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=false;})"));
+  assert.match(app,/if\(meta\.fixed\)\{setSketchConstraintHint/);
+  assert.match(app,/if\(linear&&!\['polyline','rect','line'\]\.includes\(meta\.type\)\)/);
+  assert.match(app,/if\(!linear&&!\['circle','arc'\]\.includes\(meta\.type\)\)/);
+  assert.match(app,/await requestDimensionValue\(title,current\)/);
+  assert.match(app,/saveViewportProject\(\);recordDrawingHistory\(\);refreshWorkspacePanels\(\)/);
+});
+
+test('Android touch selection toggles multiple entities without keyboard modifiers',()=>{
+  assert.match(app,/const selectionTouchPointers=new Set\(\);let selectionTouchMulti=false/);
+  assert.match(app,/if\(activeTool==='select'&&event\.pointerType==='touch'\)[\s\S]*?selectionTouchPointers\.add\(event\.pointerId\)/);
+  assert.match(app,/event\.pointerType==='touch'\|\|event\.shiftKey\|\|event\.ctrlKey\|\|event\.metaKey/);
+  assert.match(app,/const matchingDown=!!\(down&&down\.pointerId===event\.pointerId\)/);
+  assert.match(app,/const validTap=matchingDown\?tapDistance<=[\s\S]*?:pendingDimensionType!==null/);
+  assert.match(app,/if\(!canceledSelectionTouch&&validTap\)/);
+  assert.match(app,/selectedObjects\.includes\(obj\)/);
+  assert.match(app,/function setSelectedObject\(obj,additive=false\)/);
+  assert.match(app,/Toca dos círculos para seleccionarlos y aplicar Concéntrico/);
+});
+
+test('Concentric relation is exposed only for exactly two selected circles',()=>{
+  assert.match(app,/data-sketch-constraint="concentric"/);
+  assert.match(app,/selectedObjects=\[\]/);
+  assert.match(app,/selectedObjects\.length!==2\|\|pair\.length!==2/);
+  assert.match(app,/modelA\.addConstraint\('concentric',\[circleA,circleB\]/);
+  assert.match(app,/meta\.parametricModel=model\.toJSON\(\)/);
+  assert.match(app,/updateCircle\(a,ma,modelA,circleA,mb\.id\)/);
+  assert.match(app,/updateCircle\(b,mb,modelA,circleB,ma\.id\)/);
+});
+
+test('Concentric relation rejects different planes and fixed circles',()=>{
+  assert.match(app,/ma\.plane!==mb\.plane/);
+  assert.match(app,/ma\.fixed\|\|mb\.fixed/);
+  assert.match(app,/type==='concentric'\?\(selectedObjects\.length!==2/);
+});
+
+test('Three-point circle is wired to mouse and Android touch input with preview and autosave', () => {
+  assert.match(app, /data-palette-tool="circle3"/);
+  assert.match(app, /getElementById\('circle3Tool'\)\.addEventListener\('click'/);
+  assert.match(app, /if\(activeTool==='circle3'\)\{addCircleThreePoint\(p\);return;\}/);
+  assert.match(app, /activeTool==='circle3'\?makeCircleThreePointShape/);
+  assert.match(app, /function addCircleThreePoint\(point\)/);
+  assert.match(app, /circleThroughThreePoints\(planeCoords\(first\),planeCoords\(second\),planeCoords\(third\)\)/);
+  assert.match(app, /Círculo: segundo punto fijado · marca el tercero/);
+  assert.match(app, /saveViewportProject\(\);recordDrawingHistory\(\);return true;/);
+});
+
+test('Centered rectangle is wired to the active-plane touch and pointer drawing flow', () => {
+  assert.match(app, /data-palette-tool="rectCenter"/);
+  assert.match(app, /getElementById\('rectCenterTool'\)\.addEventListener\('click'/);
+  assert.match(app, /function makeShape\(type,a,b,preview\)[\s\S]*?type==='rectCenter'[\s\S]*?rectangleFromCenter/);
+  assert.match(app, /type==='rectCenter'\?'rect':type/);
+  assert.match(app, /type==='rect'\|\|type==='rectCenter'\)\{meta\.constraints=/);
+  assert.match(app, /rectCenter:'Marca el centro y arrastra hasta una esquina'/);
+  assert.match(app, /shapeTouchDragPointerId===event\.pointerId&&drawStart/);
+  assert.match(app, /activeTool==='rectCenter'\?2:1/);
+});
+
+test('three-point slot tool is wired to touch preview, construction and persistence',()=>{
+  assert.match(app,/data-palette-tool="slot"/);
+  assert.match(app,/id="slotTool"/);
+  assert.match(app,/createSlotPath/);
+  assert.match(app,/function makeSlotShape\(start,end,widthPoint,preview\)/);
+  assert.match(app,/function addSlotPoint\(point\)/);
+  assert.match(app,/activeTool==='slot'\?makeSlotShape/);
+  assert.match(app,/activeTool==='slot'\)addSlotPoint\(p\)/);
+  const slot=matrix.tools.find(tool=>tool.id==='slot');
+  assert.ok(slot&&slot.status==='not_verified');
+});
+
+test('quadratic Bezier tool is wired to three-point touch construction and persistence',()=>{
+  assert.match(app,/data-palette-tool="bezier"/);
+  assert.match(app,/id="bezierTool"/);
+  assert.match(app,/sampleBezier/);
+  assert.match(app,/function makeBezierShape\(start,control,end,preview\)/);
+  assert.match(app,/function addBezierPoint\(point\)/);
+  assert.match(app,/activeTool==='bezier'\?makeBezierShape/);
+  assert.match(app,/activeTool==='bezier'\)addBezierPoint\(p\)/);
+  const bezier=matrix.tools.find(tool=>tool.id==='bezier');
+  assert.ok(bezier&&bezier.status==='not_verified');
+});
+
+test('split tool is wired to selected geometry and tactile point operation',()=>{
+  assert.match(app,/data-palette-tool="split"/);
+  assert.match(app,/id="splitTool"/);
+  assert.match(app,/splitPolylineAt/);
+  assert.match(app,/function splitSelectedAtScreen\(clientX,clientY\)/);
+  assert.match(app,/activeTool==='split'\)\{const changed=splitSelectedAtScreen/);
+  assert.match(app,/if\(target\.userData\.closed\|\|points\.length<2\)/);
+  assert.match(app,/operation:'split'/);
+  assert.match(app,/const picked=findSelectableObject\(clientX,clientY\)/);
+  assert.match(app,/Geometría seleccionada · toca el punto donde dividirla/);
+  assert.match(app,/const splitVector=points\[bestIndex\]\.clone\(\)\.lerp\(points\[bestIndex\+1\],bestT\)/);
+  const split=matrix.tools.find(tool=>tool.id==='split');
+  assert.ok(split&&split.status==='not_verified');
+});
+
+test('offset tool is wired to tactile geometry selection and signed offset construction',()=>{
+  assert.match(app,/data-palette-tool="offset"/);
+  assert.match(app,/id="offsetTool"/);
+  assert.match(app,/offsetPolyline/);
+  assert.match(app,/function offsetSelectedAtScreen\(clientX,clientY\)/);
+  assert.match(app,/window\.prompt\('Distancia de equidistancia en cm/);
+  assert.match(app,/operation:'offset'/);
+  assert.match(app,/activeTool==='offset'\)\{const changed=offsetSelectedAtScreen/);
+  const offset=matrix.tools.find(tool=>tool.id==='offset');
+  assert.ok(offset&&offset.status==='not_verified');
+});
+
+
+test('fillet and chamfer tools are wired into toolbar, palette and touch editing',()=>{assert.match(app,/id="filletTool"/);assert.match(app,/id="chamferTool"/);assert.match(app,/data-palette-tool="fillet"/);assert.match(app,/data-palette-tool="chamfer"/);assert.match(app,/function cornerEditAtScreen\(mode,clientX,clientY\)/);assert.match(app,/filletPolylineVertex/);assert.match(app,/chamferPolylineVertex/);assert.ok(matrix.tools.find(t=>t.id==='fillet').status==='not_verified');assert.ok(matrix.tools.find(t=>t.id==='chamfer').status==='not_verified');});
+
+
+test('symmetry and linear/circular patterns are wired for touch construction',()=>{for(const id of ['mirror','linearPattern','circularPattern'])assert.match(app,new RegExp('data-palette-tool="'+id+'"'));assert.match(app,/function patternToolPoint\(mode,point,event\)/);assert.match(app,/mirrorPolyline\(state\.uv,state\.axisA,q\)/);assert.match(app,/linearPattern\(state\.uv,count/);assert.match(app,/circularPattern\(state\.uv,q,count\)/);assert.match(app,/patternEditState=null/);for(const id of ['mirror','linearPattern','circularPattern'])assert.equal(matrix.tools.find(t=>t.id===id).status,'not_verified');});
+
+
+test('trim and extend operate on world-space geometry and preserve sketch metadata',()=>{const trim=app.slice(app.indexOf('function trimSegmentAtScreen'),app.indexOf('function splitSelectedAtScreen'));const extend=app.slice(app.indexOf('function extendEndpointAtScreen'),app.indexOf('function findSelectableObject'));assert.match(trim,/target\.localToWorld\(p\.clone\(\)\)/);assert.match(trim,/otherObj\.localToWorld\(p\.clone\(\)\)/);assert.match(trim,/meta\.plane!==activePlane/);assert.match(trim,/selectionOriginalColor/);assert.match(extend,/obj\.localToWorld\(p\.clone\(\)\)/);assert.match(extend,/otherMeta\.plane!==activePlane/);assert.match(extend,/selectionOriginalColor/);assert.match(extend,/sketchId=meta\.sketchId/);});
+
+
+test('offset touch cursor follows the finger and is cleared after pointer release',()=>{assert.match(app,/activeTool==='trim'\|\|activeTool==='extend'\|\|activeTool==='offset'\)\)\{positionTouchCursor\(event\);return;\}/);const finish=app.slice(app.indexOf('function finishSketch'),app.indexOf('function extendEndpointAtScreen'));assert.match(finish,/hideSnapFeedback\(\);hideLineGuide\(\);\s*return;/);});
+
+test('CAD dimensions use the parametric solver and the mobile expression calculator', () => {
+  assert.match(app, /id="radiusDimensionTool"/);
+  assert.match(app, /id="diameterDimensionTool"/);
+  assert.match(app, /id="linearDimensionTool"/);
+  assert.match(app, /addConstraint\('distance',\[meta\.id\+'-p'\+dimension\.a,meta\.id\+'-p'\+dimension\.b\]/);
+  assert.match(app, /function requestDimensionValue\(title,initial\)/);
+  assert.ok(app.includes("evaluateDimensionExpression(input.value,{expectedUnit:'length'})"));
+  assert.match(app, /await requestDimensionValue\(title,current\)/);
+});
+
+test('dimension tools can start without a preselected entity and select geometry by touch',()=>{
+  assert.match(app,/function startSketchDimension\(type\)[\s\S]*?pendingDimensionType=type;[\s\S]*?setSelectedObject\(null\)/);
+  assert.match(app,/bindDimensionActivation\('radiusDimensionTool','radius'\)/);
+  assert.match(app,/bindDimensionActivation\('diameterDimensionTool','diameter'\)/);
+  assert.match(app,/bindDimensionActivation\('linearDimensionTool','distance'\)/);
+  assert.match(app,/if\(pendingDimensionType\)\{[\s\S]*?findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)[\s\S]*?setSelectedObject\(target\);const pickedMeta=sketchMetaForObject\(target\)[\s\S]*?if\(resolved\)applySketchDimension\(resolved\)/);
+  assert.match(app,/function setTool\(tool\)\{\s*pendingDimensionType=null;/);
+});
+
+test('linear dimension uses the exact segment selected on the canvas',()=>{
+  assert.match(app,/bestSegmentIndex=-1/);
+  assert.match(app,/bestSegmentIndex=i/);
+  assert.match(app,/best\.userData\.lastPickedSegmentIndex=bestSegmentIndex/);
+  assert.match(app,/const segmentIndex=linear\?Math\.max\(0,Math\.min\(Number\.isInteger\(obj\.userData\.lastPickedSegmentIndex\)/);
+  assert.match(app,/a:segmentIndex,b:segmentEnd/);
+});
+
+test('dimension picking switches drawing tools into the selection pointer lifecycle before arming',()=>{
+  assert.match(app,/function startSketchDimension\(type\)[\s\S]*?if\(activeTool!=='select'\)setTool\('select'\);[\s\S]*?setSelectedObject\(null\);[\s\S]*?pendingDimensionType=type;/);
+  assert.match(app,/if\(activeTool==='select'\|\|activeTool==='trim'\|\|activeTool==='extend'\|\|activeTool==='split'\|\|activeTool==='offset'\)\{[\s\S]*?if\(pendingDimensionType\)\{/);
+  assert.match(app,/function beginSketchNow\(event\)[\s\S]*?selectionPointerDown=\{x:event\.clientX,y:event\.clientY,pointerId:event\.pointerId,pointerType:event\.pointerType\}/);
+});
+
+
+test('Android dimension picking uses compensated finger aim and a touch-sized hit target',()=>{
+  assert.match(app,/function findSelectableObject\(clientX,clientY,pointerType='mouse'\)/);
+  assert.match(app,/bestPixels=pointerType==='touch'\?34:14/);
+  assert.match(app,/findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)/);
+  assert.match(app,/event\.pointerType==='touch'\?22:6/);
+});
+
+
+test('Visible Android sketch palette exposes and activates the dimension tool',()=>{
+  assert.match(app,/title="Cota" aria-label="Cota" data-palette-dimension="auto"/);
+  assert.doesNotMatch(app,/title="Cota" aria-label="Cota" disabled/);
+  assert.match(app,/button\[data-palette-dimension\]/);
+  assert.match(app,/startSketchDimension\(dimensionButton\.dataset\.paletteDimension\)/);
+  assert.match(app,/Cota · toca una línea, círculo o arco/);
+});
+
+test('Automatic dimension selection resolves line, circle and arc to supported dimension types',()=>{
+  assert.match(app,/requested==='auto'\?\(\['polyline','rect','line'\]\.includes\(pickedMeta\.type\)\?'distance':pickedMeta\.type==='circle'\?'diameter':pickedMeta\.type==='arc'\?'radius':null\)/);
+  assert.match(app,/if\(resolved\)applySketchDimension\(resolved\)/);
+});
+
+
+test('Dimension status is shown in the workspace status bar, not in a floating message element',()=>{
+  assert.doesNotMatch(app,/id="sketchConstraintHint"/);
+  assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?status\.textContent=message/);
+});
+
+test('Android palette starts dimension mode on pointerdown and keeps keyboard activation',()=>{
+  assert.match(app,/drawToolsPanel\.addEventListener\('pointerdown',[\s\S]*?button\[data-palette-dimension\][\s\S]*?startSketchDimension\(dimensionButton\.dataset\.paletteDimension\)/);
+  assert.match(app,/button\[data-palette-dimension\][\s\S]*?event\.detail===0/);
+});
+
+
+test('Cota muestra un estado activo persistente y permite cancelar desde el dock',()=>{
+ assert.match(app,/function updateDimensionToolIndicator\(\)/);
+ assert.match(app,/activeToggle\.innerHTML=.*Cota/);
+ assert.match(app,/activeToggle\.setAttribute\('aria-pressed','true'\)/);
+ assert.match(app,/if\(pendingDimensionType!==null\)\{pendingDimensionType=null/);
+ assert.match(app,/updateDimensionToolIndicator\(\);document\.getElementById\('saveState'\)\.textContent='Cota cancelada'/);
+});
+
+test('Cota edita dimensiones existentes sin acumular restricciones contradictorias',()=>{
+ assert.match(app,/const existing=meta\.dimensions\.find/);
+ assert.match(app,/if\(dimension\)\{dimension\.type=dimensionType;dimension\.value=value;dimension\.enabled=true;\}/);
+ assert.match(app,/existingConstraint\.type=dimension\.type;existingConstraint\.value=dimension\.value/);
+ assert.match(app,/if\(existingConstraint\)\{existingConstraint\.value=dimension\.value;continue;\}/);
+});
+
+test('Cota automática resuelve el tipo correcto cuando ya hay una geometría seleccionada',()=>{
+ assert.match(app,/const resolved=type==='auto'&&meta\?\(\['polyline','rect','line'\]\.includes\(meta\.type\)\?'distance':meta\.type==='circle'\?'diameter':meta\.type==='arc'\?'radius':null\):type/);
+ assert.match(app,/if\(supported\)\{pendingDimensionType=null;updateDimensionToolIndicator\(\);applySketchDimension\(resolved\);return;\}/);
+});
+
+test('La calculadora de cotas no bloquea el lienzo con una ventana modal y el estado no usa avisos flotantes',()=>{
+ assert.match(app,/overlay\.setAttribute\('aria-modal','false'\)/);
+ assert.match(app,/\.dimension-calculator-backdrop\{position:fixed;inset:auto 8px 86px[\s\S]*?pointer-events:none\}/);
+ assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?status\.textContent=message/);
+});
+
+test('La paleta actual no conserva la barra ficticia ni la búsqueda antigua desactivada',()=>{
+ assert.doesNotMatch(app,/class="onshape-topbar"/);
+ assert.doesNotMatch(app,/class="onshape-search"/);
+});
+
+
+test('Android Cota can resolve a tap on pointerup when pointerdown was lost',()=>{
+ assert.match(app,/const matchingDown=!!\(down&&down\.pointerId===event\.pointerId\)/);
+ assert.match(app,/const validTap=matchingDown\?tapDistance<=[\s\S]*?:pendingDimensionType!==null/);
+ assert.match(app,/if\(!canceledSelectionTouch&&validTap\)/);
 });

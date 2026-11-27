@@ -80,3 +80,117 @@ test('origin snap rejects invalid distances and invalid tolerances', () => {
   assert.equal(isWithinSnapTolerance(Infinity), false);
   assert.equal(isWithinSnapTolerance(1, -1), false);
 });
+
+
+import {
+  circleThroughThreePoints, sampleBezier, sampleCatmullRom, createSlotPath,
+  splitPolylineAt, offsetPolyline, transformPolyline, mirrorPolyline,
+  linearPattern, circularPattern, regularPolygon, rectangleFromCenter,
+  filletPolylineVertex, chamferPolylineVertex
+} from '../cad-geometry.mjs';
+
+test('constructs a circle through three non-collinear points', () => {
+  const circle = circleThroughThreePoints({u:1,v:0},{u:0,v:1},{u:-1,v:0});
+  assert.ok(circle);
+  assert.ok(Math.abs(circle.center.u) < 1e-9);
+  assert.ok(Math.abs(circle.center.v) < 1e-9);
+  assert.ok(Math.abs(circle.radius - 1) < 1e-9);
+  assert.equal(circleThroughThreePoints({u:0,v:0},{u:1,v:1},{u:2,v:2}), null);
+});
+
+test('samples quadratic and cubic Bezier curves with exact endpoints', () => {
+  const quadratic = sampleBezier([{u:0,v:0},{u:1,v:2},{u:2,v:0}], 10);
+  assert.equal(quadratic.length, 11);
+  assert.deepEqual(quadratic[0], {u:0,v:0});
+  assert.deepEqual(quadratic.at(-1), {u:2,v:0});
+  const cubic = sampleBezier([{u:0,v:0},{u:1,v:3},{u:3,v:3},{u:4,v:0}], 20);
+  assert.equal(cubic.length, 21);
+  assert.deepEqual(cubic.at(-1), {u:4,v:0});
+});
+
+test('samples an interpolating Catmull-Rom spline through every control point', () => {
+  const controls = [{u:0,v:0},{u:1,v:2},{u:3,v:1}];
+  const spline = sampleCatmullRom(controls, 8);
+  assert.equal(spline.length, 17);
+  assert.deepEqual(spline[0], controls[0]);
+  assert.deepEqual(spline.at(-1), controls.at(-1));
+  assert.ok(spline.some(p => Math.abs(p.u-1)<1e-9 && Math.abs(p.v-2)<1e-9));
+});
+
+test('creates a closed slot outline with two semicircular ends', () => {
+  const slot = createSlotPath({u:0,v:0},{u:4,v:0},1,12);
+  assert.equal(slot.length, 26);
+  assert.ok(Math.abs(slot[0].u-4)<1e-9);
+  assert.ok(Math.abs(slot[0].v-1)<1e-9);
+  assert.deepEqual(createSlotPath({u:0,v:0},{u:0,v:0},1), []);
+});
+
+test('splits a polyline at an interior segment parameter', () => {
+  const result = splitPolylineAt([{u:0,v:0},{u:4,v:0},{u:4,v:4}], 0, .25);
+  assert.deepEqual(result.first, [{u:0,v:0},{u:1,v:0}]);
+  assert.deepEqual(result.second, [{u:1,v:0},{u:4,v:0},{u:4,v:4}]);
+  assert.equal(splitPolylineAt([{u:0,v:0}],0,.5), null);
+});
+
+test('offsets an open polyline and preserves its vertex count', () => {
+  const offset = offsetPolyline([{u:0,v:0},{u:4,v:0},{u:4,v:4}], 1);
+  assert.equal(offset.length, 3);
+  assert.ok(Math.abs(offset[0].v-1)<1e-9);
+  assert.ok(Math.abs(offset[2].u-3)<1e-9);
+});
+
+test('transforms and mirrors points without mutating the source geometry', () => {
+  const source = [{u:1,v:0}];
+  const rotated = transformPolyline(source,{rotation:Math.PI/2});
+  assert.ok(Math.abs(rotated[0].u)<1e-9);
+  assert.ok(Math.abs(rotated[0].v-1)<1e-9);
+  const mirrored = mirrorPolyline(source,{u:0,v:-1},{u:0,v:1});
+  assert.deepEqual(mirrored,[{u:-1,v:0}]);
+  assert.deepEqual(source,[{u:1,v:0}]);
+});
+
+test('generates bounded linear and circular pattern copies', () => {
+  const source = [{u:1,v:0}];
+  const linear = linearPattern(source,3,2,0);
+  assert.deepEqual(linear.map(copy=>copy[0]),[{u:1,v:0},{u:3,v:0},{u:5,v:0}]);
+  const circular = circularPattern(source,{u:0,v:0},4);
+  assert.equal(circular.length,4);
+  assert.ok(Math.abs(circular[1][0].u)<1e-9);
+  assert.ok(Math.abs(circular[1][0].v-1)<1e-9);
+  assert.equal(linearPattern(source,500,1,1).length,200);
+});
+
+test('creates regular polygons and centered rectangles with validated dimensions', () => {
+  const hex = regularPolygon({u:0,v:0},2,6);
+  assert.equal(hex.length,6);
+  assert.ok(Math.abs(Math.hypot(hex[0].u,hex[0].v)-2)<1e-9);
+  const rect = rectangleFromCenter({u:0,v:0},{u:2,v:1});
+  assert.deepEqual(rect,[{u:-2,v:-1},{u:2,v:-1},{u:2,v:1},{u:-2,v:1}]);
+  assert.deepEqual(rectangleFromCenter({u:0,v:0},{u:0,v:1}),[]);
+});
+
+test('constructs a circle through three non-collinear points', () => {
+  const circle = circleThroughThreePoints({u:1,v:0},{u:0,v:1},{u:-1,v:0});
+  assert.ok(circle);
+  assert.ok(Math.abs(circle.center.u) < 1e-9);
+  assert.ok(Math.abs(circle.center.v) < 1e-9);
+  assert.ok(Math.abs(circle.radius - 1) < 1e-9);
+});
+
+test('rejects a three-point circle when points are collinear', () => {
+  assert.equal(circleThroughThreePoints({u:0,v:0},{u:1,v:1},{u:2,v:2}), null);
+});
+
+test('offsets a closed profile inward and outward without mutating its source',()=>{
+  const square=[{u:0,v:0},{u:4,v:0},{u:4,v:4},{u:0,v:4}];
+  const inward=offsetPolyline(square,1,true),outward=offsetPolyline(square,-1,true);
+  assert.equal(inward.length,4);assert.equal(outward.length,4);
+  assert.deepEqual(inward,[{u:1,v:1},{u:3,v:1},{u:3,v:3},{u:1,v:3}]);
+  assert.deepEqual(outward,[{u:-1,v:-1},{u:5,v:-1},{u:5,v:5},{u:-1,v:5}]);
+  assert.deepEqual(square,[{u:0,v:0},{u:4,v:0},{u:4,v:4},{u:0,v:4}]);
+});
+
+
+test('fillet right angle tangent geometry',()=>{const p=[{u:0,v:0},{u:4,v:0},{u:4,v:4}],r=filletPolylineVertex(p,1,1,false,8);assert.ok(r);assert.equal(r.length,11);assert.ok(Math.abs(r[1].u-3)<1e-9&&Math.abs(r[1].v)<1e-9);assert.ok(Math.abs(r.at(-2).u-4)<1e-9&&Math.abs(r.at(-2).v-1)<1e-9);for(const q of r.slice(1,-1))assert.ok(Math.abs(Math.hypot(q.u-3,q.v-1)-1)<1e-8);assert.deepEqual(p,[{u:0,v:0},{u:4,v:0},{u:4,v:4}]);});
+test('fillet closed seam and invalid cases',()=>{const p=[{u:0,v:0},{u:4,v:0},{u:4,v:4},{u:0,v:4}];assert.equal(filletPolylineVertex(p,0,1,true,6).length,10);assert.equal(filletPolylineVertex(p,0,5,true),null);assert.equal(filletPolylineVertex(p,0,1,false),null);assert.equal(filletPolylineVertex([{u:0,v:0},{u:1,v:0},{u:2,v:0}],1,.2),null);});
+test('chamfer trims adjacent segments by equal distances',()=>{const p=[{u:0,v:0},{u:4,v:0},{u:4,v:4}];assert.deepEqual(chamferPolylineVertex(p,1,1),[{u:0,v:0},{u:3,v:0},{u:4,v:1},{u:4,v:4}]);assert.equal(chamferPolylineVertex(p,0,1),null);assert.equal(chamferPolylineVertex(p,1,4),null);});

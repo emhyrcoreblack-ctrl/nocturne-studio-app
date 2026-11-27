@@ -191,7 +191,7 @@
 /* Las herramientas del croquis viven dentro de la paleta, no duplicadas en la barra */
 #editorToolbar #selectTool,#editorToolbar #lineTool,#editorToolbar #rectTool,#editorToolbar #circleTool,#editorToolbar #sketchConstraintCard{display:none!important}
 @media(max-width:640px){#drawToolsPanel{top:106px;width:calc(100vw - 16px);max-height:calc(100dvh - 122px);padding:10px}#drawToolsPanel .palette-grid button{height:50px}#drawToolsPanel .palette-grid button{width:100%;justify-content:center;align-items:center;display:grid}#drawToolsPanel .palette-head button{width:34px;height:32px;min-width:34px;justify-content:center}#drawToolsPanel .palette-grid button:disabled{opacity:.32;cursor:not-allowed}}
-#drawToolsPanel{display:none;position:absolute;top:118px;left:0;right:0;z-index:40;width:100%;max-height:calc(100dvh - 130px);overflow-y:auto;padding:0 0 12px;background:#fff;color:#202124;border:1px solid #c9cdd1;border-radius:12px;box-shadow:0 8px 24px #0002;grid-template-columns:1fr;gap:0}#drawToolsPanel.open{display:grid}#drawToolsPanel .onshape-topbar{height:64px;display:flex;align-items:center;justify-content:space-around;border-bottom:3px solid #d7e9fa;background:#fff;gap:3px}#drawToolsPanel .onshape-topbar button{border:0;background:transparent;color:#202124;font-size:27px;min-width:30px;height:52px;padding:0 5px}#drawToolsPanel .onshape-topbar i{height:44px;width:3px;background:#c5def4}#drawToolsPanel .onshape-search{height:72px;display:flex;align-items:center;gap:18px;padding:0 20px;border-bottom:3px solid #555}#drawToolsPanel .onshape-search span{font-size:36px;color:#b8bdc2}#drawToolsPanel .onshape-search input{width:100%;border:0;outline:0;font-size:23px;background:transparent}#drawToolsPanel .onshape-tools{padding:8px 16px}#drawToolsPanel .onshape-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px 4px;padding:18px 0}#drawToolsPanel .onshape-row.single button{grid-column:1}#drawToolsPanel .onshape-row.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}#drawToolsPanel .onshape-row.grid4{grid-template-columns:repeat(4,minmax(0,1fr))}#drawToolsPanel .onshape-row.grid5{grid-template-columns:repeat(5,minmax(0,1fr))}#drawToolsPanel .onshape-row button{height:126px;min-width:0;padding:8px 3px;border:0;border-radius:0;background:#fff;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;white-space:normal;font-size:15px;font-weight:400;line-height:1.2;text-align:center}#drawToolsPanel .onshape-row button svg{width:48px;height:48px;flex:none}#drawToolsPanel .onshape-row button span{display:block;max-width:100%}#drawToolsPanel .onshape-row button:disabled{opacity:1;color:#222}#drawToolsPanel .onshape-divider{height:5px;background:#888;margin:0}#drawToolsPanel .onshape-close{display:flex;justify-content:flex-end;padding:4px 12px}#drawToolsPanel .onshape-close button{border:0;background:#f1f3f5;color:#333;border-radius:6px;padding:7px 14px}@media(max-width:640px){#drawToolsPanel{top:90px;max-height:calc(100dvh - 96px)}#drawToolsPanel .onshape-topbar{height:54px}#drawToolsPanel .onshape-topbar button{font-size:21px;min-width:23px}#drawToolsPanel .onshape-topbar i{height:35px;width:2px}#drawToolsPanel .onshape-search{height:58px;padding:0 12px;gap:12px}#drawToolsPanel .onshape-search input{font-size:18px}#drawToolsPanel .onshape-tools{padding:4px 8px}#drawToolsPanel .onshape-row{padding:12px 0;gap:5px 2px}#drawToolsPanel .onshape-row button{height:105px;font-size:12px;gap:6px}#drawToolsPanel .onshape-row button svg{width:40px;height:40px}#drawToolsPanel .onshape-divider{height:4px}}
+#drawToolsPanel{display:none;position:absolute;top:118px;left:0;right:0;z-index:40;width:100%;max-height:calc(100dvh - 130px);overflow-y:auto;padding:0 0 12px;background:#fff;color:#202124;border:1px solid #c9cdd1;border-radius:12px;box-shadow:0 8px 24px #0002;grid-template-columns:1fr;gap:0}#drawToolsPanel.open{display:grid}#drawToolsPanel .onshape-tools{padding:8px 16px}#drawToolsPanel .onshape-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px 4px;padding:18px 0}#drawToolsPanel .onshape-row.single button{grid-column:1}#drawToolsPanel .onshape-row.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}#drawToolsPanel .onshape-row.grid4{grid-template-columns:repeat(4,minmax(0,1fr))}#drawToolsPanel .onshape-row.grid5{grid-template-columns:repeat(5,minmax(0,1fr))}#drawToolsPanel .onshape-row button{height:126px;min-width:0;padding:8px 3px;border:0;border-radius:0;background:#fff;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;white-space:normal;font-size:15px;font-weight:400;line-height:1.2;text-align:center}#drawToolsPanel .onshape-row button svg{width:48px;height:48px;flex:none}#drawToolsPanel .onshape-row button span{display:block;max-width:100%}#drawToolsPanel .onshape-row button:disabled{opacity:1;color:#222}#drawToolsPanel .onshape-divider{height:5px;background:#888;margin:0}#drawToolsPanel .onshape-close{display:flex;justify-content:flex-end;padding:4px 12px}#drawToolsPanel .onshape-close button{border:0;background:#f1f3f5;color:#333;border-radius:6px;padding:7px 14px}@media(max-width:640px){#drawToolsPanel{top:90px;max-height:calc(100dvh - 96px)}#drawToolsPanel .onshape-tools{padding:4px 8px}#drawToolsPanel .onshape-row{padding:12px 0;gap:5px 2px}#drawToolsPanel .onshape-row button{height:105px;font-size:12px;gap:6px}#drawToolsPanel .onshape-row button svg{width:40px;height:40px}#drawToolsPanel .onshape-divider{height:4px}}
 
 /* Corrección de encuadre móvil: anula centrado heredado y evita recorte horizontal */
 #drawToolsPanel{
@@ -669,6 +669,8 @@
  border-radius:8px!important;
 }
 .tree-layer-header{display:flex;align-items:center;gap:3px}.tree-layer-header>.tree-row{flex:1;min-width:0}.tree-object-row{display:flex;align-items:center;gap:2px}.tree-object-row>.tree-row{flex:1;min-width:0}.tree-visibility{flex:0 0 28px;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:#9fb5ce;font-size:15px}.tree-visibility:hover{background:#263d56;color:#fff}.tree-visibility-object{font-size:13px}.tree-layer-header.active>.tree-row{background:#1c3b5b;color:#e5f1ff}#dockModeling:disabled{opacity:.32!important;cursor:not-allowed!important;filter:grayscale(1)}
+
+.dimension-calculator-backdrop{position:fixed;inset:auto 8px 86px;z-index:1000;display:flex;justify-content:center;align-items:flex-end;padding:0;background:transparent;pointer-events:none}.dimension-calculator{width:min(340px,100%);max-height:min(58dvh,440px);overflow:auto;padding:12px;border:1px solid #40536b;border-radius:13px;background:#172231;box-shadow:0 10px 30px #0008;color:#edf3fb;pointer-events:auto}.dimension-calculator header,.dimension-calculator footer{display:flex;align-items:center;justify-content:space-between;gap:8px}.dimension-calculator header{margin-bottom:12px}.dimension-calculator header strong{font-size:14px}.dimension-calculator header button{font-size:21px;padding:2px 9px}.dimension-expression-label{display:block;color:#aab8ca;font-size:11px;margin-bottom:5px}.dimension-expression-input{width:100%;height:44px;border:1px solid #5a7595;border-radius:8px;background:#0d1622;color:#fff;padding:0 11px;font-size:20px;text-align:right}.dimension-expression-result{display:block;min-height:25px;padding:5px 2px;color:#91c6ff;text-align:right;font-size:12px}.dimension-expression-result[data-valid="false"]{color:#ff9c9c}.dimension-keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 12px}.dimension-keypad button{height:38px;padding:0;background:#26364a;border-color:#3b506a;font-size:16px}.dimension-calculator footer button{flex:1}.dimension-calculator .dimension-apply{background:#285d91;border-color:#4789c5}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -721,15 +723,15 @@
 
 <nav id="editorToolbar" aria-label="Herramientas CAD">
 <button id="undoButton" title="Deshacer" aria-label="Deshacer">↶</button><button id="redoButton" title="Rehacer" aria-label="Rehacer">↷</button><span class="tool-separator"></span>
-<button id="drawMenuButton" title="Activar croquis" aria-label="Activar croquis">✎</button><button id="selectTool" class="tool-active" title="Seleccionar" aria-label="Seleccionar">⌖</button><button id="lineTool" title="Línea" aria-label="Línea">／</button><button id="rectTool" title="Rectángulo" aria-label="Rectángulo">▭</button><button id="circleTool" title="Círculo" aria-label="Círculo">○</button><button id="polygonTool" title="Polígono" aria-label="Polígono">⬡</button><button id="ellipseTool" title="Elipse" aria-label="Elipse">⬭</button><button id="arcTool" title="Arco de 3 puntos" aria-label="Arco de 3 puntos">⌒</button><button id="trimTool" title="Recortar segmento" aria-label="Recortar segmento">✂</button><button id="extendTool" title="Extender hasta intersección" aria-label="Extender">↗</button><button title="Punto · próximamente" aria-label="Punto" disabled>·</button><span class="tool-separator"></span>
-<div id="sketchConstraintCard"><span id="sketchConstraintHint" hidden>Selecciona una geometría</span><div class="sketch-constraint-grid">
-<button title="Horizontal" aria-label="Horizontal" data-sketch-constraint="horizontal">↔</button><button title="Vertical" aria-label="Vertical" data-sketch-constraint="vertical">↕</button><button title="Paralela" aria-label="Paralela" data-sketch-constraint="parallel">∥</button><button title="Perpendicular" aria-label="Perpendicular" data-sketch-constraint="perpendicular">⊥</button><button title="Coincidente" aria-label="Coincidente" data-sketch-constraint="coincident">◇</button><button title="Fijar" aria-label="Fijar" data-sketch-constraint="fixed">⌖</button><button title="Desbloquear" aria-label="Desbloquear" data-sketch-constraint="unlock">⌑</button><button title="Tangencia · próximamente" aria-label="Tangencia" disabled>◔</button>
+<button id="drawMenuButton" title="Activar croquis" aria-label="Activar croquis">✎</button><button id="selectTool" class="tool-active" title="Seleccionar" aria-label="Seleccionar">⌖</button><button id="lineTool" title="Línea" aria-label="Línea">／</button><button id="rectTool" title="Rectángulo por esquina" aria-label="Rectángulo por esquina">▭</button><button id="rectCenterTool" title="Rectángulo por centro" aria-label="Rectángulo por centro">▣</button><button id="circleTool" title="Círculo" aria-label="Círculo">○</button><button id="circle3Tool" title="Círculo por 3 puntos" aria-label="Círculo por 3 puntos">◉</button><button id="slotTool" title="Ranura por 3 puntos" aria-label="Ranura por 3 puntos">▱</button><button id="bezierTool" title="Bézier cuadrática" aria-label="Bézier cuadrática">⌁</button><button id="polygonTool" title="Polígono" aria-label="Polígono">⬡</button><button id="ellipseTool" title="Elipse" aria-label="Elipse">⬭</button><button id="arcTool" title="Arco de 3 puntos" aria-label="Arco de 3 puntos">⌒</button><button id="trimTool" title="Recortar segmento" aria-label="Recortar segmento">✂</button><button id="extendTool" title="Extender hasta intersección" aria-label="Extender">↗</button><button id="splitTool" title="Partir geometría seleccionada" aria-label="Partir">⑂</button><button id="offsetTool" title="Equidistancia" aria-label="Equidistancia">⇔</button><button id="filletTool" title="Redondeo" aria-label="Redondeo">⌒</button><button id="chamferTool" title="Chaflán" aria-label="Chaflán">／</button><button title="Punto · próximamente" aria-label="Punto" disabled>·</button><span class="tool-separator"></span>
+<div id="sketchConstraintCard"><div class="sketch-constraint-grid">
+<button title="Horizontal" aria-label="Horizontal" data-sketch-constraint="horizontal">↔</button><button title="Vertical" aria-label="Vertical" data-sketch-constraint="vertical">↕</button><button title="Paralela" aria-label="Paralela" data-sketch-constraint="parallel">∥</button><button title="Perpendicular" aria-label="Perpendicular" data-sketch-constraint="perpendicular">⊥</button><button title="Igual longitud" aria-label="Igual longitud" data-sketch-constraint="equal">=</button><button title="Coincidente" aria-label="Coincidente" data-sketch-constraint="coincident">◇</button><button title="Fijar" aria-label="Fijar" data-sketch-constraint="fixed">⌖</button><button title="Desbloquear" aria-label="Desbloquear" data-sketch-constraint="unlock">⌑</button><button title="Concéntrico" aria-label="Concéntrico" data-sketch-constraint="concentric">◎</button><button title="Tangencia · próximamente" aria-label="Tangencia" disabled>◔</button>
 </div></div><span class="tool-separator"></span>
-<button title="Cota lineal · próximamente" aria-label="Cota lineal" disabled>↔</button><button title="Radio · próximamente" aria-label="Radio" disabled>R</button><button title="Diámetro · próximamente" aria-label="Diámetro" disabled>Ø</button><button title="Ángulo · próximamente" aria-label="Ángulo" disabled>∠</button><span class="tool-separator"></span>
+<button id="radiusDimensionTool" title="Cota de radio" aria-label="Cota de radio">R</button><button id="diameterDimensionTool" title="Cota de diámetro" aria-label="Cota de diámetro">Ø</button><button id="linearDimensionTool" title="Cota lineal" aria-label="Cota lineal">↔</button><button title="Ángulo · próximamente" aria-label="Ángulo" disabled>∠</button><span class="tool-separator"></span>
 <button title="Extruir · próximamente" aria-label="Extruir" disabled>▱</button><button title="Revolución · próximamente" aria-label="Revolución" disabled>◉</button><button title="Barrido · próximamente" aria-label="Barrido" disabled>〰</button><button title="Loft · próximamente" aria-label="Loft" disabled>◇</button><button title="Redondeo · próximamente" aria-label="Redondeo" disabled>⌒</button><button title="Chaflán · próximamente" aria-label="Chaflán" disabled>／</button><span class="tool-separator"></span>
 <button id="fitButton" title="Restablecer vista" aria-label="Restablecer vista">⟳</button><button id="activeToolToggle" type="button" hidden aria-label="Herramienta activa"></button><button id="gridButton" type="button" hidden aria-label="Cuadrícula"></button><button id="axesButton" type="button" hidden aria-label="Ejes"></button><span class="save-state" id="saveState" aria-live="polite">Seleccionar</span>
 </nav>
-<div id="drawToolsPanel" aria-hidden="true" role="dialog" aria-label="Herramientas de croquis"><div class="onshape-topbar"><button disabled>↶</button><button disabled>↷</button><i></i><button disabled>▣</button><i></i><button disabled>•••</button><i></i><button disabled>⇤</button><i></i><button disabled>◷</button><i></i><button disabled>▱</button><button disabled>⚖</button></div><div class="onshape-search"><span>⌕</span><input type="search" placeholder="Herramientas de búsqueda" aria-label="Herramientas de búsqueda"></div><div class="onshape-tools"><div class="onshape-row single"><button type="button" data-palette-tool="line" title="Línea" aria-label="Línea" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 39 39 8" stroke="#222" stroke-width="3"/><circle cx="8" cy="39" r="3.5" fill="white" stroke="#24649c"/><circle cx="39" cy="8" r="3.5" fill="white" stroke="#24649c"/></svg><span>Línea</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button" data-palette-tool="rect" title="Rectángulo por esquina" aria-label="Rectángulo por esquina" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 11H38V39H9Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="9" cy="39" r="3.5" fill="white" stroke="#24649c"/><circle cx="38" cy="11" r="3.5" fill="white" stroke="#24649c"/></svg><span>Rectángulo por esquina</span></button><button type="button"  title="Rectángulo por punto central" aria-label="Rectángulo por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8H40V40H8Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="40" cy="8" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/></svg><span>Rectángulo por punto central</span></button><button type="button" data-palette-tool="polygon" title="Polígono regular" aria-label="Polígono regular"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 40 15 40 33 24 43 8 33 8 15Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="2.5" fill="#24649c"/></svg><span>Polígono regular</span></button><button type="button" data-palette-tool="circle" title="Círculo por punto central" aria-label="Círculo por punto central" ><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="3" fill="white" stroke="#24649c"/></svg><span>Círculo por punto central</span></button><button type="button"  title="Círculo por 3 puntos" aria-label="Círculo por 3 puntos" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="8" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="9" cy="31" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="39" cy="31" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><path d="M20 24h8" stroke="#222" stroke-width="2.5"/></svg><span>Círculo por 3 puntos</span></button><button type="button" data-palette-tool="ellipse" title="Elipse" aria-label="Elipse"><svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="19" ry="12" transform="rotate(-35 24 24)" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Elipse</span></button><button type="button" data-palette-tool="trim" title="Recortar segmento" aria-label="Recortar segmento"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 9 40 39M8 39 40 9M13 8a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM35 30a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Recortar segmento</span></button><button type="button" data-palette-tool="extend" title="Extender hasta intersección" aria-label="Extender"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 39 25 21M20 8h20v20M40 8 27 21" fill="none" stroke="#222" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 39h13" stroke="#24649c" stroke-width="2.8"/></svg><span>Extender hasta intersección</span></button><button type="button" data-palette-tool="arc" title="Arco de 3 puntos" aria-label="Arco de 3 puntos"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 38 Q24 -1 41 38" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="7" cy="38" r="3" fill="#24649c"/><circle cx="24" cy="15" r="3" fill="#24649c"/><circle cx="41" cy="38" r="3" fill="#24649c"/></svg><span>Arco de 3 puntos</span></button><button type="button"  title="Polígono inscrito" aria-label="Polígono inscrito" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 42 18 35 40H13L6 18Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Polígono inscrito</span></button><button type="button"  title="Polígono circunscrito" aria-label="Polígono circunscrito" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="none" stroke="#24649c" stroke-width="2"/><path d="M24 6 42 20 35 41H13L6 20Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Polígono circunscrito</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid5"><button type="button"  title="Texto" aria-label="Texto" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 8h30v32H9z" fill="none" stroke="#999" stroke-dasharray="3 2"/><path d="M13 35 23 10h4l10 25M17 26h16" fill="none" stroke="#222" stroke-width="3"/></svg><span>Texto</span></button><button type="button"  title="Usar" aria-label="Usar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 8h29v32H9z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M15 8v32" stroke="#24649c" stroke-width="3"/></svg><span>Usar</span></button><button type="button"  title="Intersección" aria-label="Intersección" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 17h30v16H8z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M17 8c-3 18 4 28 17 31" fill="none" stroke="#24649c" stroke-width="3"/></svg><span>Intersección</span></button><button type="button"  title="Redondeo" aria-label="Redondeo" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 39V24Q10 9 25 9h13" fill="none" stroke="#222" stroke-width="4"/><path d="M10 24V39M25 9h13" stroke="#24649c" stroke-width="2"/></svg><span>Redondeo</span></button><button type="button"  title="Chaflán" aria-label="Chaflán" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 39V22L29 9" fill="none" stroke="#222" stroke-width="4"/><path d="M10 22V39h14" fill="none" stroke="#24649c" stroke-width="2"/></svg><span>Chaflán</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button"  title="Insertar DXF o DWG" aria-label="Insertar DXF o DWG" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 5h19l8 8v30H12zM31 5v9h8" fill="none" stroke="#222" stroke-width="2.5"/><text x="15" y="34" font-size="10">DXF</text></svg><span>Insertar DXF o DWG</span></button><button type="button"  title="Insertar imagen" aria-label="Insertar imagen" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="8" width="34" height="31" fill="none" stroke="#222" stroke-width="2.5"/><path d="m10 34 10-12 7 7 5-5 7 10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Insertar imagen</span></button></div><div class="onshape-divider"></div><div class="onshape-row single"><button type="button"  title="Cota" aria-label="Cota" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 10 40 38M8 10l8 1m-8-1 1 8M40 38l-8-1m8 1-1-8" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Cota</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid3"><button type="button" title="Arco por punto central" aria-label="Arco por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36A18 18 0 0 1 40 36" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="24" cy="24" r="3" fill="#24649c"/><path d="M24 24 8 36M24 24 40 36" stroke="#24649c" stroke-width="1.8" stroke-dasharray="3 2"/></svg><span>Arco por punto central</span></button><button type="button"  title="Arco tangente" aria-label="Arco tangente" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 15H22A16 16 0 0 1 22 43" fill="none" stroke="#222" stroke-width="3"/><path d="M8 15h9" stroke="#24649c" stroke-width="2.5"/><path d="M22 43h-9" stroke="#24649c" stroke-width="2.5"/><path d="M24 19v10m-5-5h10" stroke="#222" stroke-width="2.5"/></svg><span>Arco tangente</span></button><button type="button"  title="Arco por punto central" aria-label="Arco por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 34A19 19 0 0 1 29 9" fill="none" stroke="#222" stroke-width="3"/><circle cx="10" cy="34" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="29" cy="9" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="29" cy="34" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/></svg><span>Arco por punto central</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid3"><button type="button"  title="Spline" aria-label="Spline" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36C15 8 27 40 40 10" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="8" cy="36" r="3" fill="white" stroke="#24649c"/><circle cx="22" cy="25" r="3" fill="white" stroke="#24649c"/><circle cx="40" cy="10" r="3" fill="white" stroke="#24649c"/></svg><span>Spline</span></button><button type="button"  title="Punto de spline" aria-label="Punto de spline" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 35C10 13 22 36 40 10" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="24" cy="25" r="4" fill="white" stroke="#24649c" stroke-width="2.5"/><path d="M24 5v10m-5-5h10" stroke="#24649c" stroke-width="2.5"/></svg><span>Punto de spline</span></button><button type="button"  title="Punto" aria-label="Punto" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="8" fill="none" stroke="#24649c" stroke-width="3"/></svg><span>Punto</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid5"><button type="button" title="Bézier" aria-label="Bézier" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 38C14 5 34 5 41 38" fill="none" stroke="#222" stroke-width="2.8"/><path d="M7 38 24 13 41 38" fill="none" stroke="#24649c" stroke-width="1.8" stroke-dasharray="3 3"/><circle cx="7" cy="38" r="3" fill="#24649c"/><circle cx="24" cy="13" r="3" fill="#24649c"/><circle cx="41" cy="38" r="3" fill="#24649c"/></svg><span>Bézier</span></button><button type="button" title="Círculo por perímetro" aria-label="Círculo por perímetro" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="8" r="3" fill="#24649c"/><circle cx="10" cy="32" r="3" fill="#24649c"/><circle cx="38" cy="32" r="3" fill="#24649c"/></svg><span>Círculo por perímetro</span></button><button type="button"  title="Partir" aria-label="Partir" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36A16 16 0 0 1 40 36" fill="none" stroke="#24649c" stroke-width="3"/><circle cx="24" cy="11" r="4" fill="white" stroke="#222" stroke-width="2.5"/><path d="M24 15v8" stroke="#222" stroke-width="2" stroke-dasharray="2 2"/></svg><span>Partir</span></button><button type="button"  title="Equidistancia" aria-label="Equidistancia" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 39V18Q9 9 18 9h20v8H20v22z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M15 39V20Q15 15 20 15h18" fill="none" stroke="#24649c" stroke-width="2.5"/></svg><span>Equidistancia</span></button><button type="button"  title="Ranura" aria-label="Ranura" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="14" width="34" height="20" rx="10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Ranura</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid4"><button type="button"  title="Patrón lineal" aria-label="Patrón lineal" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#24649c" stroke-width="2.5"><rect x="7" y="7" width="13" height="13"/><rect x="28" y="7" width="13" height="13"/><rect x="7" y="28" width="13" height="13"/><rect x="28" y="28" width="13" height="13"/></g></svg><span>Patrón lineal</span></button><button type="button"  title="Simetría" aria-label="Simetría" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5v38" stroke="#888" stroke-width="2" stroke-dasharray="3 2"/><path d="M18 10H8V38H18M30 10H40V38H30" fill="none" stroke="#222" stroke-width="3"/><path d="M30 10v28" stroke="#24649c" stroke-width="2.5"/></svg><span>Simetría</span></button><button type="button"  title="Patrón circular" aria-label="Patrón circular" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#24649c" stroke-width="3"><circle cx="24" cy="7" r="4"/><circle cx="39" cy="17" r="4"/><circle cx="34" cy="35" r="4"/><circle cx="14" cy="35" r="4"/><circle cx="9" cy="17" r="4"/></g></svg><span>Patrón circular</span></button><button type="button"  title="Transformar" aria-label="Transformar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 13h18l-5-5m5 5-5 5M40 35H22l5-5m-5 5 5 5" fill="none" stroke="#222" stroke-width="2.5"/><rect x="8" y="25" width="10" height="10" fill="none" stroke="#222" stroke-width="2"/><path d="m31 8 9 9-9 9-9-9z" fill="none" stroke="#24649c" stroke-width="2.5"/></svg><span>Transformar</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button" data-palette-constraint="coincident" title="Coincidente" aria-label="Coincidente" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34 34 8M17 40 40 17" fill="none" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="5" fill="#222"/></svg><span>Coincidente</span></button><button type="button"  title="Concéntrico" aria-label="Concéntrico" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Concéntrico</span></button><button type="button" data-palette-constraint="parallel" title="Paralelo" aria-label="Paralelo" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m10 10 25 28M19 6l25 28" stroke="#222" stroke-width="3"/></svg><span>Paralelo</span></button><button type="button"  title="Tangente" aria-label="Tangente" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="29" cy="27" r="12" fill="none" stroke="#24649c" stroke-width="2.5"/><path d="M6 37 24 10" stroke="#222" stroke-width="4"/></svg><span>Tangente</span></button><button type="button" data-palette-constraint="horizontal" title="Horizontal" aria-label="Horizontal" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24h36" stroke="#222" stroke-width="4"/></svg><span>Horizontal</span></button><button type="button" data-palette-constraint="vertical" title="Vertical" aria-label="Vertical" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v36" stroke="#222" stroke-width="4"/></svg><span>Vertical</span></button><button type="button" data-palette-constraint="perpendicular" title="Perpendicular" aria-label="Perpendicular" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 34h34M15 34V8" fill="none" stroke="#222" stroke-width="4"/></svg><span>Perpendicular</span></button><button type="button"  title="Igual" aria-label="Igual" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 18h30M9 30h30" stroke="#222" stroke-width="4"/></svg><span>Igual</span></button><button type="button"  title="Punto medio" aria-label="Punto medio" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24h36" stroke="#24649c" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#222"/></svg><span>Punto medio</span></button><button type="button"  title="Normal" aria-label="Normal" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 36A24 24 0 0 1 29 9" fill="none" stroke="#24649c" stroke-width="3"/><path d="m25 28 15-17" stroke="#222" stroke-width="4"/></svg><span>Normal</span></button><button type="button"  title="Perforar" aria-label="Perforar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8A18 18 0 0 0 40 40" fill="none" stroke="#222" stroke-width="3"/><path d="M8 8 19 11M8 8l3 11" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="4" fill="#222"/></svg><span>Perforar</span></button><button type="button"  title="Simétrico" aria-label="Simétrico" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8 20 24 8 40M40 8 28 24 40 40" fill="none" stroke="#222" stroke-width="3"/><path d="M24 5v38" stroke="#24649c" stroke-width="2.5" stroke-dasharray="3 2"/></svg><span>Simétrico</span></button><button type="button" data-palette-constraint="fixed" title="Fijar" aria-label="Fijar" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 16h34M13 16l-4 8m14-8-4 8m14-8-4 8" stroke="#24649c" stroke-width="3"/></svg><span>Fijar</span></button></div></div><div class="onshape-close"><button type="button" data-palette-close>Cerrar</button></div></div><aside id="featurePanel" aria-label="Árbol del proyecto">
+<div id="drawToolsPanel" aria-hidden="true" role="dialog" aria-label="Herramientas de croquis"><div class="onshape-tools"><div class="onshape-row single"><button type="button" data-palette-tool="line" title="Línea" aria-label="Línea" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 39 39 8" stroke="#222" stroke-width="3"/><circle cx="8" cy="39" r="3.5" fill="white" stroke="#24649c"/><circle cx="39" cy="8" r="3.5" fill="white" stroke="#24649c"/></svg><span>Línea</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button" data-palette-tool="rect" title="Rectángulo por esquina" aria-label="Rectángulo por esquina" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 11H38V39H9Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="9" cy="39" r="3.5" fill="white" stroke="#24649c"/><circle cx="38" cy="11" r="3.5" fill="white" stroke="#24649c"/></svg><span>Rectángulo por esquina</span></button><button type="button" data-palette-tool="rectCenter" title="Rectángulo por punto central" aria-label="Rectángulo por punto central"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8H40V40H8Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="40" cy="8" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/></svg><span>Rectángulo por punto central</span></button><button type="button" data-palette-tool="polygon" title="Polígono regular" aria-label="Polígono regular"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 40 15 40 33 24 43 8 33 8 15Z" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="2.5" fill="#24649c"/></svg><span>Polígono regular</span></button><button type="button" data-palette-tool="circle" title="Círculo por punto central" aria-label="Círculo por punto central" ><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="24" r="3" fill="white" stroke="#24649c"/></svg><span>Círculo por punto central</span></button><button type="button" data-palette-tool="circle3" title="Círculo por 3 puntos" aria-label="Círculo por 3 puntos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="8" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="9" cy="31" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="39" cy="31" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><path d="M20 24h8" stroke="#222" stroke-width="2.5"/></svg><span>Círculo por 3 puntos</span></button><button type="button" data-palette-tool="ellipse" title="Elipse" aria-label="Elipse"><svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="19" ry="12" transform="rotate(-35 24 24)" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Elipse</span></button><button type="button" data-palette-tool="trim" title="Recortar segmento" aria-label="Recortar segmento"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 9 40 39M8 39 40 9M13 8a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM35 30a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Recortar segmento</span></button><button type="button" data-palette-tool="extend" title="Extender hasta intersección" aria-label="Extender"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 39 25 21M20 8h20v20M40 8 27 21" fill="none" stroke="#222" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 39h13" stroke="#24649c" stroke-width="2.8"/></svg><span>Extender hasta intersección</span></button><button type="button" data-palette-tool="arc" title="Arco de 3 puntos" aria-label="Arco de 3 puntos"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 38 Q24 -1 41 38" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="7" cy="38" r="3" fill="#24649c"/><circle cx="24" cy="15" r="3" fill="#24649c"/><circle cx="41" cy="38" r="3" fill="#24649c"/></svg><span>Arco de 3 puntos</span></button><button type="button"  title="Polígono inscrito" aria-label="Polígono inscrito" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 42 18 35 40H13L6 18Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Polígono inscrito</span></button><button type="button"  title="Polígono circunscrito" aria-label="Polígono circunscrito" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="none" stroke="#24649c" stroke-width="2"/><path d="M24 6 42 20 35 41H13L6 20Z" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Polígono circunscrito</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid5"><button type="button"  title="Texto" aria-label="Texto" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 8h30v32H9z" fill="none" stroke="#999" stroke-dasharray="3 2"/><path d="M13 35 23 10h4l10 25M17 26h16" fill="none" stroke="#222" stroke-width="3"/></svg><span>Texto</span></button><button type="button"  title="Usar" aria-label="Usar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 8h29v32H9z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M15 8v32" stroke="#24649c" stroke-width="3"/></svg><span>Usar</span></button><button type="button"  title="Intersección" aria-label="Intersección" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 17h30v16H8z" fill="none" stroke="#222" stroke-width="2.5"/><path d="M17 8c-3 18 4 28 17 31" fill="none" stroke="#24649c" stroke-width="3"/></svg><span>Intersección</span></button><button type="button" data-palette-tool="fillet" title="Redondeo" aria-label="Redondeo"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 39V24Q10 9 25 9h13" fill="none" stroke="#222" stroke-width="4"/><path d="M10 24V39M25 9h13" stroke="#24649c" stroke-width="2"/></svg><span>Redondeo</span></button><button type="button" data-palette-tool="chamfer" title="Chaflán" aria-label="Chaflán"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 39V22L29 9" fill="none" stroke="#222" stroke-width="4"/><path d="M10 22V39h14" fill="none" stroke="#24649c" stroke-width="2"/></svg><span>Chaflán</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button"  title="Insertar DXF o DWG" aria-label="Insertar DXF o DWG" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 5h19l8 8v30H12zM31 5v9h8" fill="none" stroke="#222" stroke-width="2.5"/><text x="15" y="34" font-size="10">DXF</text></svg><span>Insertar DXF o DWG</span></button><button type="button"  title="Insertar imagen" aria-label="Insertar imagen" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="8" width="34" height="31" fill="none" stroke="#222" stroke-width="2.5"/><path d="m10 34 10-12 7 7 5-5 7 10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Insertar imagen</span></button></div><div class="onshape-divider"></div><div class="onshape-row single"><button type="button"  title="Cota" aria-label="Cota" data-palette-dimension="auto"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 10 40 38M8 10l8 1m-8-1 1 8M40 38l-8-1m8 1-1-8" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Cota</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid3"><button type="button" title="Arco por punto central" aria-label="Arco por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36A18 18 0 0 1 40 36" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="24" cy="24" r="3" fill="#24649c"/><path d="M24 24 8 36M24 24 40 36" stroke="#24649c" stroke-width="1.8" stroke-dasharray="3 2"/></svg><span>Arco por punto central</span></button><button type="button"  title="Arco tangente" aria-label="Arco tangente" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 15H22A16 16 0 0 1 22 43" fill="none" stroke="#222" stroke-width="3"/><path d="M8 15h9" stroke="#24649c" stroke-width="2.5"/><path d="M22 43h-9" stroke="#24649c" stroke-width="2.5"/><path d="M24 19v10m-5-5h10" stroke="#222" stroke-width="2.5"/></svg><span>Arco tangente</span></button><button type="button"  title="Arco por punto central" aria-label="Arco por punto central" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 34A19 19 0 0 1 29 9" fill="none" stroke="#222" stroke-width="3"/><circle cx="10" cy="34" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="29" cy="9" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/><circle cx="29" cy="34" r="3.5" fill="white" stroke="#24649c" stroke-width="2"/></svg><span>Arco por punto central</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid3"><button type="button"  title="Spline" aria-label="Spline" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36C15 8 27 40 40 10" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="8" cy="36" r="3" fill="white" stroke="#24649c"/><circle cx="22" cy="25" r="3" fill="white" stroke="#24649c"/><circle cx="40" cy="10" r="3" fill="white" stroke="#24649c"/></svg><span>Spline</span></button><button type="button"  title="Punto de spline" aria-label="Punto de spline" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 35C10 13 22 36 40 10" fill="none" stroke="#222" stroke-width="2.8"/><circle cx="24" cy="25" r="4" fill="white" stroke="#24649c" stroke-width="2.5"/><path d="M24 5v10m-5-5h10" stroke="#24649c" stroke-width="2.5"/></svg><span>Punto de spline</span></button><button type="button"  title="Punto" aria-label="Punto" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="8" fill="none" stroke="#24649c" stroke-width="3"/></svg><span>Punto</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid5"><button type="button" data-palette-tool="bezier" title="Bézier cuadrática" aria-label="Bézier cuadrática"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 38Q24 -2 41 38" fill="none" stroke="#222" stroke-width="2.8"/><path d="M7 38 24 13 41 38" fill="none" stroke="#24649c" stroke-width="1.8" stroke-dasharray="3 3"/><circle cx="7" cy="38" r="3" fill="#24649c"/><circle cx="24" cy="13" r="3" fill="#24649c"/><circle cx="41" cy="38" r="3" fill="#24649c"/></svg><span>Bézier cuadrática</span></button><button type="button" title="Círculo por perímetro" aria-label="Círculo por perímetro" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="24" cy="8" r="3" fill="#24649c"/><circle cx="10" cy="32" r="3" fill="#24649c"/><circle cx="38" cy="32" r="3" fill="#24649c"/></svg><span>Círculo por perímetro</span></button><button type="button" data-palette-tool="split" title="Partir geometría seleccionada" aria-label="Partir"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 24h15m4 0h15" stroke="#222" stroke-width="3"/><path d="m22 15 4 9-4 9" fill="none" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="3" fill="#24649c"/></svg><span>Partir</span></button><button type="button" data-palette-tool="offset" title="Equidistancia" aria-label="Equidistancia"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 39V18Q9 9 18 9h20" fill="none" stroke="#222" stroke-width="2.7"/><path d="M15 39V21Q15 15 21 15h17" fill="none" stroke="#24649c" stroke-width="2.7"/><path d="M9 31 15 37 21 31M31 9l6 6-6 6" fill="none" stroke="#24649c" stroke-width="1.7"/></svg><span>Equidistancia</span></button><button type="button" data-palette-tool="slot" title="Ranura por 3 puntos" aria-label="Ranura"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="14" width="34" height="20" rx="10" fill="none" stroke="#222" stroke-width="2.5"/><path d="M7 24h34" stroke="#24649c" stroke-width="1.5" stroke-dasharray="3 3"/></svg><span>Ranura por 3 puntos</span></button></div><div class="onshape-divider"></div><div class="onshape-row grid4"><button type="button" id="linearPatternTool" data-palette-tool="linearPattern" title="Patrón lineal" aria-label="Patrón lineal"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#24649c" stroke-width="2.5"><rect x="7" y="7" width="13" height="13"/><rect x="28" y="7" width="13" height="13"/><rect x="7" y="28" width="13" height="13"/><rect x="28" y="28" width="13" height="13"/></g></svg><span>Patrón lineal</span></button><button type="button" id="mirrorTool" data-palette-tool="mirror" title="Simetría" aria-label="Simetría"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5v38" stroke="#888" stroke-width="2" stroke-dasharray="3 2"/><path d="M18 10H8V38H18M30 10H40V38H30" fill="none" stroke="#222" stroke-width="3"/><path d="M30 10v28" stroke="#24649c" stroke-width="2.5"/></svg><span>Simetría</span></button><button type="button" id="circularPatternTool" data-palette-tool="circularPattern" title="Patrón circular" aria-label="Patrón circular"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#24649c" stroke-width="3"><circle cx="24" cy="7" r="4"/><circle cx="39" cy="17" r="4"/><circle cx="34" cy="35" r="4"/><circle cx="14" cy="35" r="4"/><circle cx="9" cy="17" r="4"/></g></svg><span>Patrón circular</span></button><button type="button"  title="Transformar" aria-label="Transformar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 13h18l-5-5m5 5-5 5M40 35H22l5-5m-5 5 5 5" fill="none" stroke="#222" stroke-width="2.5"/><rect x="8" y="25" width="10" height="10" fill="none" stroke="#222" stroke-width="2"/><path d="m31 8 9 9-9 9-9-9z" fill="none" stroke="#24649c" stroke-width="2.5"/></svg><span>Transformar</span></button></div><div class="onshape-divider"></div><div class="onshape-row "><button type="button" data-palette-constraint="coincident" title="Coincidente" aria-label="Coincidente" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34 34 8M17 40 40 17" fill="none" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="5" fill="#222"/></svg><span>Coincidente</span></button><button type="button"  title="Concéntrico" aria-label="Concéntrico" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="10" fill="none" stroke="#222" stroke-width="2.5"/></svg><span>Concéntrico</span></button><button type="button" data-palette-constraint="parallel" title="Paralelo" aria-label="Paralelo" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m10 10 25 28M19 6l25 28" stroke="#222" stroke-width="3"/></svg><span>Paralelo</span></button><button type="button"  title="Tangente" aria-label="Tangente" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="29" cy="27" r="12" fill="none" stroke="#24649c" stroke-width="2.5"/><path d="M6 37 24 10" stroke="#222" stroke-width="4"/></svg><span>Tangente</span></button><button type="button" data-palette-constraint="horizontal" title="Horizontal" aria-label="Horizontal" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24h36" stroke="#222" stroke-width="4"/></svg><span>Horizontal</span></button><button type="button" data-palette-constraint="vertical" title="Vertical" aria-label="Vertical" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v36" stroke="#222" stroke-width="4"/></svg><span>Vertical</span></button><button type="button" data-palette-constraint="perpendicular" title="Perpendicular" aria-label="Perpendicular" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 34h34M15 34V8" fill="none" stroke="#222" stroke-width="4"/></svg><span>Perpendicular</span></button><button type="button"  title="Igual" aria-label="Igual" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 18h30M9 30h30" stroke="#222" stroke-width="4"/></svg><span>Igual</span></button><button type="button"  title="Punto medio" aria-label="Punto medio" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24h36" stroke="#24649c" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#222"/></svg><span>Punto medio</span></button><button type="button"  title="Normal" aria-label="Normal" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 36A24 24 0 0 1 29 9" fill="none" stroke="#24649c" stroke-width="3"/><path d="m25 28 15-17" stroke="#222" stroke-width="4"/></svg><span>Normal</span></button><button type="button"  title="Perforar" aria-label="Perforar" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8A18 18 0 0 0 40 40" fill="none" stroke="#222" stroke-width="3"/><path d="M8 8 19 11M8 8l3 11" stroke="#24649c" stroke-width="2.5"/><circle cx="24" cy="24" r="4" fill="#222"/></svg><span>Perforar</span></button><button type="button"  title="Simétrico" aria-label="Simétrico" disabled><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8 20 24 8 40M40 8 28 24 40 40" fill="none" stroke="#222" stroke-width="3"/><path d="M24 5v38" stroke="#24649c" stroke-width="2.5" stroke-dasharray="3 2"/></svg><span>Simétrico</span></button><button type="button" data-palette-constraint="fixed" title="Fijar" aria-label="Fijar" ><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 16h34M13 16l-4 8m14-8-4 8m14-8-4 8" stroke="#24649c" stroke-width="3"/></svg><span>Fijar</span></button></div></div><div class="onshape-close"><button type="button" data-palette-close>Cerrar</button></div></div><aside id="featurePanel" aria-label="Árbol del proyecto">
  <div class="panel-heading"><span>CAPAS</span><span>⌄</span></div>
  <div class="panel-section">
   <button class="tree-row active" type="button"><span class="tree-icon">▾</span><strong id="treeProjectName">Proyecto</strong></button>
@@ -809,16 +811,18 @@
 })();
 </script>
 <script type="module">
-import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance } from './cad-geometry.mjs';
+import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance, circleThroughThreePoints, rectangleFromCenter, createSlotPath, sampleBezier, splitPolylineAt, offsetPolyline, filletPolylineVertex, chamferPolylineVertex } from './cad-geometry.mjs';
+import { ParametricSketch } from './parametric-sketch.mjs';
+import { evaluateDimensionExpression } from './dimension-expression.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
-let activeTool='select',lastDrawingTool=null,sketchMode=false,sketchPlane='XZ',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,linePoints=[],lineObject=null,selectedObject=null,selectionPointerDown=null,arcPoints=[];
+let activeTool='select',lastDrawingTool=null,sketchMode=false,sketchPlane='XZ',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,linePoints=[],lineObject=null,selectedObject=null,selectedObjects=[],selectionPointerDown=null,arcPoints=[],patternEditState=null;
 let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
-const activeTouchPointers=new Set();const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
+const activeTouchPointers=new Set();const selectionTouchPointers=new Set();let selectionTouchMulti=false;const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 // En tacto se compensa la oclusión del dedo: el punto CAD sigue el cursor elevado, no la yema.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
-let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null;
+let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null,pendingDimensionType=null;
 const SKETCH_SCHEMA_VERSION=1;
 function createSketchDefinition(type,points,planeName=activePlane,parameters={}){
  const plane=workPlanes&&workPlanes[planeName]?planeName:(workPlanes&&workPlanes[activePlane]?activePlane:'XZ');
@@ -829,6 +833,38 @@ function createSketchLayerRecord(plane,name){
  const id='layer-'+Date.now().toString(36)+'-'+(++sketchLayerSequence).toString(36);
  return {id,name:name||('Croquis '+(sketchLayers.length+1)),plane:plane||'XZ',status:'completed',visible:true,createdAt:new Date().toISOString()};
 }
+function buildParametricSketchModel(meta,points){
+ const model=new ParametricSketch({id:meta.id,plane:meta.plane,units:'cm'});
+ const params=meta.parameters||{};
+ if(meta.type==='circle'&&Array.isArray(params.center)&&params.center.length===3&&Number.isFinite(params.radius)&&params.radius>0){
+  const center=planeCoords(new THREE.Vector3(params.center[0],params.center[1],params.center[2]));
+  model.addCircle({u:center.u,v:center.v},params.radius,{id:meta.id+'-circle'});
+  return model.toJSON();
+ }
+ if(meta.type==='arc'&&Array.isArray(params.start)&&Array.isArray(params.through)&&Array.isArray(params.end)){
+  const a=planeCoords(new THREE.Vector3(...params.start)),m=planeCoords(new THREE.Vector3(...params.through)),b=planeCoords(new THREE.Vector3(...params.end));
+  const det=2*(a.u*(m.v-b.v)+m.u*(b.v-a.v)+b.u*(a.v-m.v));
+  if(Math.abs(det)>1e-9){
+   const aa=a.u*a.u+a.v*a.v,mm=m.u*m.u+m.v*m.v,bb=b.u*b.u+b.v*b.v;
+   const cu=(aa*(m.v-b.v)+mm*(b.v-a.v)+bb*(a.v-m.v))/det,cv=(aa*(b.u-m.u)+mm*(a.u-b.u)+bb*(m.u-a.u))/det;
+   const radius=Math.hypot(a.u-cu,a.v-cv),sa=Math.atan2(a.v-cv,a.u-cu),ma=(Math.atan2(m.v-cv,m.u-cu)-sa+Math.PI*2)%(Math.PI*2),ea=(Math.atan2(b.v-cv,b.u-cu)-sa+Math.PI*2)%(Math.PI*2),sweep=ma<=ea?ea:ea-Math.PI*2;
+   if(radius>1e-9&&Math.abs(sweep)>1e-9)model.addArc({u:cu,v:cv},radius,sa,sweep,{id:meta.id+'-arc'});
+  }
+  return model.toJSON();
+ }
+ const uv=(points||[]).map(p=>planeCoords(p)).filter(p=>Number.isFinite(p.u)&&Number.isFinite(p.v));
+ const clean=uv.filter((p,index)=>index===0||Math.hypot(p.u-uv[index-1].u,p.v-uv[index-1].v)>1e-8);
+ if(clean.length<2)return model.toJSON();
+ const pointIds=clean.map((p,index)=>model.addPoint(p.u,p.v,{id:meta.id+'-p'+index}));
+ const segmentCount=meta.type==='rect'?Math.min(4,pointIds.length):pointIds.length-1;
+ for(let i=0;i<segmentCount;i++){
+  const next=(i+1)%pointIds.length;
+  const lineId=model.addLine(pointIds[i],pointIds[next],{id:meta.id+'-e'+i});
+
+ }
+ return model.toJSON();
+}
+
 function normalizeSketchDefinition(meta,closed,points){
  if(meta&&typeof meta==='object'&&meta.schema===SKETCH_SCHEMA_VERSION&&typeof meta.id==='string')
   return {...meta,parameters:{...(meta.parameters||{})},constraints:Array.isArray(meta.constraints)?meta.constraints:[],dimensions:Array.isArray(meta.dimensions)?meta.dimensions:[]};
@@ -840,11 +876,13 @@ function attachSketchDefinition(obj,type,start,end){
  if(!obj)return obj;const a=planeCoords(start),b=planeCoords(end);let parameters={};
  if(type==='line')parameters={length:start.distanceTo(end),angle:Math.atan2(b.v-a.v,b.u-a.u)};
  else if(type==='rect')parameters={width:Math.abs(b.u-a.u),height:Math.abs(b.v-a.v)};
+ else if(type==='rectCenter')parameters={width:Math.abs(b.u-a.u)*2,height:Math.abs(b.v-a.v)*2};
  else if(type==='circle')parameters={radius:Math.hypot(b.u-a.u,b.v-a.v),center:[start.x,start.y,start.z]};
  else if(type==='polygon')parameters={radius:Math.hypot(b.u-a.u,b.v-a.v),sides:6,center:[start.x,start.y,start.z]};
  else if(type==='ellipse')parameters={radiusU:Math.abs(b.u-a.u),radiusV:Math.abs(b.v-a.v),center:[start.x,start.y,start.z]};
- const meta=createSketchDefinition(type,obj.userData.controlPoints||[],activePlane,parameters);
- if(type==='rect'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,b:0,enabled:true}];}
+ const meta=createSketchDefinition(type==='rectCenter'?'rect':type,obj.userData.controlPoints||[],activePlane,parameters);
+ if(type==='rect'||type==='rectCenter'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,b:0,enabled:true}];}
+ meta.parametricModel=buildParametricSketchModel(meta,obj.userData.controlPoints||[]);
  obj.userData.sketch=meta;return obj;
 }
 function sketchConstraintSummary(obj){const m=sketchMetaForObject(obj);if(!m)return 'Sin definición paramétrica';const active=m.constraints.filter(c=>c&&c.enabled!==false).length;return active+' restricciones · '+m.dimensions.length+' cotas'+(m.fixed?' · Fijado':'');}
@@ -855,6 +893,70 @@ function solveSketchConstraints(obj){
  if(!obj||!obj.userData.controlPoints)return {ok:false,reason:'No hay geometría seleccionada'};
  const meta=sketchMetaForObject(obj),points=obj.userData.controlPoints,axes=sketchPlaneAxes(meta);
  if(meta.fixed)return {ok:false,reason:'La geometría está fijada'};
+ if(meta.type==='circle'||meta.type==='arc'){
+  let model;
+  try{model=meta.parametricModel?ParametricSketch.fromJSON(meta.parametricModel):ParametricSketch.fromJSON(buildParametricSketchModel(meta,points));}
+  catch(error){return {ok:false,reason:'No se pudo recuperar el modelo paramétrico: '+error.message};}
+  const entityId=meta.type==='circle'?meta.id+'-circle':meta.id+'-arc';
+  for(const dimension of (meta.dimensions||[]).filter(item=>item&&item.enabled!==false)){
+   if(!['radius','diameter'].includes(dimension.type)||!Number.isFinite(dimension.value)||dimension.value<=0)continue;
+   const constraintId='dimension-'+dimension.id;
+   const existingConstraint=model.constraints.find(item=>item.id===constraintId);
+   if(existingConstraint){existingConstraint.type=dimension.type;existingConstraint.value=dimension.value;continue;}
+   try{model.addConstraint(dimension.type,[entityId],{id:constraintId,value:dimension.value});}
+   catch(error){return {ok:false,reason:'Cota incompatible: '+error.message};}
+  }
+  const result=solveParametricSketch(model);
+  if(result.status==='conflict')return {ok:false,reason:'Las cotas entran en conflicto. Revisa los valores del croquis.'};
+  const entity=model.entities[entityId],center=model.entities[entity.center];
+  const reference=meta.type==='circle'?new THREE.Vector3(...meta.parameters.center):points[0];
+  const centerWorld=sketchPointFromUV(reference,{u:center.u,v:center.v},axes);
+  const next=[];
+  if(meta.type==='circle'){
+   const count=Math.max(16,points.length-1);
+   for(let i=0;i<count;i++){const angle=i/count*Math.PI*2;next.push(sketchPointFromUV(centerWorld,{u:center.u+Math.cos(angle)*entity.radius,v:center.v+Math.sin(angle)*entity.radius},axes));}
+   meta.parameters.center=centerWorld.toArray();meta.parameters.radius=entity.radius;
+  }else{
+   const count=Math.max(16,points.length-1);
+   for(let i=0;i<=count;i++){const angle=entity.startAngle+entity.sweep*i/count;next.push(sketchPointFromUV(centerWorld,{u:center.u+Math.cos(angle)*entity.radius,v:center.v+Math.sin(angle)*entity.radius},axes));}
+   meta.parameters.startAngle=entity.startAngle;meta.parameters.sweep=entity.sweep;meta.parameters.radius=entity.radius;meta.parameters.center=centerWorld.toArray();
+  }
+  updateFatStroke(obj,next);meta.parametricModel=model.toJSON();meta.solverStatus=result.status;meta.degreesOfFreedom=result.dof;
+  return {ok:true,status:result.status,dof:result.dof};
+ }
+ if(meta.type==='polyline'||meta.type==='rect'||meta.type==='line'){
+  let model;
+  try{model=meta.parametricModel?ParametricSketch.fromJSON(meta.parametricModel):ParametricSketch.fromJSON(buildParametricSketchModel(meta,points));}
+  catch(error){return {ok:false,reason:'No se pudo recuperar el modelo paramétrico: '+error.message};}
+  for(const c of meta.constraints.filter(x=>x&&x.enabled!==false)){
+   const a=Number.isInteger(c.a)?c.a:0,b=Number.isInteger(c.b)?c.b:1;
+   const pointId=index=>meta.id+'-p'+index,lineId=index=>meta.id+'-e'+index;
+   const refs=c.type==='coincident'?[pointId(a),pointId(b)]:
+    c.type==='horizontal'||c.type==='vertical'?[lineId(a)]:
+    c.type==='parallel'||c.type==='perpendicular'||c.type==='equal'?[lineId(a),lineId(b)]:null;
+   if(!refs)continue;
+   const constraintId='legacy-'+c.id;
+   if(model.constraints.some(item=>item.id===constraintId))continue;
+   try{model.addConstraint(c.type,refs,{id:constraintId});}
+   catch(error){return {ok:false,reason:'Restricción incompatible con esta geometría: '+error.message};}
+  }
+  for(const dimension of (meta.dimensions||[]).filter(item=>item&&item.enabled!==false&&item.type==='distance'&&Number.isInteger(item.a)&&Number.isInteger(item.b)&&Number.isFinite(item.value)&&item.value>0)){
+   const constraintId='dimension-'+dimension.id;
+   const existingConstraint=model.constraints.find(item=>item.id===constraintId);
+   if(existingConstraint){existingConstraint.value=dimension.value;continue;}
+   try{model.addConstraint('distance',[meta.id+'-p'+dimension.a,meta.id+'-p'+dimension.b],{id:constraintId,value:dimension.value});}
+   catch(error){return {ok:false,reason:'Cota lineal incompatible: '+error.message};}
+  }
+  const result=solveParametricSketch(model);
+  if(result.status==='conflict')return {ok:false,reason:'Las restricciones entran en conflicto. Revisa las relaciones del croquis.'};
+  const next=points.map((original,index)=>{
+   const entity=model.entities[meta.id+'-p'+index];
+   return entity?sketchPointFromUV(original,{u:entity.u,v:entity.v},axes):original.clone();
+  });
+  updateFatStroke(obj,next);
+  meta.parametricModel=model.toJSON();meta.solverStatus=result.status;meta.degreesOfFreedom=result.dof;
+  return {ok:true,status:result.status,dof:result.dof};
+ }
  const uv=points.map(p=>sketchPointUV(p,axes));
  for(let pass=0;pass<8;pass++){
   for(const c of meta.constraints.filter(x=>x&&x.enabled!==false)){
@@ -877,7 +979,35 @@ function solveSketchConstraints(obj){
  const next=uv.map((p,i)=>sketchPointFromUV(points[i],p,axes));
  updateFatStroke(obj,next);return {ok:true};
 }
+function applyConcentricConstraint(){
+ const pair=selectedObjects.filter(obj=>obj&&sketchMetaForObject(obj).type==='circle');
+ if(selectedObjects.length!==2||pair.length!==2){setSketchConstraintHint('Toca dos círculos para seleccionarlos y aplicar Concéntrico.');return;}
+ const [a,b]=pair,ma=sketchMetaForObject(a),mb=sketchMetaForObject(b);
+ if(ma.plane!==mb.plane){setSketchConstraintHint('Los círculos deben pertenecer al mismo plano.');return;}
+ if(ma.fixed||mb.fixed){setSketchConstraintHint('Desbloquea ambos círculos antes de aplicar Concéntrico.');return;}
+ const relationId='concentric-'+[ma.id,mb.id].sort().join('-');
+ if((ma.constraints||[]).some(c=>c.id===relationId)||(mb.constraints||[]).some(c=>c.id===relationId)){setSketchConstraintHint('Estos círculos ya tienen una relación concéntrica.');return;}
+ const axes=sketchPlaneAxes(ma),centerA=sketchPointUV(new THREE.Vector3(...ma.parameters.center),axes),centerB=sketchPointUV(new THREE.Vector3(...mb.parameters.center),axes);
+ const modelA=new ParametricSketch({id:relationId,plane:ma.plane,units:'cm'});
+ const circleA=ma.id+'-circle',circleB=mb.id+'-circle';
+ modelA.addCircle(centerA,ma.parameters.radius,{id:circleA});modelA.addCircle(centerB,mb.parameters.radius,{id:circleB});
+ modelA.addConstraint('concentric',[circleA,circleB],{id:relationId});
+ const result=solveParametricSketch(modelA);
+ if(result.status==='conflict'){setSketchConstraintHint('No se pudo resolver la relación concéntrica.');return;}
+ const updateCircle=(obj,meta,model,id,targetId)=>{
+  const entity=model.entities[id],center=model.entities[entity.center],points=obj.userData.controlPoints||[],axes=sketchPlaneAxes(meta);
+  const origin=new THREE.Vector3(...meta.parameters.center),centerWorld=sketchPointFromUV(origin,{u:center.u,v:center.v},axes);
+  const count=Math.max(16,points.length-1),next=[];
+  for(let i=0;i<count;i++){const angle=i/count*Math.PI*2;next.push(sketchPointFromUV(centerWorld,{u:center.u+Math.cos(angle)*entity.radius,v:center.v+Math.sin(angle)*entity.radius},axes));}
+  meta.parameters.center=centerWorld.toArray();meta.parameters.radius=entity.radius;meta.parametricModel=model.toJSON();updateFatStroke(obj,next);
+  meta.constraints=Array.isArray(meta.constraints)?meta.constraints:[];
+  meta.constraints.push({id:relationId,type:'concentric',targetObjectId:targetId,enabled:true});
+ };
+ updateCircle(a,ma,modelA,circleA,mb.id);updateCircle(b,mb,modelA,circleB,ma.id);
+ saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Relación concéntrica aplicada a los dos círculos.');
+}
 function applySketchConstraint(type){
+ if(type==='concentric'){applyConcentricConstraint();return;}
  const obj=selectedObject;if(!obj)return;
  const meta=sketchMetaForObject(obj),n=(obj.userData.controlPoints||[]).length;
  if(meta.fixed&&type!=='unlock'){setSketchConstraintHint('La geometría está fijada. Desbloquéala antes de modificarla.');return;}
@@ -885,6 +1015,7 @@ function applySketchConstraint(type){
  if(type==='fixed'){meta.fixed=true;saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Geometría fijada.');return;}
  let c=null;
  if(type==='horizontal'||type==='vertical'){if(n<2)return;c={type,a:0};}
+ else if(type==='equal'){if(!['polyline','rect'].includes(meta.type)||n<3){setSketchConstraintHint('Selecciona una polilínea o rectángulo con al menos dos segmentos.');return;}c={type,a:0,b:1};}
  else if(type==='parallel'||type==='perpendicular'){if(meta.type!=='polyline'||n<3){setSketchConstraintHint('Selecciona una polilínea con al menos dos segmentos.');return;}c={type,a:0,b:1};}
  else if(type==='coincident'){if(meta.type!=='polyline'||obj.userData.closed||n<3){setSketchConstraintHint('Esta relación solo se aplica a polilíneas abiertas.');return;}c={type,a:0,b:n-1};}
  if(!c)return;
@@ -892,18 +1023,116 @@ function applySketchConstraint(type){
  if((type==='horizontal'&&meta.constraints.some(x=>x.enabled!==false&&x.type==='vertical'&&x.a===c.a))||(type==='vertical'&&meta.constraints.some(x=>x.enabled!==false&&x.type==='horizontal'&&x.a===c.a))){setSketchConstraintHint('Conflicto: el mismo segmento no puede ser horizontal y vertical.');return;}
  c.id='c-'+(++sketchEntitySequence).toString(36);c.enabled=true;meta.constraints.push(c);
  const result=solveSketchConstraints(obj);if(!result.ok){meta.constraints.pop();setSketchConstraintHint(result.reason);return;}
- saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Restricción aplicada: '+({horizontal:'horizontal al primer segmento',vertical:'vertical al primer segmento',parallel:'paralela entre los dos primeros segmentos',perpendicular:'perpendicular entre los dos primeros segmentos',coincident:'coincidencia de extremos'}[type])+'.');
+ saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Restricción aplicada: '+({horizontal:'horizontal al primer segmento',vertical:'vertical al primer segmento',parallel:'paralela entre los dos primeros segmentos',perpendicular:'perpendicular entre los dos primeros segmentos',equal:'igual longitud entre los dos primeros segmentos',coincident:'coincidencia de extremos'}[type])+'.');
 }
-function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el)el.textContent=message;}
+function requestDimensionValue(title,initial){
+ return new Promise(resolve=>{
+  const overlay=document.createElement('div');overlay.className='dimension-calculator-backdrop';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','false');overlay.setAttribute('aria-label',title);
+  overlay.innerHTML='<section class="dimension-calculator"><header><strong>'+title+'</strong><button type="button" data-calc-close aria-label="Cerrar">×</button></header><label class="dimension-expression-label" for="dimensionExpressionInput">Medida · cm</label><input id="dimensionExpressionInput" class="dimension-expression-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><output class="dimension-expression-result" aria-live="polite"></output><div class="dimension-keypad"><button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" data-key="/">÷</button><button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" data-key="*">×</button><button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" data-key="-">−</button><button type="button" data-key="0">0</button><button type="button" data-key=".">.</button><button type="button" data-key="(">(</button><button type="button" data-key=")">)</button><button type="button" data-key="+">+</button><button type="button" data-key="^">xʸ</button><button type="button" data-key="pi">π</button><button type="button" data-key="sqrt(">√</button><button type="button" data-key="back">⌫</button><button type="button" data-key="clear">C</button></div><footer><button type="button" data-calc-cancel>Cancelar</button><button type="button" class="dimension-apply" data-calc-apply>Aplicar</button></footer></section>';
+  document.body.appendChild(overlay);const input=overlay.querySelector('#dimensionExpressionInput'),output=overlay.querySelector('.dimension-expression-result');input.value=String(initial??'1');
+  const close=value=>{overlay.remove();resolve(value);};
+  const update=()=>{try{const value=evaluateDimensionExpression(input.value,{expectedUnit:'length'});output.textContent=Number.isFinite(value)?'= '+value.toLocaleString('es-PE',{maximumFractionDigits:6})+' cm':'Expresión inválida';output.dataset.valid=String(Number.isFinite(value)&&value>0);}catch(error){output.textContent=error.message;output.dataset.valid='false';}};
+  input.addEventListener('input',update);overlay.querySelector('[data-calc-close]').addEventListener('click',()=>close(null));overlay.querySelector('[data-calc-cancel]').addEventListener('click',()=>close(null));
+  overlay.querySelectorAll('[data-key]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.key;if(key==='clear')input.value='';else if(key==='back')input.value=input.value.slice(0,-1);else{const a=input.selectionStart??input.value.length,b=input.selectionEnd??a;input.setRangeText(key,a,b,'end');}input.focus();update();}));
+  overlay.querySelector('[data-calc-apply]').addEventListener('click',()=>{try{const value=evaluateDimensionExpression(input.value,{expectedUnit:'length'});if(!Number.isFinite(value)||value<=0)throw new Error('La medida debe ser mayor que cero.');close(value);}catch(error){output.textContent=error.message;output.dataset.valid='false';}});
+  overlay.addEventListener('click',event=>{if(event.target===overlay)close(null);});input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();overlay.querySelector('[data-calc-apply]').click();}if(event.key==='Escape')close(null);});
+  update();requestAnimationFrame(()=>{input.focus();input.select();});
+ });
+}
+async function applySketchDimension(type){
+ const obj=selectedObject;if(!obj)return;
+ const meta=sketchMetaForObject(obj),points=obj.userData.controlPoints||[];
+ if(meta.fixed){setSketchConstraintHint('La geometría está fijada. Desbloquéala antes de modificarla.');return;}
+ const linear=type==='distance';
+ if(linear&&!['polyline','rect','line'].includes(meta.type)){setSketchConstraintHint('Selecciona una línea o un croquis con segmentos para aplicar una cota lineal.');return;}
+ if(linear&&points.length<2){setSketchConstraintHint('La geometría no contiene un segmento acotable.');return;}
+ if(!linear&&!['circle','arc'].includes(meta.type)){setSketchConstraintHint('Selecciona un círculo o arco para acotar su radio o diámetro.');return;}
+ const segmentIndex=linear?Math.max(0,Math.min(Number.isInteger(obj.userData.lastPickedSegmentIndex)?obj.userData.lastPickedSegmentIndex:0,meta.type==='rect'?points.length-1:points.length-2)):0;
+ const segmentEnd=linear?(meta.type==='rect'?(segmentIndex+1)%points.length:segmentIndex+1):1;
+ const dimensionType=linear?'distance':type;
+ const existing=meta.dimensions.find(item=>item&&item.enabled!==false&&(linear?item.type==='distance'&&item.a===segmentIndex&&item.b===segmentEnd:['radius','diameter'].includes(item.type)));
+ const current=existing?(linear?existing.value:existing.value*(existing.type==='radius'?(type==='diameter'?2:1):(type==='radius'?.5:1))):(linear?points[segmentIndex].distanceTo(points[segmentEnd]):(meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1)*(type==='diameter'?2:1));
+ const title=linear?'Cota lineal':type==='radius'?'Cota de radio':'Cota de diámetro';
+ const value=await requestDimensionValue(title,current);
+ if(value===null)return;
+ const previous=existing?{type:existing.type,value:existing.value,enabled:existing.enabled}:null;
+ let dimension=existing;
+ if(dimension){dimension.type=dimensionType;dimension.value=value;dimension.enabled=true;}
+ else{
+  dimension={id:'d-'+(++sketchEntitySequence).toString(36),type:dimensionType,value,enabled:true,...(linear?{a:segmentIndex,b:segmentEnd}:{})};
+  meta.dimensions=Array.isArray(meta.dimensions)?meta.dimensions:[];
+  meta.dimensions.push(dimension);
+ }
+ const result=solveSketchConstraints(obj);
+ if(!result.ok){
+  if(previous)Object.assign(dimension,previous);
+  else meta.dimensions=meta.dimensions.filter(item=>item!==dimension);
+  setSketchConstraintHint(result.reason);return;
+ }
+ saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
+ setSketchConstraintHint((linear?'Cota lineal':type==='radius'?'Radio':'Diámetro')+' aplicada: '+value+' cm · '+(result.dof===0?'Totalmente restringido':result.dof+' grados de libertad'));
+}
+function updateDimensionToolIndicator(){
+ const activeToggle=document.getElementById('activeToolToggle');if(!activeToggle)return;
+ if(pendingDimensionType!==null){
+  activeToggle.hidden=false;
+  activeToggle.innerHTML='<span class="active-tool-glyph">↔</span><span class="active-tool-label">Cota</span>';
+  activeToggle.title='Cota activa · toca una geometría para acotarla · pulsa para cancelar';
+  activeToggle.setAttribute('aria-label',activeToggle.title);
+  activeToggle.setAttribute('aria-pressed','true');
+  return;
+ }
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',rectCenter:'Rectángulo centro',circle:'Círculo',circle3:'Círculo 3 puntos',slot:'Ranura',bezier:'Bézier',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia',fillet:'Redondeo',chamfer:'Chaflán',mirror:'Simetría',linearPattern:'Patrón lineal',circularPattern:'Patrón circular'};
+ const glyphs={select:'⌖',line:'／',rect:'□',rectCenter:'▣',circle:'○',circle3:'◉',slot:'▱',bezier:'⌁',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗',split:'⑂',offset:'⇔',fillet:'⌒',chamfer:'／',mirror:'⇄',linearPattern:'▦',circularPattern:'⟳'};
+ activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
+ activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
+ activeToggle.title='Herramienta '+labels[shownTool]+' · '+(activeTool===shownTool?'Desactivar':'Activar');
+ activeToggle.setAttribute('aria-label',activeToggle.title);
+ activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===lastDrawingTool));
+}
+function startSketchDimension(type){
+ const meta=selectedObject?sketchMetaForObject(selectedObject):null;
+ const resolved=type==='auto'&&meta?(['polyline','rect','line'].includes(meta.type)?'distance':meta.type==='circle'?'diameter':meta.type==='arc'?'radius':null):type;
+ const supported=!!(selectedObject&&meta&&!meta.fixed&&resolved&&(resolved==='distance'?['polyline','rect','line'].includes(meta.type)&&(selectedObject.userData.controlPoints||[]).length>=2:['circle','arc'].includes(meta.type)));
+ if(supported){pendingDimensionType=null;updateDimensionToolIndicator();applySketchDimension(resolved);return;}
+ if(activeTool!=='select')setTool('select');
+ setSelectedObject(null);
+ pendingDimensionType=type;
+ updateDimensionToolIndicator();
+ const activeDimensionId=type==='distance'?'linearDimensionTool':type==='radius'?'radiusDimensionTool':'diameterDimensionTool';
+ ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){const active=id===activeDimensionId;button.classList.toggle('tool-active',active);button.setAttribute('aria-pressed',String(active));}});
+ const status=document.getElementById('saveState');
+ if(status)status.textContent=type==='auto'?'Cota · toca una línea, círculo o arco':type==='distance'?'Cota lineal · toca el segmento':type==='radius'?'Cota de radio · toca un círculo o arco':'Cota de diámetro · toca un círculo o arco';
+ const hint=document.getElementById('sketchConstraintHint');if(hint)hint.hidden=true;
+}
+// Activar cotas en pointerdown: en Android el click sintetizado puede perderse
+// cuando el canvas y sus manejadores táctiles capturan el gesto.
+function bindDimensionActivation(id,type){
+ const button=document.getElementById(id);if(!button)return;
+ button.addEventListener('pointerdown',event=>{
+  if(event.button!==undefined&&event.button!==0)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  startSketchDimension(type);
+ },true);
+ button.addEventListener('click',event=>{
+  if(event.detail===0){event.preventDefault();startSketchDimension(type);}
+ },true);
+}
+bindDimensionActivation('radiusDimensionTool','radius');
+bindDimensionActivation('diameterDimensionTool','diameter');
+bindDimensionActivation('linearDimensionTool','distance');
+
+function setSketchConstraintHint(message){const status=document.getElementById('saveState');if(status)status.textContent=message;}
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
  const obj=selectedObject,meta=obj?sketchMetaForObject(obj):null,n=obj?(obj.userData.controlPoints||[]).length:0;
+ ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=false;});
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
-  button.disabled=!obj||(meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
+  button.disabled=(type==='concentric'?(selectedObjects.length!==2||selectedObjects.filter(item=>item&&sketchMetaForObject(item).type==='circle').length!==2):!obj)||(meta&&meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
   button.classList.toggle('active',!!(meta&&type==='fixed'&&meta.fixed));
  });
- setSketchConstraintHint(!obj?'Selecciona una geometría para aplicar relaciones geométricas.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
+ setSketchConstraintHint(selectedObjects.length===2?'Dos entidades seleccionadas · Concéntrico disponible si ambas son círculos.':selectedObjects.length>2?'Hay varias entidades seleccionadas. Toca una para quitarla.':!obj?'Toca una geometría para seleccionarla. Toca otras para ampliar la selección.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
 }
 document.getElementById('sketchConstraintCard')?.addEventListener('click',event=>{const button=event.target.closest('[data-sketch-constraint]');if(button&&!button.disabled)applySketchConstraint(button.dataset.sketchConstraint);});
 async function startViewport(){
@@ -1080,7 +1309,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   window.addEventListener('nocturne-toggle-sketch-mode',()=>setSketchMode(!sketchMode));
   // El botón ya emite nocturne-toggle-sketch-mode desde el dock; no registrar un segundo toggle.
   function chooseTool(tool){
-   const validTools=new Set(['select','line','rect','circle','polygon','ellipse','arc','trim','extend']);
+   const validTools=new Set(['select','line','rect','rectCenter','circle','circle3','slot','bezier','polygon','ellipse','arc','trim','extend','split','offset','fillet','chamfer','mirror','linearPattern','circularPattern']);
    if(!validTools.has(tool))return;
    if(tool!=='select'&&!sketchMode)setSketchMode(true);
    setTool(activeTool===tool?'select':tool);
@@ -1089,21 +1318,34 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   }
   // En táctil, mantener la paleta abierta desde el primer contacto, antes del click.
   drawToolsPanel.addEventListener('pointerdown',event=>{
+   const dimensionButton=event.target.closest('button[data-palette-dimension]');
+   if(dimensionButton&&!dimensionButton.disabled){event.preventDefault();event.stopImmediatePropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}
    const toolButton=event.target.closest('button[data-palette-tool]');
    if(toolButton&&!toolButton.disabled)setDrawPaletteOpen(true);
   },true);
-  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
+  drawToolsPanel.addEventListener('click',event=>{const dimensionButton=event.target.closest('button[data-palette-dimension]');if(dimensionButton&&!dimensionButton.disabled&&event.detail===0){event.preventDefault();event.stopPropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
-  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
+  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});updateDimensionToolIndicator();document.getElementById('saveState').textContent='Cota cancelada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
   document.getElementById('rectTool').addEventListener('click',()=>chooseTool('rect'));
+  document.getElementById('rectCenterTool').addEventListener('click',()=>chooseTool('rectCenter'));
   document.getElementById('circleTool').addEventListener('click',()=>chooseTool('circle'));
+  document.getElementById('circle3Tool').addEventListener('click',()=>chooseTool('circle3'));
+   document.getElementById('slotTool').addEventListener('click',()=>chooseTool('slot'));
+   document.getElementById('bezierTool').addEventListener('click',()=>chooseTool('bezier'));
   document.getElementById('polygonTool').addEventListener('click',()=>chooseTool('polygon'));
   document.getElementById('ellipseTool').addEventListener('click',()=>chooseTool('ellipse'));
   document.getElementById('arcTool').addEventListener('click',()=>chooseTool('arc'));
   document.getElementById('trimTool').addEventListener('click',()=>chooseTool('trim'));
   document.getElementById('extendTool').addEventListener('click',()=>chooseTool('extend'));
+   document.getElementById('splitTool').addEventListener('click',()=>chooseTool('split'));
+   document.getElementById('offsetTool').addEventListener('click',()=>chooseTool('offset'));
+   document.getElementById('filletTool').addEventListener('click',()=>chooseTool('fillet'));
+   document.getElementById('chamferTool').addEventListener('click',()=>chooseTool('chamfer'));
+   document.getElementById('mirrorTool').addEventListener('click',event=>{event.stopPropagation();chooseTool('mirror')});
+   document.getElementById('linearPatternTool').addEventListener('click',event=>{event.stopPropagation();chooseTool('linearPattern')});
+   document.getElementById('circularPatternTool').addEventListener('click',event=>{event.stopPropagation();chooseTool('circularPattern')});
   observer=new ResizeObserver(resize);observer.observe(host);resize();started=true;errorBox.classList.remove('show');
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',event=>{event.stopPropagation();const v=b.dataset.view;setView(v);const plane={top:'XZ',bottom:'XZ',front:'XY',back:'XY',left:'YZ',right:'YZ'}[v];if(plane&&(!sketchMode||plane===sketchPlane))setWorkPlane(plane,false);else if(sketchMode&&plane!==sketchPlane)setWorkPlane(sketchPlane,true);toggleOrientationMenu(false);}));
   document.getElementById('gridButton').addEventListener('click',()=>{gridObject.visible=!gridObject.visible;document.getElementById('gridButton').classList.toggle('tool-active',gridObject.visible);});
@@ -1113,25 +1355,22 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
  }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
 }
 function setTool(tool){
+ pendingDimensionType=null;
+ ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
- if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
+ if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}patternEditState=null;touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();selectionTouchPointers.clear();selectionTouchMulti=false;pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
  if(previewObject){disposePreview(previewObject);previewObject=null;}arcPoints=[];
  activeTool=tool;
  refreshWorkspacePanels();
  
  if(tool!=='line')hideMeasure();
- const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender'},glyphs={select:'⌖',line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',rectCenter:'Rectángulo centro',circle:'Círculo',circle3:'Círculo 3 puntos',slot:'Ranura',bezier:'Bézier',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia',fillet:'Redondeo',chamfer:'Chaflán',mirror:'Simetría',linearPattern:'Patrón lineal',circularPattern:'Patrón circular'},glyphs={select:'⌖',line:'／',rect:'□',rectCenter:'▣',circle:'○',circle3:'◉',slot:'▱',bezier:'⌁',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗',split:'⑂',offset:'⇔',fillet:'⌒',chamfer:'／',mirror:'⇄',linearPattern:'▦',circularPattern:'⟳'};
  if(tool!=='select')lastDrawingTool=tool;
- ['select','line','rect','circle','polygon','ellipse','arc','trim','extend'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
+ ['select','line','rect','rectCenter','circle','circle3','slot','bezier','polygon','ellipse','arc','trim','extend','split','offset','fillet','chamfer','mirror','linearPattern','circularPattern'].forEach(t=>{const button=document.getElementById(t+'Tool');if(button)button.classList.toggle('tool-active',t===tool);});
  const palette=document.getElementById('drawToolsPanel');if(palette)palette.querySelectorAll('button[data-palette-tool]').forEach(button=>{const selected=button.dataset.paletteTool===tool;button.classList.toggle('tool-active',selected);button.setAttribute('aria-pressed',String(selected));});
- const activeToggle=document.getElementById('activeToolToggle');
- activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
- activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
- activeToggle.title='Herramienta '+labels[shownTool]+' · '+(activeTool===shownTool?'Desactivar':'Activar');
- activeToggle.setAttribute('aria-label',activeToggle.title);
- activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===lastDrawingTool));
- const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección'};
+ updateDimensionToolIndicator();
+ const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',rectCenter:'Marca el centro y arrastra hasta una esquina',circle:'Arrastra para dibujar',circle3:'Marca tres puntos de la circunferencia',slot:'Marca los dos centros y después el ancho de la ranura',bezier:'Marca inicio, punto de control y final',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección',split:'Selecciona una geometría y toca el punto donde dividirla',offset:'Toca una geometría y define la distancia de equidistancia',fillet:'Toca un vértice y define el radio',chamfer:'Toca un vértice y define la distancia',mirror:'Selecciona una geometría y define dos puntos del eje',linearPattern:'Selecciona una geometría y marca la dirección',circularPattern:'Selecciona una geometría y marca el centro'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
  if(controls){
   controls.enabled=true;
@@ -1703,7 +1942,13 @@ function resolveSnap(event,raw){
  snapKind=null;return raw;
 }
 function beginSketch(event){
- if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){beginSketchNow(event);return;}
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'||activeTool==='fillet'||activeTool==='chamfer'||activeTool==='mirror'||activeTool==='linearPattern'||activeTool==='circularPattern'){
+  if(activeTool==='select'&&event.pointerType==='touch'){
+   selectionTouchPointers.add(event.pointerId);
+   if(selectionTouchPointers.size>1){selectionTouchMulti=true;selectionPointerDown=null;}
+  }
+  beginSketchNow(event);return;
+ }
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
@@ -1717,7 +1962,7 @@ function beginSketch(event){
    return;
   }
   if(pinchGesture)return;
-  if(activeTool==='arc'){
+  if(activeTool==='arc'||activeTool==='circle3'||activeTool==='slot'||activeTool==='bezier'){
    touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
    positionTouchCursor(event);return;
   }
@@ -1738,7 +1983,7 @@ function beginSketch(event){
    touchLineGuideActive=true;updateLineStartGuide(event);
    event.preventDefault();return;
   }
-  if(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse'){
+  if(activeTool==='rect'||activeTool==='rectCenter'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse'){
    if(!drawStart){
     // Primer gesto: muestra la guía y fija el inicio al soltar.
     touchPendingEvent={clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId,pointerType:'touch'};
@@ -1759,15 +2004,15 @@ function beginSketch(event){
  }
  beginSketchNow(event);
 }function beginSketchNow(event){
- if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'){
   if(event.button!==0)return;
   if(event.pointerType==='touch'&&activeTool!=='select')positionTouchCursor(event);
-  selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
+  selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType};return;
  }
  if(event.pointerType!=='touch'&&event.button!==0)return;
  const p=pointForSketch(event,true);if(!p)return;
  event.preventDefault();
- if(activeTool==='arc'){addArcPoint(p);return;}
+ if(activeTool==='arc'){addArcPoint(p);return;}if(activeTool==='circle3'){addCircleThreePoint(p);return;}if(activeTool==='slot'){addSlotPoint(p);return;}if(activeTool==='bezier'){addBezierPoint(p);return;}
  if(activeTool==='line'){
   try{renderer.domElement.setPointerCapture(event.pointerId);}catch(e){}
   lineGestureCreatedAnchor=!linePoints.length;
@@ -1782,36 +2027,36 @@ function beginSketch(event){
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
- if(event.pointerType==='touch'&&(activeTool==='trim'||activeTool==='extend')){positionTouchCursor(event);return;}
- if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
+ if(event.pointerType==='touch'&&(activeTool==='trim'||activeTool==='extend'||activeTool==='offset')){positionTouchCursor(event);return;}
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='rectCenter'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
   const p=pointForSketch(event);if(!p)return;
   positionTouchCursor(event);
   if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
   previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
   const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
   const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
-  if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
+  if(activeTool==='rect'||activeTool==='rectCenter')updateMeasureAt('Ancho: '+fmt(dx*(activeTool==='rectCenter'?2:1))+' cm · Alto: '+fmt(dz*(activeTool==='rectCenter'?2:1))+' cm','Diagonal: '+fmt(distance*(activeTool==='rectCenter'?2:1))+' cm',anchor);
   else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
   else if(activeTool==='polygon')updateMeasureAt('Radio: '+fmt(distance)+' cm','Polígono regular · 6 lados',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
   else if(activeTool==='ellipse')updateMeasureAt('Radio X: '+fmt(dx)+' cm','Radio Y: '+fmt(dz)+' cm',anchor);
   event.preventDefault();return;
  }
- if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!drawStart){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;if(touchLineGuideActive)updateLineStartGuide(event);return;}
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='rectCenter'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!drawStart){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;if(touchLineGuideActive)updateLineStartGuide(event);return;}
  if(event.pointerType==='touch'&&shapeTouchDragPointerId!==null&&event.pointerId!==shapeTouchDragPointerId)return;
  if(event.pointerType==='touch'&&activeTool==='line'){
   if(touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;}
   if(touchLineGuideActive){updateLineStartGuide(event);}
  }
  else if(event.pointerType==='touch'&&touchLineGuideActive){updateLineStartGuide(event);return;}
- else if(event.pointerType==='touch'&&touchPendingEvent&&activeTool==='arc'){
+ else if(event.pointerType==='touch'&&touchPendingEvent&&(activeTool==='arc'||activeTool==='circle3'||activeTool==='slot'||activeTool==='bezier')){
   touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;positionTouchCursor(event);
-  if(arcPoints.length>=2){const arcEnd=pointForSketch(event);if(arcEnd){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=makeArcShape(arcPoints[0],arcPoints[1],arcEnd,true);if(previewObject)scene.add(previewObject);updateMeasureAt('Arco · 3 puntos','Define el punto final',arcEnd.clone().addScaledVector(workPlanes[activePlane].normal,.08));}}
+  if(arcPoints.length>=2){const arcEnd=pointForSketch(event);if(arcEnd){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=activeTool==='circle3'?makeCircleThreePointShape(arcPoints[0],arcPoints[1],arcEnd,true):activeTool==='slot'?makeSlotShape(arcPoints[0],arcPoints[1],arcEnd,true):activeTool==='bezier'?makeBezierShape(arcPoints[0],arcPoints[1],arcEnd,true):makeArcShape(arcPoints[0],arcPoints[1],arcEnd,true);if(previewObject)scene.add(previewObject);updateMeasureAt(activeTool==='circle3'?'Círculo · 3 puntos':activeTool==='slot'?'Ranura · ancho':activeTool==='bezier'?'Bézier · 3 puntos':'Arco · 3 puntos','Define el tercer punto',arcEnd.clone().addScaledVector(workPlanes[activePlane].normal,.08));}}
   return;
  }
  else if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
  const p=pointForSketch(event);if(!p)return;
  
- if(activeTool==='arc'&&arcPoints.length>=2){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=makeArcShape(arcPoints[0],arcPoints[1],p,true);if(previewObject)scene.add(previewObject);updateMeasureAt('Arco · 3 puntos','Define el punto final',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));return;}
+ if((activeTool==='arc'||activeTool==='circle3'||activeTool==='slot'||activeTool==='bezier')&&arcPoints.length>=2){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=activeTool==='circle3'?makeCircleThreePointShape(arcPoints[0],arcPoints[1],p,true):activeTool==='slot'?makeSlotShape(arcPoints[0],arcPoints[1],p,true):activeTool==='bezier'?makeBezierShape(arcPoints[0],arcPoints[1],p,true):makeArcShape(arcPoints[0],arcPoints[1],p,true);if(previewObject)scene.add(previewObject);updateMeasureAt(activeTool==='circle3'?'Círculo · 3 puntos':activeTool==='slot'?'Ranura · ancho':activeTool==='bezier'?'Bézier · 3 puntos':'Arco · 3 puntos','Define el tercer punto',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));return;}
  if(activeTool==='line'&&linePoints.length){
   if(lineDragStart&&lineDragPointerId===event.pointerId&&p.distanceTo(lineDragStart)>.02)lineDragMoved=true;
   updateContinuousLine(p);return;
@@ -1821,7 +2066,7 @@ function moveSketch(event){
  previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
  const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
  const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
- if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
+ if(activeTool==='rect'||activeTool==='rectCenter')updateMeasureAt('Ancho: '+fmt(dx*(activeTool==='rectCenter'?2:1))+' cm · Alto: '+fmt(dz*(activeTool==='rectCenter'?2:1))+' cm','Diagonal: '+fmt(distance*(activeTool==='rectCenter'?2:1))+' cm',anchor);
  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
  else if(activeTool==='polygon')updateMeasureAt('Radio: '+fmt(distance)+' cm','Polígono regular · 6 lados',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
  else if(activeTool==='ellipse')updateMeasureAt('Radio X: '+fmt(dx)+' cm','Radio Y: '+fmt(dz)+' cm',anchor);
@@ -1833,6 +2078,11 @@ function cancelLineGesture(){
 }
 function cancelSketch(event){
  hideSnapFeedback();hideLineGuide();
+ if(event.pointerType==='touch'&&activeTool==='select'){
+  selectionTouchPointers.delete(event.pointerId);
+  if(selectionTouchPointers.size===0)selectionTouchMulti=false;
+  selectionPointerDown=null;
+ }
  if(event.pointerType==='touch'){
   activeTouchPointers.delete(event.pointerId);shapeTouchDragPointerId=null;
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
@@ -1851,20 +2101,25 @@ function finalizeShapeAtPoint(p){
  attachSketchDefinition(obj,activeTool,start,end);
  scene.add(obj);drawnObjects.push(obj);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
  const a=planeCoords(start),b=planeCoords(end),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),d=Math.hypot(dx,dz),anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
- updateMeasureAt(activeTool==='rect'?'Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm':activeTool==='ellipse'?'Radio X: '+fmt(dx)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'?'Pieza creada':activeTool==='ellipse'?'Radio Y: '+fmt(dz)+' cm':activeTool==='polygon'?'Polígono regular · 6 lados':'Radio: '+fmt(d)+' cm',anchor);
+ updateMeasureAt(activeTool==='rect'||activeTool==='rectCenter'?'Ancho: '+fmt(dx*(activeTool==='rectCenter'?2:1))+' cm · Alto: '+fmt(dz*(activeTool==='rectCenter'?2:1))+' cm':activeTool==='ellipse'?'Radio X: '+fmt(dx)+' cm':'Diámetro: '+fmt(d*2)+' cm',activeTool==='rect'||activeTool==='rectCenter'?'Pieza creada':activeTool==='ellipse'?'Radio Y: '+fmt(dz)+' cm':activeTool==='polygon'?'Polígono regular · 6 lados':'Radio: '+fmt(d)+' cm',anchor);
  saveViewportProject();recordDrawingHistory();return true;
 }
 function finishSketch(event){
- if(activeTool==='arc'){
+ const canceledSelectionTouch=event.pointerType==='touch'&&activeTool==='select'&&selectionTouchMulti;
+ if(event.pointerType==='touch'&&activeTool==='select'){
+  selectionTouchPointers.delete(event.pointerId);
+  if(selectionTouchPointers.size===0)selectionTouchMulti=false;
+ }
+ if(activeTool==='arc'||activeTool==='circle3'||activeTool==='slot'||activeTool==='bezier'){
   if(event.pointerType==='touch'){
-   if(!pinchGesture){const p=pointForSketch(event,true);if(p)addArcPoint(p);}
+   if(!pinchGesture){const p=pointForSketch(event,true);if(p){if(activeTool==='circle3')addCircleThreePoint(p);else if(activeTool==='slot')addSlotPoint(p);else if(activeTool==='bezier')addBezierPoint(p);else addArcPoint(p);}}
    activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;
    if(activeTouchPointers.size===0){pinchGesture=false;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}}
    hideLineGuide();hideSnapFeedback();
   }
   return;
  }
- if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
+ if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='rectCenter'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart&&!pinchGesture){
   const p=updateLineStartGuide(event)||(()=>{const guide=lineGuideEvent(event),raw=pointOnGroundAt(guide.clientX,guide.clientY);return raw?resolveSnap(guide,raw):drawStart.clone();})();
   const completed=finalizeShapeAtPoint(p);
   shapeTouchDragPointerId=null;activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;
@@ -1872,7 +2127,7 @@ function finishSketch(event){
   if(completed)return;
  }
  if(event.pointerType==='touch'){
-  if((activeTool==='rect'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=updateLineStartGuide(event)||pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;hideSnapFeedback();hideLineGuide();return;}
+  if((activeTool==='rect'||activeTool==='rectCenter'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&drawStart===null&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}const p=updateLineStartGuide(event)||pointForSketch(event,true)||pointForSketch(touchPendingEvent,true);if(p)drawStart=p.clone();activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;hideSnapFeedback();hideLineGuide();return;}
   // Al soltar el primer toque de Línea, fijar el inicio exactamente bajo el centro de la cruz.
   if(activeTool==='line'&&linePoints.length===0&&touchPendingEvent&&touchPendingEvent.pointerId===event.pointerId&&!pinchGesture){
    if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
@@ -1887,14 +2142,32 @@ function finishSketch(event){
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;
  }
- if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'){
   const down=selectionPointerDown;selectionPointerDown=null;
-  if(down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
+  // Android/WebView puede entregar pointerup aunque el pointerdown haya sido
+  // capturado por un overlay o perdido durante el cambio de foco. En modo Cota,
+  // el punto de liberación es suficiente para intentar la selección; no dejamos
+  // que la ausencia de selectionPointerDown descarte silenciosamente el toque.
+  const matchingDown=!!(down&&down.pointerId===event.pointerId);
+  const tapDistance=matchingDown?Math.hypot(event.clientX-down.x,event.clientY-down.y):0;
+  const validTap=matchingDown?tapDistance<=(event.pointerType==='touch'?22:6):pendingDimensionType!==null;
+  if(!canceledSelectionTouch&&validTap){
    const aim=lineGuideEvent(event);
-   if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
+   if(pendingDimensionType){
+    // La selección táctil debe usar el mismo punto compensado que muestra la cruz sobre el dedo.
+    const target=findSelectableObject(aim.clientX,aim.clientY,event.pointerType);
+    if(target){const requested=pendingDimensionType;pendingDimensionType=null;updateDimensionToolIndicator();setSelectedObject(target);const pickedMeta=sketchMetaForObject(target);const resolved=requested==='auto'?(['polyline','rect','line'].includes(pickedMeta.type)?'distance':pickedMeta.type==='circle'?'diameter':pickedMeta.type==='arc'?'radius':null):requested;if(resolved)applySketchDimension(resolved);else{pendingDimensionType=requested;updateDimensionToolIndicator();setSketchConstraintHint('Esta geometría no admite una cota directa. Selecciona una línea, círculo o arco.');}}
+    else{pendingDimensionType=requested;setSketchConstraintHint('No se detectó geometría. Acércate a una línea, círculo o arco y vuelve a tocar.');}
+   }
+   else if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
    else if(activeTool==='extend'){const changed=extendEndpointAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un extremo con intersección delante';}
-   else{const picked=findSelectableObject(event.clientX,event.clientY);setSelectedObject(picked);}
+    else if(activeTool==='split'){const changed=splitSelectedAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='Partir: selecciona una geometría abierta y toca un tramo';}
+    else if(activeTool==='offset'){const changed=offsetSelectedAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='Equidistancia: selecciona una geometría del plano activo';}
+   else if(activeTool==='fillet'||activeTool==='chamfer'){const changed=cornerEditAtScreen(activeTool,aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent=activeTool==='fillet'?'Redondeo: toca un vértice válido':'Chaflán: toca un vértice válido';}
+   else if(activeTool==='mirror'||activeTool==='linearPattern'||activeTool==='circularPattern'){const p=pointForSketch(event,true);if(p)patternToolPoint(activeTool,p,event);}
+   else{const picked=findSelectableObject(event.clientX,event.clientY);const additive=picked&&(event.pointerType==='touch'||event.shiftKey||event.ctrlKey||event.metaKey);setSelectedObject(picked,!!additive);}
   }
+  hideSnapFeedback();hideLineGuide();
   return;
  }
  hideSnapFeedback();hideLineGuide();
@@ -1923,139 +2196,171 @@ function trimSegmentAtScreen(clientX,clientY){
  camera.updateMatrixWorld(true);
  const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),plane=workPlanes[activePlane],origin=new THREE.Vector3();
  let target=null,targetIndex=-1,targetT=0,bestPixels=12;
- const segmentDistance=(p,a,b)=>{
-  const dx=b.x-a.x,dy=b.y-a.y,lenSq=dx*dx+dy*dy,t=lenSq?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/lenSq,0,1):0;
-  return {distance:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};
- };
- // 1) Seleccionar el segmento visible más cercano al punto de mira.
+ const segmentDistance=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,lenSq=dx*dx+dy*dy,t=lenSq?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/lenSq,0,1):0;return{distance:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};};
  for(const obj of drawnObjects){
-  const pts=obj.userData.controlPoints||[],closed=!!obj.userData.closed,count=closed?pts.length:pts.length-1;
-  if(pts.length<2)continue;
+  const pts=obj.userData.controlPoints||[],closed=!!obj.userData.closed,count=closed?pts.length:pts.length-1;if(pts.length<2)continue;
   obj.updateWorldMatrix(true,false);
   const screen=pts.map(p=>{projected.copy(p);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};});
-  for(let i=0;i<count;i++){
-   const a=screen[i],b=screen[(i+1)%screen.length];
-   if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;
-   const hit=segmentDistance({x:px,y:py},a,b);
-   if(hit.distance<bestPixels){bestPixels=hit.distance;target=obj;targetIndex=i;targetT=hit.t;}
-  }
+  for(let i=0;i<count;i++){const a=screen[i],b=screen[(i+1)%screen.length];if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;const hit=segmentDistance({x:px,y:py},a,b);if(hit.distance<bestPixels){bestPixels=hit.distance;target=obj;targetIndex=i;targetT=hit.t;}}
  }
  if(!target)return false;
- const points=target.userData.controlPoints||[],closed=!!target.userData.closed,n=points.length,edgeCount=closed?n:n-1;
- if(n<2)return false;
- // 2) Construir la longitud acumulada de la polilínea en el plano activo.
+ const meta=sketchMetaForObject(target);if(meta&&meta.plane&&meta.plane!==activePlane){document.getElementById('saveState').textContent='Recortar requiere activar el plano de la geometría';return false;}
+ target.updateWorldMatrix(true,false);
+ let points=(target.userData.controlPoints||[]).map(p=>target.localToWorld(p.clone()));
+ const closed=!!target.userData.closed;
+ if(closed&&points.length>2&&points[0].distanceTo(points[points.length-1])<.001)points=points.slice(0,-1);
+ const n=points.length,edgeCount=closed?n:n-1;if(n<2)return false;
+ if(points.some(p=>Math.abs(p.clone().sub(origin).dot(plane.normal))>.05)){document.getElementById('saveState').textContent='Recortar requiere geometría coplanar con el plano activo';return false;}
  const uv=points.map(p=>planeCoords(p)),cumulative=[0];
- for(let i=0;i<edgeCount;i++){
-  const a=uv[i],b=uv[(i+1)%n];
-  cumulative.push(cumulative[i]+Math.hypot(b.u-a.u,b.v-a.v));
- }
- const total=cumulative[cumulative.length-1],selectedA=uv[targetIndex],selectedB=uv[(targetIndex+1)%n];
- const selectedLength=Math.hypot(selectedB.u-selectedA.u,selectedB.v-selectedA.v);
- const targetS=cumulative[targetIndex]+targetT*selectedLength;
+ for(let i=0;i<edgeCount;i++){const a=uv[i],b=uv[(i+1)%n];cumulative.push(cumulative[i]+Math.hypot(b.u-a.u,b.v-a.v));}
+ const total=cumulative[cumulative.length-1],selectedA=uv[targetIndex],selectedB=uv[(targetIndex+1)%n],selectedLength=Math.hypot(selectedB.u-selectedA.u,selectedB.v-selectedA.v),targetS=cumulative[targetIndex]+targetT*selectedLength;
  if(!Number.isFinite(total)||total<1e-8)return false;
- // 3) Encontrar todas las intersecciones de la figura seleccionada con las demás geometrías.
  const hits=[];
  for(const otherObj of drawnObjects){
   if(otherObj===target)continue;
-  const other=otherObj.userData.controlPoints||[],otherClosed=!!otherObj.userData.closed,otherCount=otherClosed?other.length:other.length-1;
+  const otherMeta=sketchMetaForObject(otherObj);if(otherMeta&&otherMeta.plane&&otherMeta.plane!==activePlane)continue;
+  otherObj.updateWorldMatrix(true,false);
+  const other=(otherObj.userData.controlPoints||[]).map(p=>otherObj.localToWorld(p.clone())),otherClosed=!!otherObj.userData.closed,otherCount=otherClosed?other.length:other.length-1;
   for(let j=0;j<otherCount;j++){
-   const p3=other[j],q3=other[(j+1)%other.length];
-   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
+   const p3=other[j],q3=other[(j+1)%other.length];if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
    const p=planeCoords(p3),q=planeCoords(q3);
-   for(let i=0;i<edgeCount;i++){
-    const a3=points[i],b3=points[(i+1)%n];
-    if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05)continue;
-    const a=uv[i],b=uv[(i+1)%n],intersection=intersectSegments2D(a,b,p,q);
-    if(intersection){
-     const edgeLength=Math.hypot(b.u-a.u,b.v-a.v),s=cumulative[i]+intersection.t*edgeLength;
-     hits.push({s,point:a3.clone().lerp(b3,intersection.t)});
-    }
-   }
+   for(let i=0;i<edgeCount;i++){const a=uv[i],b=uv[(i+1)%n],intersection=intersectSegments2D(a,b,p,q);if(intersection){const edgeLength=Math.hypot(b.u-a.u,b.v-a.v),s=cumulative[i]+intersection.t*edgeLength;hits.push({s,point:points[i].clone().lerp(points[(i+1)%n],intersection.t)});}}
   }
  }
- // 4) Identificar las dos intersecciones que delimitan el tramo bajo el cursor.
  const bounds=selectTrimBounds(hits,targetS,total,closed);
  if(!bounds){document.getElementById('saveState').textContent='Recortar: el cursor debe estar entre dos intersecciones';return false;}
- const {previous,next}=bounds;
- const replacements=[];
- if(closed){
-  // En un contorno cerrado se elimina el arco que contiene el cursor y se conserva el arco complementario.
-  const startHit=next,endHit={...previous,s:previous.s+(next.s<=previous.s?total:0)};
-  let endS=endHit.s;
-  if(endS<=startHit.s)endS+=total;
-  const kept=[startHit.point.clone()];
-  for(const index of closedPathVertexIndices(cumulative,startHit.s,endS,total))kept.push(points[index].clone());
-  kept.push(previous.point.clone());
-  if(kept.length>=2)replacements.push(kept);
- }else{
-  const left=points.filter((p,i)=>cumulative[i]<previous.s-1e-5).map(p=>p.clone());
-  left.push(previous.point.clone());
-  const right=[next.point.clone(),...points.filter((p,i)=>cumulative[i]>next.s+1e-5).map(p=>p.clone())];
-  if(left.length>=2)replacements.push(left);
-  if(right.length>=2)replacements.push(right);
- }
+ const {previous,next}=bounds,replacements=[];
+ if(closed){const startHit=next,endHit={...previous,s:previous.s+(next.s<=previous.s?total:0)};let endS=endHit.s;if(endS<=startHit.s)endS+=total;const kept=[startHit.point.clone()];for(const index of closedPathVertexIndices(cumulative,startHit.s,endS,total))kept.push(points[index].clone());kept.push(previous.point.clone());if(kept.length>=2)replacements.push(kept);}
+ else{const left=points.filter((p,i)=>cumulative[i]<previous.s-1e-5).map(p=>p.clone());left.push(previous.point.clone());const right=[next.point.clone(),...points.filter((p,i)=>cumulative[i]>next.s+1e-5).map(p=>p.clone())];if(left.length>=2)replacements.push(left);if(right.length>=2)replacements.push(right);}
  const color=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff);
- const objects=replacements.map(part=>{
-  const obj=makeFatStroke(part,color,1,false);
-  if(obj){obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:sketchMetaForObject(target).type});obj.userData.sketch.sketchId=sketchMetaForObject(target).sketchId||activeSketchId||null;}
-  return obj;
- }).filter(Boolean);
+ const objects=replacements.map(part=>{const obj=makeFatStroke(part,color,1,false);if(obj){obj.userData.sketch=createSketchDefinition('polyline',part,meta.plane||activePlane,{...(meta.parameters||{}),trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:meta.type,sourceId:meta.id||null});obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;}return obj;}).filter(Boolean);
  if(!objects.length)return false;
- scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);
- objects.forEach(obj=>{scene.add(obj);drawnObjects.push(obj);});
- setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
- document.getElementById('saveState').textContent=closed?'Perfil cerrado recortado':'Tramo entre intersecciones recortado';
- return true;
+ scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);objects.forEach(obj=>{scene.add(obj);drawnObjects.push(obj);});
+ setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent=closed?'Perfil cerrado recortado':'Tramo entre intersecciones recortado';return true;
 }
+function splitSelectedAtScreen(clientX,clientY){
+  if(!camera)return false;
+  const picked=findSelectableObject(clientX,clientY);
+  if(!selectedObject||(picked&&picked!==selectedObject)){
+   if(!picked)return false;
+   setSelectedObject(picked);
+   document.getElementById('saveState').textContent='Geometría seleccionada · toca el punto donde dividirla';
+   return true;
+  }
+  const target=selectedObject;
+  if(!target||!drawnObjects.includes(target))return false;
+  const meta=sketchMetaForObject(target),points=target.userData.controlPoints||[];
+  if(target.userData.closed||points.length<2){document.getElementById('saveState').textContent='Partir solo admite geometrías abiertas';return false;}
+  if(meta&&meta.plane&&meta.plane!==activePlane){document.getElementById('saveState').textContent='Partir requiere activar el plano de la geometría';return false;}
+  camera.updateMatrixWorld(true);
+  const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top;
+  const projected=new THREE.Vector3();let bestIndex=-1,bestT=0,bestDistance=18;
+  const screen=points.map(point=>{projected.copy(point);target.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};});
+  for(let i=0;i<screen.length-1;i++){
+   const a=screen[i],b=screen[i+1];if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;
+   const dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy,t=len?THREE.MathUtils.clamp(((px-a.x)*dx+(py-a.y)*dy)/len,0,1):0;
+   const distance=Math.hypot(px-a.x-t*dx,py-a.y-t*dy);
+   if(distance<bestDistance&&t>.015&&t<.985){bestDistance=distance;bestIndex=i;bestT=t;}
+  }
+  if(bestIndex<0)return false;
+  const split=splitPolylineAt(points.map(p=>({u:p.x,v:p.y,w:p.z})),bestIndex,bestT);
+  if(!split||split.first.length<2||split.second.length<2)return false;
+  const originalColor=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff);
+  const makePart=(part,side)=>{
+   const splitVector=points[bestIndex].clone().lerp(points[bestIndex+1],bestT);const vectors=part.map(p=>Number.isFinite(p.w)?new THREE.Vector3(p.u,p.v,p.w):splitVector.clone());
+   const obj=makeFatStroke(vectors,originalColor,1,false);if(!obj)return null;
+   const source=sketchMetaForObject(target);
+   obj.userData.sketch=createSketchDefinition('polyline',vectors,source.plane||activePlane,{...(source.parameters||{}),split:true,operation:'split',sourceType:source.type,splitSide:side});
+   obj.userData.sketch.sketchId=source.sketchId||activeSketchId||null;
+   return obj;
+  };
+  const first=makePart(split.first,'first'),second=makePart(split.second,'second');
+  if(!first||!second){[first,second].filter(Boolean).forEach(disposePreview);return false;}
+  scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(obj=>obj!==target);
+  scene.add(first,second);drawnObjects.push(first,second);setSelectedObject(first);
+  document.getElementById('saveState').textContent='Geometría dividida en dos partes';
+  refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();return true;
+}
+function offsetSelectedAtScreen(clientX,clientY){
+  if(!camera)return false;
+  const picked=findSelectableObject(clientX,clientY);
+  if(!picked)return false;
+  const meta=sketchMetaForObject(picked),rawPoints=picked.userData.controlPoints||[],closed=!!picked.userData.closed;
+  const points=closed&&rawPoints.length>2&&rawPoints[0].distanceTo(rawPoints[rawPoints.length-1])<.001?rawPoints.slice(0,-1):rawPoints;
+  if(points.length<(closed?3:2)){document.getElementById('saveState').textContent='Equidistancia: geometría insuficiente';return false;}
+  if(meta&&meta.plane&&meta.plane!==activePlane){document.getElementById('saveState').textContent='Equidistancia requiere activar el plano de la geometría';return false;}
+  const raw=window.prompt('Distancia de equidistancia en cm (negativo para el lado opuesto):','1');
+  if(raw===null)return true;
+  const distance=Number(String(raw).trim().replace(',','.'));
+  if(!Number.isFinite(distance)||Math.abs(distance)<.001){document.getElementById('saveState').textContent='Distancia inválida · introduce un valor distinto de cero';return false;}
+  const origin=new THREE.Vector3(),plane=workPlanes[activePlane];
+  const world=points.map(point=>picked.localToWorld(point.clone()));
+  if(world.some(point=>Math.abs(point.clone().sub(origin).dot(plane.normal))>.05)){document.getElementById('saveState').textContent='Equidistancia requiere geometría coplanar';return false;}
+  const uv=world.map(point=>{const c=planeCoords(point);return{u:c.u,v:c.v};});
+  const shifted=offsetPolyline(uv,distance,closed);
+  if(shifted.length!==uv.length||shifted.some(p=>!Number.isFinite(p.u)||!Number.isFinite(p.v))){document.getElementById('saveState').textContent='No se pudo calcular la equidistancia';return false;}
+  const vectors=shifted.map(p=>planePoint(p.u,p.v));
+  let valid=true;
+  for(let i=0;i<vectors.length;i++){if(vectors[i].distanceTo(vectors[(i+1)%vectors.length])<.001&& (closed||i<vectors.length-1)){valid=false;break;}}
+  if(valid){
+   const edgeCount=closed?vectors.length:vectors.length-1;
+   for(let i=0;i<edgeCount&&valid;i++)for(let j=i+2;j<edgeCount;j++){
+    if(closed&&i===0&&j===edgeCount-1)continue;
+    if(intersectSegments2D(planeCoords(vectors[i]),planeCoords(vectors[(i+1)%vectors.length]),planeCoords(vectors[j]),planeCoords(vectors[(j+1)%vectors.length]))){valid=false;break;}
+   }
+  }
+  if(!valid){document.getElementById('saveState').textContent='Equidistancia inválida · distancia demasiado grande o contorno cruzado';return false;}
+  const color=picked.userData.selectionOriginalColor!==undefined?picked.userData.selectionOriginalColor:(picked.material&&picked.material.color?picked.material.color.getHex():0xe5efff);
+  const obj=makeFatStroke(vectors,color,1,closed);if(!obj)return false;
+  obj.userData.sketch=createSketchDefinition('polyline',vectors,meta.plane||activePlane,{...(meta.parameters||{}),offset:true,operation:'offset',offsetDistance:distance,offsetOf:meta.id||null,sourceType:meta.type});
+  obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;
+  scene.add(obj);drawnObjects.push(obj);setSelectedObject(obj);
+  document.getElementById('saveState').textContent='Equidistancia creada · '+fmt(distance)+' cm';
+  refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();return true;
+}
+
+function cornerEditAtScreen(mode,clientX,clientY){if(!camera||!renderer)return false;const picked=findSelectableObject(clientX,clientY);if(!picked)return false;const meta=sketchMetaForObject(picked),raw=picked.userData.controlPoints||[],closed=!!picked.userData.closed,points=closed&&raw.length>2&&raw[0].distanceTo(raw[raw.length-1])<.001?raw.slice(0,-1):raw;if(points.length<3)return false;if(meta&&meta.plane&&meta.plane!==activePlane)return false;const plane=workPlanes[activePlane],origin=new THREE.Vector3();picked.updateWorldMatrix(true,false);const world=points.map(p=>picked.localToWorld(p.clone()));if(world.some(p=>Math.abs(p.clone().sub(origin).dot(plane.normal))>.05))return false;camera.updateMatrixWorld(true);const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3();let vertexIndex=-1,best=24;points.forEach((p,i)=>{projected.copy(p);picked.localToWorld(projected);projected.project(camera);const x=(projected.x*.5+.5)*rect.width,y=(-projected.y*.5+.5)*rect.height,d=Math.hypot(px-x,py-y);if(projected.z>=-1&&projected.z<=1&&d<best){best=d;vertexIndex=i;}});if(vertexIndex<0)return false;const rawValue=window.prompt(mode==='fillet'?'Radio de redondeo en cm:':'Distancia de chaflán en cm:','1');if(rawValue===null)return true;const value=Number(String(rawValue).trim().replace(',','.'));if(!Number.isFinite(value)||value<=.001)return false;const uv=world.map(p=>{const c=planeCoords(p);return{u:c.u,v:c.v};}),result=mode==='fillet'?filletPolylineVertex(uv,vertexIndex,value,closed,10):chamferPolylineVertex(uv,vertexIndex,value,closed);if(!result||result.length<(closed?3:2)||result.some(p=>!Number.isFinite(p.u)||!Number.isFinite(p.v)))return false;const vectors=result.map(p=>planePoint(p.u,p.v)),edgeCount=closed?vectors.length:vectors.length-1;for(let i=0;i<edgeCount;i++)for(let j=i+2;j<edgeCount;j++){if(closed&&i===0&&j===edgeCount-1)continue;if(intersectSegments2D(planeCoords(vectors[i]),planeCoords(vectors[(i+1)%vectors.length]),planeCoords(vectors[j]),planeCoords(vectors[(j+1)%vectors.length])))return false;}const color=picked.userData.selectionOriginalColor!==undefined?picked.userData.selectionOriginalColor:(picked.material&&picked.material.color?picked.material.color.getHex():0xe5efff),obj=makeFatStroke(vectors,color,1,closed);if(!obj)return false;obj.userData.sketch=createSketchDefinition('polyline',vectors,meta.plane||activePlane,{...(meta.parameters||{}),operation:mode,value,sourceType:meta.type,sourceId:meta.id||null,cornerIndex:vertexIndex});obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;scene.remove(picked);disposePreview(picked);drawnObjects=drawnObjects.filter(item=>item!==picked);scene.add(obj);drawnObjects.push(obj);setSelectedObject(obj);document.getElementById('saveState').textContent=(mode==='fillet'?'Redondeo':'Chaflán')+' aplicado · '+fmt(value)+' cm';refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();return true;}
+
+function patternToolPoint(mode,point,event){
+ if(!patternEditState){const source=findSelectableObject(event.clientX,event.clientY);if(!source)return false;const meta=sketchMetaForObject(source),raw=source.userData.controlPoints||[],closed=!!source.userData.closed,points=closed&&raw.length>2&&raw[0].distanceTo(raw[raw.length-1])<.001?raw.slice(0,-1):raw;if(points.length<(closed?3:2))return false;if(meta&&meta.plane&&meta.plane!==activePlane)return false;source.updateWorldMatrix(true,false);const world=points.map(p=>source.localToWorld(p.clone())),plane=workPlanes[activePlane],origin=new THREE.Vector3();if(world.some(p=>Math.abs(p.clone().sub(origin).dot(plane.normal))>.05))return false;const uv=world.map(p=>{const q=planeCoords(p);return{u:q.u,v:q.v};});patternEditState={mode,source,meta,closed,uv,stage:0};document.getElementById('saveState').textContent=mode==='mirror'?'Simetría: marca el primer punto del eje':mode==='linearPattern'?'Patrón lineal: marca la dirección y separación':'Patrón circular: marca el centro';return true;}
+ const state=patternEditState;if(state.mode!==mode)return false;const q=planeCoords(point);
+ if(mode==='mirror'&&state.stage===0){state.axisA=q;state.stage=1;document.getElementById('saveState').textContent='Simetría: marca el segundo punto del eje';return true;}
+ let copies=[];
+ if(mode==='mirror'){const mirrored=mirrorPolyline(state.uv,state.axisA,q);if(mirrored.length!==state.uv.length){patternEditState=null;return false;}copies=[mirrored];}
+ else if(mode==='linearPattern'){const center=state.uv.reduce((a,p)=>({u:a.u+p.u/state.uv.length,v:a.v+p.v/state.uv.length}),{u:0,v:0}),dx=q.u-center.u,dy=q.v-center.v,len=Math.hypot(dx,dy);if(len<.01){patternEditState=null;return false;}const spacingRaw=window.prompt('Separación entre instancias en cm:','2');if(spacingRaw===null){patternEditState=null;return true;}const spacing=Number(String(spacingRaw).trim().replace(',','.'));const countRaw=window.prompt('Número total de instancias (incluida la original):','3');if(countRaw===null){patternEditState=null;return true;}const count=Math.floor(Number(countRaw));if(!Number.isFinite(spacing)||spacing<=.001||!Number.isFinite(count)||count<2||count>100){patternEditState=null;return false;}copies=linearPattern(state.uv,count,dx/len*spacing,dy/len*spacing).slice(1);}
+ else{const countRaw=window.prompt('Número total de instancias (incluida la original):','6');if(countRaw===null){patternEditState=null;return true;}const count=Math.floor(Number(countRaw));if(!Number.isFinite(count)||count<2||count>100){patternEditState=null;return false;}copies=circularPattern(state.uv,q,count).slice(1);}
+ const source=state.source,meta=state.meta,color=source.userData.selectionOriginalColor!==undefined?source.userData.selectionOriginalColor:(source.material&&source.material.color?source.material.color.getHex():0xe5efff),created=[];
+ for(let i=0;i<copies.length;i++){const vectors=copies[i].map(p=>planePoint(p.u,p.v));if(vectors.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)||!Number.isFinite(p.z)))continue;const obj=makeFatStroke(vectors,color,1,state.closed);if(!obj)continue;obj.userData.sketch=createSketchDefinition('polyline',vectors,meta.plane||activePlane,{...(meta.parameters||{}),operation:mode,patternIndex:i+1,sourceId:meta.id||null,sourceType:meta.type});obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;created.push(obj);}
+ patternEditState=null;if(!created.length)return false;created.forEach(obj=>{scene.add(obj);drawnObjects.push(obj);});setSelectedObject(created[created.length-1]);document.getElementById('saveState').textContent=(mode==='mirror'?'Simetría creada':mode==='linearPattern'?'Patrón lineal creado':'Patrón circular creado')+' · '+created.length+' copia(s)';refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();return true;
+}
+
 function extendEndpointAtScreen(clientX,clientY){
  if(!camera||drawnObjects.length<2)return false;
  camera.updateMatrixWorld(true);
  const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),origin=new THREE.Vector3(),plane=workPlanes[activePlane];
  let target=null,atStart=false,best=14;
  const project=(point,obj)=>{projected.copy(point);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};};
- for(const obj of drawnObjects){
-  const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;
-  obj.updateWorldMatrix(true,false);
-  for(const [start,p] of [[true,pts[0]],[false,pts[pts.length-1]]]){
-   const q=project(p,obj),d=Math.hypot(px-q.x,py-q.y);
-   if(q.z>=-1&&q.z<=1&&d<best){best=d;target=obj;atStart=start;}
-  }
- }
+ for(const obj of drawnObjects){const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;const meta=sketchMetaForObject(obj);if(meta&&meta.plane&&meta.plane!==activePlane)continue;obj.updateWorldMatrix(true,false);for(const [start,p] of [[true,pts[0]],[false,pts[pts.length-1]]]){const q=project(p,obj),d=Math.hypot(px-q.x,py-q.y);if(q.z>=-1&&q.z<=1&&d<best){best=d;target=obj;atStart=start;}}}
  if(!target)return false;
- target.updateWorldMatrix(true,false);
- const localPts=target.userData.controlPoints||[],pts=localPts.map(p=>target.localToWorld(p.clone()));
+ const meta=sketchMetaForObject(target);target.updateWorldMatrix(true,false);const pts=(target.userData.controlPoints||[]).map(p=>target.localToWorld(p.clone()));
  const endpoint=atStart?pts[0]:pts[pts.length-1],neighbor=atStart?pts[1]:pts[pts.length-2];
- if(Math.abs(endpoint.clone().sub(origin).dot(plane.normal))>.05||Math.abs(neighbor.clone().sub(origin).dot(plane.normal))>.05){document.getElementById('saveState').textContent='Extender requiere el plano activo';return false;}
- const e=planeCoords(endpoint),n=planeCoords(neighbor),dx=e.u-n.u,dy=e.v-n.v,len=Math.hypot(dx,dy);
- if(len<1e-8)return false;
- const rx=dx/len,ry=dy/len,cross=(x,y,u,v)=>x*v-y*u;
- let nearest=Infinity,intersection=null;
- for(const obj of drawnObjects){
-  if(obj===target)continue;
-  obj.updateWorldMatrix(true,false);
-  const localOther=obj.userData.controlPoints||[],other=localOther.map(p=>obj.localToWorld(p.clone())),count=obj.userData.closed?other.length:other.length-1;
-  for(let j=0;j<count;j++){
-   const p3=other[j],q3=other[(j+1)%other.length];
-   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
-   const p=planeCoords(p3),q=planeCoords(q3),hit=intersectRaySegment2D(e,{u:rx,v:ry},p,q);
-   if(hit&&hit.t<nearest){nearest=hit.t;intersection=planePoint(e.u+rx*hit.t,e.v+ry*hit.t);}
-  }
- }
+ if(Math.abs(endpoint.clone().sub(origin).dot(plane.normal))>.05||Math.abs(neighbor.clone().sub(origin).dot(plane.normal))>.05)return false;
+ const e=planeCoords(endpoint),n=planeCoords(neighbor),dx=e.u-n.u,dy=e.v-n.v,len=Math.hypot(dx,dy);if(len<1e-8)return false;
+ const rx=dx/len,ry=dy/len;let nearest=Infinity,intersection=null;
+ for(const obj of drawnObjects){if(obj===target)continue;const otherMeta=sketchMetaForObject(obj);if(otherMeta&&otherMeta.plane&&otherMeta.plane!==activePlane)continue;obj.updateWorldMatrix(true,false);const other=(obj.userData.controlPoints||[]).map(p=>obj.localToWorld(p.clone())),count=obj.userData.closed?other.length:other.length-1;for(let j=0;j<count;j++){const p3=other[j],q3=other[(j+1)%other.length];if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;const p=planeCoords(p3),q=planeCoords(q3),hit=intersectRaySegment2D(e,{u:rx,v:ry},p,q);if(hit&&hit.t<nearest){nearest=hit.t;intersection=planePoint(e.u+rx*hit.t,e.v+ry*hit.t);}}}
  if(!intersection)return false;
- const updated=pts.map(p=>p.clone());
- if(atStart)updated.unshift(intersection);else updated.push(intersection);
- const obj=makeFatStroke(updated,0xe5efff,1,false);if(!obj)return false;
- const meta=sketchMetaForObject(target);
- obj.userData.sketch=createSketchDefinition('polyline',updated,activePlane,{...(meta&&meta.parameters||{}),extended:true,operation:'intersection-extend'});
- scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);scene.add(obj);drawnObjects.push(obj);
- setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
- document.getElementById('saveState').textContent='Extremo extendido hasta la intersección';return true;
+ const updated=pts.map(p=>p.clone());if(atStart)updated.unshift(intersection);else updated.push(intersection);
+ const color=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff),obj=makeFatStroke(updated,color,1,false);if(!obj)return false;
+ obj.userData.sketch=createSketchDefinition('polyline',updated,meta.plane||activePlane,{...(meta.parameters||{}),extended:true,operation:'intersection-extend',sourceType:meta.type,sourceId:meta.id||null});obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;
+ scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);scene.add(obj);drawnObjects.push(obj);setSelectedObject(obj);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Extremo extendido hasta la intersección';return true;
 }
-function findSelectableObject(clientX,clientY){
+function findSelectableObject(clientX,clientY,pointerType='mouse'){
  if(!camera||!drawnObjects.length)return null;
  camera.updateMatrixWorld(true);
  const rect=renderer.domElement.getBoundingClientRect();
- let best=null,bestPixels=14,bestDepth=Infinity;
+ // En Android el dedo oculta el trazo y el punto de contacto no es tan preciso como un ratón.
+ // Usamos un radio táctil mayor, manteniendo la tolerancia fina para escritorio.
+ let best=null,bestPixels=pointerType==='touch'?34:14,bestDepth=Infinity,bestSegmentIndex=-1;
  const px=(clientX-rect.left),py=(clientY-rect.top);
  const projected=new THREE.Vector3();
  const segmentDistance=(p,a,b)=>{
@@ -2078,10 +2383,11 @@ function findSelectableObject(clientX,clientY){
    const hit=segmentDistance({x:px,y:py},a,b);
    if(hit.depth< -1||hit.depth>1)continue;
    if(hit.distance<bestPixels||(Math.abs(hit.distance-bestPixels)<.25&&hit.depth<bestDepth)){
-    best=obj;bestPixels=hit.distance;bestDepth=hit.depth;
+    best=obj;bestPixels=hit.distance;bestDepth=hit.depth;bestSegmentIndex=i;
    }
   }
  }
+ if(best&&best.userData)best.userData.lastPickedSegmentIndex=bestSegmentIndex;
  return best;
 }
 function refreshWorkspacePanels(){
@@ -2090,12 +2396,12 @@ function refreshWorkspacePanels(){
  const projectName=document.getElementById('documentTitle')?.textContent||'Proyecto';
  const treeName=document.getElementById('treeProjectName');if(treeName)treeName.textContent=projectName;
  const count=document.getElementById('inspectorCount');if(count)count.textContent=String(drawnObjects.length);
- const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar',extend:'Extender'}[activeTool]||activeTool);
+ const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',slot:'Ranura',bezier:'Bézier',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia',fillet:'Redondeo',chamfer:'Chaflán',mirror:'Simetría',linearPattern:'Patrón lineal',circularPattern:'Patrón circular'}[activeTool]||activeTool);
  const plane=document.getElementById('inspectorPlane');if(plane)plane.textContent=({VIEW:'Vista',XZ:'Suelo · XZ',XY:'Frente · XY',YZ:'Lado · YZ'}[activePlane]||activePlane);
  const selection=document.getElementById('inspectorSelection');
  if(selection){
   if(!selectedObject)selection.textContent='Ningún elemento seleccionado. Elige una geometría en el lienzo o en el árbol.';
-  else{const pts=selectedObject.userData.controlPoints||[],meta=sketchMetaForObject(selectedObject);selection.textContent=(meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos · '+sketchConstraintSummary(selectedObject);}
+  else{const pts=selectedObject.userData.controlPoints||[],meta=sketchMetaForObject(selectedObject);selection.textContent=(meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='slot'?'Ranura':meta.type==='bezier'?'Bézier':meta.type==='polyline'?'Polilínea':selectedObject.userData.closed?'Perfil cerrado':'Trazo')+' · '+pts.length+' puntos · '+sketchConstraintSummary(selectedObject);}
  }
  list.replaceChildren();
  const groups=sketchLayers.slice();
@@ -2132,8 +2438,8 @@ function refreshWorkspacePanels(){
   members.forEach(obj=>{
    objectIndex++;
    const row=document.createElement('div');row.className='tree-object-row';
-   const selectObject=document.createElement('button');selectObject.type='button';selectObject.className='tree-row'+(selectedObject===obj?' active':'');
-   const meta=sketchMetaForObject(obj),label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';
+   const selectObject=document.createElement('button');selectObject.type='button';selectObject.className='tree-row'+(selectedObjects.includes(obj)?' active':'');
+   const meta=sketchMetaForObject(obj),label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='slot'?'Ranura':meta.type==='bezier'?'Bézier':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';
    const glyph=document.createElement('span');glyph.className='tree-icon';glyph.textContent=obj.userData.closed?'□':'／';
    const text=document.createElement('span');text.textContent=label+' '+objectIndex;selectObject.append(glyph,text);
    selectObject.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});
@@ -2147,19 +2453,18 @@ function refreshWorkspacePanels(){
   section.appendChild(children);list.appendChild(section);
  });
 }
-function setSelectedObject(obj){
- if(selectedObject===obj)return;
- if(selectedObject&&selectedObject.material&&selectedObject.userData.selectionOriginalColor!==undefined){
-  selectedObject.material.color.setHex(selectedObject.userData.selectionOriginalColor);
-  selectedObject.material.needsUpdate=true;
+function setSelectedObject(obj,additive=false){
+ const previous=[...selectedObjects];
+ if(!additive)selectedObjects=[];
+ if(obj){
+  const index=selectedObjects.indexOf(obj);
+  if(additive&&index>=0)selectedObjects.splice(index,1);
+  else if(index<0)selectedObjects.push(obj);
  }
- selectedObject=obj||null;
+ selectedObject=selectedObjects[selectedObjects.length-1]||null;
+ for(const item of previous){if(item&&item.material&&item.userData.selectionOriginalColor!==undefined){item.material.color.setHex(item.userData.selectionOriginalColor);item.material.needsUpdate=true;}}
+ for(const item of selectedObjects){if(item&&item.material&&item.material.color){if(item.userData.selectionOriginalColor===undefined)item.userData.selectionOriginalColor=item.material.color.getHex();item.material.color.setHex(0x39bfff);item.material.needsUpdate=true;}}
  refreshWorkspacePanels();
- if(selectedObject&&selectedObject.material&&selectedObject.material.color){
-  if(selectedObject.userData.selectionOriginalColor===undefined)selectedObject.userData.selectionOriginalColor=selectedObject.material.color.getHex();
-  selectedObject.material.color.setHex(0x39bfff);
-  selectedObject.material.needsUpdate=true;
- }
 }
 function disposePreview(obj){if(!obj)return;if(obj.geometry)obj.geometry.dispose();if(obj.material){if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material.dispose();}}
 function fmt(n){return (Math.round(n*10)/10).toFixed(1);}
@@ -2186,7 +2491,7 @@ function updateContinuousLine(cursor,fromPoint){
   updateMeasureAt('Longitud: '+fmt(distance)+' cm','Ángulo: '+fmt(angle)+'° · Elevación: '+fmt(elevation)+'°',mid);
  }
 }
-function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);lineObject.userData.sketch=createSketchDefinition('polyline',linePoints,activePlane,{segmentCount:linePoints.length-1});drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
+function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);const lineMeta=createSketchDefinition('polyline',linePoints,activePlane,{segmentCount:linePoints.length-1});lineMeta.parametricModel=buildParametricSketchModel(lineMeta,linePoints);lineObject.userData.sketch=lineMeta;drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function addArcPoint(point){
  if(!point)return false;
  if(arcPoints.length<2){arcPoints.push(point.clone());const status=arcPoints.length===1?'Arco: punto inicial fijado':'Arco: punto de curva fijado · marca el final';document.getElementById('saveState').textContent=status;hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
@@ -2194,9 +2499,74 @@ function addArcPoint(point){
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
  const obj=makeArcShape(start,through,end,false);
  if(!obj){document.getElementById('saveState').textContent='Arco inválido · los tres puntos no pueden estar alineados';return false;}
- const pts=obj.userData.controlPoints||[];obj.userData.sketch=createSketchDefinition('arc',pts,activePlane,{start:[start.x,start.y,start.z],through:[through.x,through.y,through.z],end:[end.x,end.y,end.z]});
+ const pts=obj.userData.controlPoints||[];const arcMeta=createSketchDefinition('arc',pts,activePlane,{start:[start.x,start.y,start.z],through:[through.x,through.y,through.z],end:[end.x,end.y,end.z]});arcMeta.parametricModel=buildParametricSketchModel(arcMeta,pts);obj.userData.sketch=arcMeta;
  scene.add(obj);drawnObjects.push(obj);arcPoints=[];refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
  const a=planeCoords(start),b=planeCoords(through),c=planeCoords(end);updateMeasureAt('Arco de 3 puntos','Inicio · curva · final',planePoint((a.u+b.u+c.u)/3,(a.v+b.v+c.v)/3,.08));saveViewportProject();recordDrawingHistory();return true;
+}
+function makeCircleThreePointShape(first,second,third,preview){
+ const a=planeCoords(first),b=planeCoords(second),c=planeCoords(third);
+ const result=circleThroughThreePoints(a,b,c);
+ if(!result||result.radius<.03)return null;
+ const points=[];
+ for(let i=0;i<=64;i++){const angle=i/64*Math.PI*2;points.push(planePoint(result.center.u+Math.cos(angle)*result.radius,result.center.v+Math.sin(angle)*result.radius));}
+ return makeFatStroke(points,preview?0x8ebaff:0xe5efff,preview?.65:1,true);
+}
+function addCircleThreePoint(point){
+ if(!point)return false;
+ if(arcPoints.length<2){arcPoints.push(point.clone());document.getElementById('saveState').textContent=arcPoints.length===1?'Círculo: primer punto fijado':'Círculo: segundo punto fijado · marca el tercero';hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
+ const first=arcPoints[0],second=arcPoints[1],third=point.clone();
+ if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+ const obj=makeCircleThreePointShape(first,second,third,false);
+ if(!obj){document.getElementById('saveState').textContent='Círculo inválido · los tres puntos no pueden estar alineados';return false;}
+ const circle=circleThroughThreePoints(planeCoords(first),planeCoords(second),planeCoords(third));
+ const center=planePoint(circle.center.u,circle.center.v);
+ const pts=obj.userData.controlPoints||[];
+ const meta=createSketchDefinition('circle',pts,activePlane,{center:[center.x,center.y,center.z],radius:circle.radius,constructionPoints:[first.toArray(),second.toArray(),third.toArray()]});
+ meta.parametricModel=buildParametricSketchModel(meta,pts);obj.userData.sketch=meta;
+ scene.add(obj);drawnObjects.push(obj);arcPoints=[];refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
+ updateMeasureAt('Círculo por 3 puntos','Radio: '+fmt(circle.radius)+' cm',center.clone().addScaledVector(workPlanes[activePlane].normal,.08));saveViewportProject();recordDrawingHistory();return true;
+}
+function makeSlotShape(start,end,widthPoint,preview){
+ const a=planeCoords(start),b=planeCoords(end),w=planeCoords(widthPoint),du=b.u-a.u,dv=b.v-a.v,length=Math.hypot(du,dv);
+ if(length<.03)return null;
+ const radius=Math.abs(du*(w.v-a.v)-dv*(w.u-a.u))/length;
+ if(radius<.015)return null;
+ const path=createSlotPath(a,b,radius,24);
+ if(path.length<10)return null;
+ return makeFatStroke(path.map(point=>planePoint(point.u,point.v)),preview?0x8ebaff:0xe5efff,preview?.65:1,true);
+}
+function addSlotPoint(point){
+ if(!point)return false;
+ if(arcPoints.length<2){arcPoints.push(point.clone());document.getElementById('saveState').textContent=arcPoints.length===1?'Ranura: primer centro fijado':'Ranura: segundo centro fijado · marca el ancho';hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
+ const start=arcPoints[0],end=arcPoints[1],widthPoint=point.clone();
+ if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+ const obj=makeSlotShape(start,end,widthPoint,false);
+ if(!obj){document.getElementById('saveState').textContent='Ranura inválida · define una longitud y un ancho';return false;}
+ const a=planeCoords(start),b=planeCoords(end),w=planeCoords(widthPoint),radius=Math.abs((b.u-a.u)*(w.v-a.v)-(b.v-a.v)*(w.u-a.u))/Math.hypot(b.u-a.u,b.v-a.v);
+ const meta=createSketchDefinition('slot',obj.userData.controlPoints,activePlane,{centerlineStart:start.toArray(),centerlineEnd:end.toArray(),radius});
+ obj.userData.sketch=meta;scene.add(obj);drawnObjects.push(obj);arcPoints=[];refreshWorkspacePanels();
+ document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
+ updateMeasureAt('Ranura · ancho: '+fmt(radius*2)+' cm','Longitud entre centros: '+fmt(start.distanceTo(end))+' cm',point.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+ saveViewportProject();recordDrawingHistory();return true;
+}
+function makeBezierShape(start,control,end,preview){
+ const a=planeCoords(start),c=planeCoords(control),b=planeCoords(end);
+ if(Math.hypot(b.u-a.u,b.v-a.v)<.03)return null;
+ const path=sampleBezier([a,c,b],48);
+ return path.length>=3?makeFatStroke(path.map(point=>planePoint(point.u,point.v)),preview?0x8ebaff:0xe5efff,preview?.65:1,false):null;
+}
+function addBezierPoint(point){
+ if(!point)return false;
+ if(arcPoints.length<2){arcPoints.push(point.clone());document.getElementById('saveState').textContent=arcPoints.length===1?'Bézier: inicio fijado':'Bézier: punto de control fijado · marca el final';hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
+ const start=arcPoints[0],control=arcPoints[1],end=point.clone();
+ if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
+ const obj=makeBezierShape(start,control,end,false);
+ if(!obj){document.getElementById('saveState').textContent='Bézier inválida · separa el punto inicial y final';return false;}
+ const meta=createSketchDefinition('bezier',obj.userData.controlPoints,activePlane,{start:start.toArray(),control:control.toArray(),end:end.toArray()});
+ obj.userData.sketch=meta;scene.add(obj);drawnObjects.push(obj);arcPoints=[];refreshWorkspacePanels();
+ document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
+ updateMeasureAt('Bézier cuadrática','Curva definida por inicio, control y final',control.clone().addScaledVector(workPlanes[activePlane].normal,.08));
+ saveViewportProject();recordDrawingHistory();return true;
 }
 function makeArcShape(start,through,end,preview){
  const a=planeCoords(start),m=planeCoords(through),b=planeCoords(end),det=2*(a.u*(m.v-b.v)+m.u*(b.v-a.v)+b.u*(a.v-m.v));
@@ -2216,6 +2586,10 @@ function makeShape(type,a,b,preview){
   const ca=planeCoords(a),cb=planeCoords(b);
   if(Math.abs(cb.u-ca.u)<.03||Math.abs(cb.v-ca.v)<.03)return null;
   points.push(planePoint(ca.u,ca.v),planePoint(cb.u,ca.v),planePoint(cb.u,cb.v),planePoint(ca.u,cb.v));
+ }else if(type==='rectCenter'){
+  const ca=planeCoords(a),cb=planeCoords(b),corners=rectangleFromCenter({u:ca.u,v:ca.v},{u:cb.u,v:cb.v});
+  if(corners.length!==4||Math.abs(cb.u-ca.u)<.03||Math.abs(cb.v-ca.v)<.03)return null;
+  corners.forEach(point=>points.push(planePoint(point.u,point.v)));
  }else if(type==='circle'){
   const ca=planeCoords(a),cb=planeCoords(b),radius=Math.hypot(cb.u-ca.u,cb.v-ca.v);
   if(radius<.03)return null;

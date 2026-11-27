@@ -2,7 +2,9 @@ name: Validate NOCTURNE STUDIO CAD sources
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, fix/touch-aim-cursor]
+  push:
+    branches: [feat/full-sketch-toolset]
   workflow_dispatch:
 
 permissions:
