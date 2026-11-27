@@ -1070,9 +1070,22 @@ function startSketchDimension(type){
  ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){const active=id===activeDimensionId;button.classList.toggle('tool-active',active);button.setAttribute('aria-pressed',String(active));}});
  setSketchConstraintHint(type==='distance'?'Cota lineal activa · toca directamente el segmento que quieres medir.':type==='radius'?'Cota de radio activa · toca directamente un círculo o arco.':'Cota de diámetro activa · toca directamente un círculo o arco.');
 }
-document.getElementById('radiusDimensionTool')?.addEventListener('click',()=>startSketchDimension('radius'));
-document.getElementById('diameterDimensionTool')?.addEventListener('click',()=>startSketchDimension('diameter'));
-document.getElementById('linearDimensionTool')?.addEventListener('click',()=>startSketchDimension('distance'));
+// Activar cotas en pointerdown: en Android el click sintetizado puede perderse
+// cuando el canvas y sus manejadores táctiles capturan el gesto.
+function bindDimensionActivation(id,type){
+ const button=document.getElementById(id);if(!button)return;
+ button.addEventListener('pointerdown',event=>{
+  if(event.button!==undefined&&event.button!==0)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  startSketchDimension(type);
+ },true);
+ button.addEventListener('click',event=>{
+  if(event.detail===0){event.preventDefault();startSketchDimension(type);}
+ },true);
+}
+bindDimensionActivation('radiusDimensionTool','radius');
+bindDimensionActivation('diameterDimensionTool','diameter');
+bindDimensionActivation('linearDimensionTool','distance');
 function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el){el.textContent=message;el.hidden=false;}}
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
