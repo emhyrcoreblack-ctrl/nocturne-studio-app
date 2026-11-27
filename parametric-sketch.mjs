@@ -67,10 +67,14 @@ export class ParametricSketch {
     if(type==='fixed') {
       const target=point(this,refs[0]); constraint.target={u:target.u,v:target.v};
     }
-    if(type==='distance') {
-      if(!finite(options.value)||options.value<0) throw new RangeError('Distance value must be non-negative');
+    if(['distance','radius','diameter','horizontalDistance','verticalDistance','angle'].includes(type)) {
+      if(!finite(options.value)) throw new TypeError('Constraint value must be finite');
+      if(['distance','radius','diameter'].includes(type)&&options.value<0) throw new RangeError('Dimension value must be non-negative');
+      if(['radius','diameter'].includes(type)&&options.value<=EPS) throw new RangeError('Circle dimension must be positive');
+      if(type==='angle'&&(options.value < -Math.PI || options.value > Math.PI)) throw new RangeError('Angle must be in radians between -pi and pi');
       constraint.value=options.value;
     }
+    if(type==='tangentLineCircle') constraint.side=options.side===-1?-1:1;
     this._validateConstraint(constraint);
     this.constraints.push(constraint); this.revision++; return constraint.id;
   }
@@ -87,8 +91,16 @@ export class ParametricSketch {
       if(r.length!==2) throw new Error(`${c.type} expects two lines`); r.forEach(id=>line(this,id));
     } else if(c.type==='concentric') {
       if(r.length!==2) throw new Error('concentric expects two circles'); r.forEach(id=>circle(this,id));
-    } else if(c.type==='distance') {
-      if(r.length!==2) throw new Error('distance expects two points'); r.forEach(id=>point(this,id));
+    } else if(['distance','horizontalDistance','verticalDistance'].includes(c.type)) {
+      if(r.length!==2) throw new Error(c.type+' expects two points'); r.forEach(id=>point(this,id));
+    } else if(c.type==='radius'||c.type==='diameter') {
+      if(r.length!==1) throw new Error(c.type+' expects one circle'); circle(this,r[0]);
+    } else if(c.type==='angle') {
+      if(r.length!==2) throw new Error('angle expects two lines'); r.forEach(id=>line(this,id));
+    } else if(c.type==='pointOnLine') {
+      if(r.length!==2) throw new Error('pointOnLine expects [point, line]'); point(this,r[0]); line(this,r[1]);
+    } else if(c.type==='tangentLineCircle') {
+      if(r.length!==2) throw new Error('tangentLineCircle expects [line, circle]'); line(this,r[0]); circle(this,r[1]);
     }
   }
   removeConstraint(id) {
@@ -144,6 +156,24 @@ function residuals(model) {
       const p=point(model,r[0]); result.push(p.u-c.target.u,p.v-c.target.v);
     } else if(c.type==='distance') {
       result.push(distance(point(model,r[0]),point(model,r[1]))-c.value);
+    } else if(c.type==='horizontalDistance') {
+      result.push(point(model,r[1]).u-point(model,r[0]).u-c.value);
+    } else if(c.type==='verticalDistance') {
+      result.push(point(model,r[1]).v-point(model,r[0]).v-c.value);
+    } else if(c.type==='radius'||c.type==='diameter') {
+      const target=c.type==='diameter'?c.value/2:c.value;
+      result.push(circle(model,r[0]).radius-target);
+    } else if(c.type==='angle') {
+      const a=direction({model,entity:line(model,r[0])}),b=direction({model,entity:line(model,r[1])});
+      let delta=Math.atan2(cross(a,b),dot(a,b))-c.value;
+      delta=Math.atan2(Math.sin(delta),Math.cos(delta)); result.push(delta);
+    } else if(c.type==='pointOnLine') {
+      const p=point(model,r[0]),l=line(model,r[1]),a=point(model,l.a),b=point(model,l.b),d={u:b.u-a.u,v:b.v-a.v};
+      const length=Math.hypot(d.u,d.v)||1; result.push(cross(d,{u:p.u-a.u,v:p.v-a.v})/length);
+    } else if(c.type==='tangentLineCircle') {
+      const l=line(model,r[0]),a=point(model,l.a),b=point(model,l.b),center=point(model,circle(model,r[1]).center),d={u:b.u-a.u,v:b.v-a.v};
+      const length=Math.hypot(d.u,d.v)||1;
+      result.push(cross(d,{u:center.u-a.u,v:center.v-a.v})/length-c.side*circle(model,r[1]).radius);
     }
   }
   return result;
