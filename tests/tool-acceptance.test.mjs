@@ -339,3 +339,10 @@ test('La paleta actual no conserva la barra ficticia ni la búsqueda antigua des
  assert.doesNotMatch(app,/class="onshape-topbar"/);
  assert.doesNotMatch(app,/class="onshape-search"/);
 });
+
+
+test('Android Cota can resolve a tap on pointerup when pointerdown was lost',()=>{
+ assert.match(app,/const matchingDown=!!\(down&&down\.pointerId===event\.pointerId\)/);
+ assert.match(app,/const validTap=matchingDown\?tapDistance<=[\s\S]*?:pendingDimensionType!==null/);
+ assert.match(app,/if\(!canceledSelectionTouch&&validTap\)/);
+});
