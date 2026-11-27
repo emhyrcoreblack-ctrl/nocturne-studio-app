@@ -810,7 +810,7 @@
 </script>
 <script type="module">
 import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance } from './cad-geometry.mjs';
-import { ParametricSketch, solveParametricSketch } from './parametric-sketch.mjs';
+import { ParametricSketch } from './parametric-sketch.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
@@ -836,6 +836,17 @@ function buildParametricSketchModel(meta,points){
  if(meta.type==='circle'&&Array.isArray(params.center)&&params.center.length===3&&Number.isFinite(params.radius)&&params.radius>0){
   const center=planeCoords(new THREE.Vector3(params.center[0],params.center[1],params.center[2]));
   model.addCircle({u:center.u,v:center.v},params.radius,{id:meta.id+'-circle'});
+  return model.toJSON();
+ }
+ if(meta.type==='arc'&&Array.isArray(params.start)&&Array.isArray(params.through)&&Array.isArray(params.end)){
+  const a=planeCoords(new THREE.Vector3(...params.start)),m=planeCoords(new THREE.Vector3(...params.through)),b=planeCoords(new THREE.Vector3(...params.end));
+  const det=2*(a.u*(m.v-b.v)+m.u*(b.v-a.v)+b.u*(a.v-m.v));
+  if(Math.abs(det)>1e-9){
+   const aa=a.u*a.u+a.v*a.v,mm=m.u*m.u+m.v*m.v,bb=b.u*b.u+b.v*b.v;
+   const cu=(aa*(m.v-b.v)+mm*(b.v-a.v)+bb*(a.v-m.v))/det,cv=(aa*(b.u-m.u)+mm*(a.u-b.u)+bb*(m.u-a.u))/det;
+   const radius=Math.hypot(a.u-cu,a.v-cv),sa=Math.atan2(a.v-cv,a.u-cu),ma=(Math.atan2(m.v-cv,m.u-cu)-sa+Math.PI*2)%(Math.PI*2),ea=(Math.atan2(b.v-cv,b.u-cu)-sa+Math.PI*2)%(Math.PI*2),sweep=ma<=ea?ea:ea-Math.PI*2;
+   if(radius>1e-9&&Math.abs(sweep)>1e-9)model.addArc({u:cu,v:cv},radius,sa,sweep,{id:meta.id+'-arc'});
+  }
   return model.toJSON();
  }
  const uv=(points||[]).map(p=>planeCoords(p)).filter(p=>Number.isFinite(p.u)&&Number.isFinite(p.v));
