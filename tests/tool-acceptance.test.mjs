@@ -31,18 +31,28 @@ test('global acceptance criteria are defined', () => {
   assert.ok(matrix.globalAcceptance.length >= 8);
 });
 
-test('Croquis is a dedicated mode with plane-aware entry and finish control', () => {
+test('Croquis starts and finishes independent sketch sessions on the selected plane', () => {
   assert.match(app, /let activeTool='select',lastDrawingTool=null,sketchMode=false,sketchPlane='XZ'/);
-  assert.match(app, /nocturne-toggle-sketch-mode/);
-  assert.match(app, /nocturne-open-sketch-tools/);
   assert.match(app, /const setSketchMode=enabled=>/);
-  assert.match(app, /setWorkPlane\(initialPlane,true\)/);
-  assert.match(app, /dockSketchButton\.setAttribute\('aria-pressed','true'\)/);
-  assert.match(app, /dockSketchButton\.setAttribute\('aria-pressed','false'\)/);
-  assert.match(app, /activeToggle\.hidden=!sketchMode/);
-  assert.match(app, /const shownTool=lastDrawingTool&&tool===lastDrawingTool\?lastDrawingTool:'select'/);
-  assert.match(app, /active-tool-label/);
-  assert.match(app, /labels\[shownTool\]/);
-  assert.match(app, /textContent='Terminar'/);
-  assert.match(app, /Herramienta de selección activa/);
+  assert.match(app, /const layer=createSketchLayerRecord\(planeName\)/);
+  assert.match(app, /layer\.status='active';sketchLayers\.push\(layer\);activeSketchId=layer\.id/);
+  assert.match(app, /finished\.status='completed'/);
+  assert.match(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
+});
+
+test('Tools palette remains independent from the Croquis session button', () => {
+  assert.match(app, /getElementById\('dockTools'\)\.addEventListener\('click',toggleDrawPalette\)/);
+  assert.match(app, /function chooseTool\(tool\)\{setTool\(activeTool===tool\?'select':tool\)/);
+  assert.match(app, /activeToggle\.hidden=!lastDrawingTool/);
+  assert.match(app, /activeToggle\.setAttribute\('aria-pressed',String\(!!lastDrawingTool&&activeTool===lastDrawingTool\)\)/);
+});
+
+test('Each sketch is persisted as a feature-tree group with its geometry', () => {
+  assert.match(app, /sketchLayers=\[\],activeSketchId=null/);
+  assert.match(app, /sketchId:activeSketchId\|\|null/);
+  assert.match(app, /sketches:sketchLayers\.map\(layer=>\(\.\.\.layer\)\)/);
+  assert.match(app, /sketchLayers=data&&Array\.isArray\(data\.sketches\)/);
+  assert.match(app, /className='tree-row tree-sketch'/);
+  assert.match(app, /members=drawnObjects\.filter\(obj=>sketchMetaForObject\(obj\)\.sketchId===layer\.id\)/);
+  assert.match(app, /sketches:sketchLayers\.map\(layer=>\(\.\.\.layer\)\)/);
 });
