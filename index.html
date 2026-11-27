@@ -1970,7 +1970,7 @@ function moveSketch(event){
  previewObject=makeShape(activeTool,drawStart,p,true);if(previewObject)scene.add(previewObject);
  const a=planeCoords(drawStart),b=planeCoords(p),dx=Math.abs(b.u-a.u),dz=Math.abs(b.v-a.v),distance=Math.hypot(dx,dz);
  const anchor=planePoint((a.u+b.u)/2,(a.v+b.v)/2,.08);
- if(activeTool==='rect')updateMeasureAt('Ancho: '+fmt(dx)+' cm · Alto: '+fmt(dz)+' cm','Diagonal: '+fmt(distance)+' cm',anchor);
+ if(activeTool==='rect'||activeTool==='rectCenter')updateMeasureAt('Ancho: '+fmt(dx*(activeTool==='rectCenter'?2:1))+' cm · Alto: '+fmt(dz*(activeTool==='rectCenter'?2:1))+' cm','Diagonal: '+fmt(distance*(activeTool==='rectCenter'?2:1))+' cm',anchor);
  else if(activeTool==='circle')updateMeasureAt('Diámetro: '+fmt(distance*2)+' cm','Radio: '+fmt(distance)+' cm',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
  else if(activeTool==='polygon')updateMeasureAt('Radio: '+fmt(distance)+' cm','Polígono regular · 6 lados',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));
  else if(activeTool==='ellipse')updateMeasureAt('Radio X: '+fmt(dx)+' cm','Radio Y: '+fmt(dz)+' cm',anchor);
