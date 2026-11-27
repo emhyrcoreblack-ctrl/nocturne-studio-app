@@ -272,3 +272,11 @@ test('dimension tools can start without a preselected entity and select geometry
   assert.match(app,/if\(pendingDimensionType\)\{[\s\S]*?findSelectableObject\(aim\.clientX,aim\.clientY\)[\s\S]*?setSelectedObject\(target\);applySketchDimension\(requested\)/);
   assert.match(app,/function setTool\(tool\)\{\s*pendingDimensionType=null;/);
 });
+
+test('linear dimension uses the exact segment selected on the canvas',()=>{
+  assert.match(app,/bestSegmentIndex=-1/);
+  assert.match(app,/bestSegmentIndex=i/);
+  assert.match(app,/best\.userData\.lastPickedSegmentIndex=bestSegmentIndex/);
+  assert.match(app,/const segmentIndex=linear\?Math\.max\(0,Math\.min\(Number\.isInteger\(obj\.userData\.lastPickedSegmentIndex\)/);
+  assert.match(app,/a:segmentIndex,b:segmentEnd/);
+});
