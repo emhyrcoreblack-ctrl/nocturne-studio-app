@@ -82,3 +82,26 @@ test('Orientation cube opens a compact view and work-plane menu', () => {
   assert.match(app, /#workPlaneSwitcher\{display:none!important\}/);
   assert.match(app, /function setIsometricView\(\)/);
 });
+
+test('Modelado stays unavailable until 3D modeling operations are implemented', () => {
+  assert.match(app, /id="dockModeling"[^>]*aria-disabled="true" disabled[^>]*title="Modelado · próximamente"/);
+  assert.doesNotMatch(app, /getElementById\('dockModeling'\)\.addEventListener\('click'/);
+});
+
+test('Croquis autosaves active sessions, partial line and arc input, and restores them', () => {
+  assert.match(app, /activeSketchId,sketchMode,sketchPlane,activeLine:[\s\S]*?activeArc:/);
+  assert.match(app, /if\(arcPoints\.length<2\)[\s\S]*?saveViewportProject\(\);recordDrawingHistory\(\)/);
+  assert.match(app, /activeSketchId=data&&typeof data\.activeSketchId==='string'/);
+  assert.match(app, /activeArc=data&&Array\.isArray\(data\.activeArc\)/);
+  assert.match(app, /visibilitychange[\s\S]*?saveViewportProject\(\)/);
+  assert.match(app, /pagehide',saveViewportProject/);
+});
+
+test('Capas controla visibilidad de croquis y entidades y conserva el estado', () => {
+  assert.match(app, /className='tree-visibility'/);
+  assert.match(app, /className='tree-visibility tree-visibility-object'/);
+  assert.match(app, /layer\.visible=layer\.visible===false/);
+  assert.match(app, /obj\.userData\.layerVisible=obj\.userData\.layerVisible===false/);
+  assert.match(app, /visible:obj\.userData\.layerVisible!==false/);
+  assert.match(app, /obj\.visible=obj\.userData\.layerVisible&&\(!owningLayer\|\|owningLayer\.visible!==false\)/);
+});
