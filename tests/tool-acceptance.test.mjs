@@ -113,3 +113,10 @@ test('Polyline and rectangle constraints use the parametric solver and update re
   assert.match(app,/function solveSketchConstraints\(obj\)[\s\S]*?ParametricSketch\.fromJSON\(meta\.parametricModel\)[\s\S]*?solveParametricSketch\(model\)[\s\S]*?updateFatStroke\(obj,next\)/);
   assert.match(app,/model\.addConstraint\(c\.type,refs/);
 });
+
+
+test('equal-length relation is exposed and connected for two-segment polylines',()=>{
+  assert.match(app,/data-sketch-constraint="equal"/);
+  assert.match(app,/c\.type==='parallel'\|\|c\.type==='perpendicular'\|\|c\.type==='equal'/);
+  assert.match(app,/type==='parallel'\|\|type==='perpendicular'\|\|type==='equal'/);
+});
