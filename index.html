@@ -1028,33 +1028,30 @@ function applySketchConstraint(type){
 function requestDimensionValue(title,initial){
  return new Promise(resolve=>{
   const overlay=document.createElement('div');overlay.className='dimension-calculator-backdrop';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','false');overlay.setAttribute('aria-label',title);
-  overlay.innerHTML='<section class="dimension-calculator"><header><strong>'+title+'</strong><button type="button" data-calc-close aria-label="Cerrar">×</button></header><label class="dimension-expression-label" for="dimensionExpressionInput">Medida · cm</label><input id="dimensionExpressionInput" class="dimension-expression-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><output class="dimension-expression-result" aria-live="polite"></output><div class="dimension-unit-row"><button type="button" data-unit="cm" class="active">cm</button><button type="button" data-unit="ft">ft</button><button type="button" data-unit="in">in</button><button type="button" data-unit="deg">deg</button><button type="button" data-key="(">( )</button></div><div class="dimension-keypad"><button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" data-key="/">÷</button><button type="button" data-key="back">⌫</button><button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" data-key="*">×</button><button type="button" data-key="clear">C</button><button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" data-key="-">−</button><button type="button" data-key="apply" aria-label="Aplicar">✓</button><button type="button" data-key="0">0</button><button type="button" data-key=".">.</button><button type="button" data-key="sign">±</button><button type="button" data-key="+">+</button></div><footer><button type="button" data-calc-cancel>Cancelar</button><button type="button" data-calc-apply class="dimension-apply">Aplicar cota</button></footer></section>';
-  document.body.appendChild(overlay);const input=overlay.querySelector('#dimensionExpressionInput'),output=overlay.querySelector('.dimension-expression-result');
-  let selectedUnit='cm';input.value=String(initial??'1');
+  overlay.innerHTML='<section class="dimension-calculator"><header><strong>'+title+'</strong><button type="button" data-calc-close aria-label="Cerrar">×</button></header><label class="dimension-expression-label" for="dimensionExpressionInput">Medida · cm</label><input id="dimensionExpressionInput" class="dimension-expression-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><output class="dimension-expression-result" aria-live="polite"></output><div class="dimension-unit-row"><button type="button" data-unit="cm" class="active">cm</button><button type="button" data-unit="ft">ft</button><button type="button" data-unit="in">in</button><button type="button" data-unit="deg" aria-label="Grados, para cotas angulares">deg</button></div><div class="dimension-keypad"><button type="button" data-key="(">(</button><button type="button" data-key=")">)</button><button type="button" data-key="^">xʸ</button><button type="button" data-key="pi">π</button><button type="button" data-key="sqrt(">√</button><button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" data-key="/">÷</button><button type="button" data-key="back">⌫</button><button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" data-key="*">×</button><button type="button" data-key="clear">C</button><button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" data-key="-">−</button><button type="button" data-key="apply" aria-label="Aplicar">✓</button><button type="button" data-key="0">0</button><button type="button" data-key=".">.</button><button type="button" data-key="+">+</button></div><footer><button type="button" data-calc-cancel>Cancelar</button><button type="button" data-calc-apply class="dimension-apply">Aplicar cota</button></footer></section>';
+  document.body.appendChild(overlay);const input=overlay.querySelector('#dimensionExpressionInput'),output=overlay.querySelector('.dimension-expression-result');input.value=String(initial??'1');
   const close=value=>{overlay.remove();resolve(value);};
   const update=()=>{try{const value=evaluateDimensionExpression(input.value,{expectedUnit:'length'});output.textContent=Number.isFinite(value)?'= '+value.toLocaleString('es-PE',{maximumFractionDigits:6})+' cm':'Expresión inválida';output.dataset.valid=String(Number.isFinite(value)&&value>0);}catch(error){output.textContent=error.message;output.dataset.valid='false';}};
-  const insert=(value)=>{const a=input.selectionStart??input.value.length,b=input.selectionEnd??a;input.setRangeText(value,a,b,'end');input.focus();update();};
-  const setUnit=unit=>{
-   if(unit==='deg'){selectedUnit=unit;input.value=input.value.replace(/\s*(cm|ft|in|deg)\s*$/i,'')+'deg';}
-   else{
-    let cmValue=null;try{cmValue=evaluateDimensionExpression(input.value,{expectedUnit:'length'});}catch{}
-    if(cmValue===null||!Number.isFinite(cmValue)){input.value=input.value.replace(/\s*(cm|ft|in|deg)\s*$/i,'')+unit;}
-    else{const factor=unit==='ft'?30.48:unit==='in'?2.54:1;input.value=String(Number((cmValue/factor).toFixed(8)))+unit;}
-    selectedUnit=unit;
-   }
-   overlay.querySelectorAll('[data-unit]').forEach(button=>button.classList.toggle('active',button.dataset.unit===unit));update();input.focus();input.select();
-  };
+  const insert=key=>{const a=input.selectionStart??input.value.length,b=input.selectionEnd??a;input.setRangeText(key,a,b,'end');input.focus();update();};
   input.addEventListener('input',update);
   overlay.querySelector('[data-calc-close]').addEventListener('click',()=>close(null));
   overlay.querySelector('[data-calc-cancel]').addEventListener('click',()=>close(null));
-  overlay.querySelectorAll('[data-unit]').forEach(button=>button.addEventListener('click',()=>setUnit(button.dataset.unit)));
+  overlay.querySelectorAll('[data-unit]').forEach(button=>button.addEventListener('click',()=>{
+   const unit=button.dataset.unit;
+   if(unit==='deg'){output.textContent='deg se habilitará al incorporar cotas angulares.';output.dataset.valid='false';return;}
+   try{
+    const cm=evaluateDimensionExpression(input.value,{expectedUnit:'length'});
+    const factor=unit==='ft'?30.48:unit==='in'?2.54:1;
+    input.value=String(Number((cm/factor).toFixed(8)))+unit;
+    overlay.querySelectorAll('[data-unit]').forEach(item=>item.classList.toggle('active',item===button));
+    update();input.focus();input.select();
+   }catch(error){output.textContent=error.message;output.dataset.valid='false';}
+  }));
   overlay.querySelectorAll('[data-key]').forEach(button=>button.addEventListener('click',()=>{
    const key=button.dataset.key;
    if(key==='apply'){overlay.querySelector('[data-calc-apply]').click();return;}
    if(key==='clear')input.value='';
    else if(key==='back')input.value=input.value.slice(0,-1);
-   else if(key==='sign'){input.value=input.value.startsWith('-')?input.value.slice(1):'-'+input.value;}
-   else if(key==='('&&input.value.trim())insert('(');
    else insert(key);
    input.focus();update();
   }));
