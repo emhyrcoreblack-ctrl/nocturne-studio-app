@@ -1958,7 +1958,7 @@ function beginSketch(event){
  if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'){
   if(event.button!==0)return;
   if(event.pointerType==='touch'&&activeTool!=='select')positionTouchCursor(event);
-  selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
+  selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId,pointerType:event.pointerType};return;
  }
  if(event.pointerType!=='touch'&&event.button!==0)return;
  const p=pointForSketch(event,true);if(!p)return;
@@ -2095,10 +2095,11 @@ function finishSketch(event){
  }
  if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'){
   const down=selectionPointerDown;selectionPointerDown=null;
-  if(!canceledSelectionTouch&&down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
+  if(!canceledSelectionTouch&&down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=(event.pointerType==='touch'?22:6)){
    const aim=lineGuideEvent(event);
    if(pendingDimensionType){
-    const target=findSelectableObject(event.clientX,event.clientY);
+    // La selección táctil debe usar el mismo punto compensado que muestra la cruz sobre el dedo.
+    const target=findSelectableObject(aim.clientX,aim.clientY,event.pointerType);
     if(target){const requested=pendingDimensionType;pendingDimensionType=null;setSelectedObject(target);applySketchDimension(requested);}
     else setSketchConstraintHint('No se detectó geometría. Acércate a una línea, círculo o arco y vuelve a tocar.');
    }
@@ -2297,11 +2298,13 @@ function extendEndpointAtScreen(clientX,clientY){
  obj.userData.sketch=createSketchDefinition('polyline',updated,meta.plane||activePlane,{...(meta.parameters||{}),extended:true,operation:'intersection-extend',sourceType:meta.type,sourceId:meta.id||null});obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;
  scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);scene.add(obj);drawnObjects.push(obj);setSelectedObject(obj);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Extremo extendido hasta la intersección';return true;
 }
-function findSelectableObject(clientX,clientY){
+function findSelectableObject(clientX,clientY,pointerType='mouse'){
  if(!camera||!drawnObjects.length)return null;
  camera.updateMatrixWorld(true);
  const rect=renderer.domElement.getBoundingClientRect();
- let best=null,bestPixels=14,bestDepth=Infinity,bestSegmentIndex=-1;
+ // En Android el dedo oculta el trazo y el punto de contacto no es tan preciso como un ratón.
+ // Usamos un radio táctil mayor, manteniendo la tolerancia fina para escritorio.
+ let best=null,bestPixels=pointerType==='touch'?34:14,bestDepth=Infinity,bestSegmentIndex=-1;
  const px=(clientX-rect.left),py=(clientY-rect.top);
  const projected=new THREE.Vector3();
  const segmentDistance=(p,a,b)=>{
