@@ -150,7 +150,9 @@ test('Android touch selection toggles multiple entities without keyboard modifie
   assert.match(app,/const selectionTouchPointers=new Set\(\);let selectionTouchMulti=false/);
   assert.match(app,/if\(activeTool==='select'&&event\.pointerType==='touch'\)[\s\S]*?selectionTouchPointers\.add\(event\.pointerId\)/);
   assert.match(app,/event\.pointerType==='touch'\|\|event\.shiftKey\|\|event\.ctrlKey\|\|event\.metaKey/);
-  assert.match(app,/if\(!canceledSelectionTouch&&down&&down\.pointerId===event\.pointerId/);
+  assert.match(app,/const matchingDown=!!\(down&&down\.pointerId===event\.pointerId\)/);
+  assert.match(app,/const validTap=matchingDown\?tapDistance<=[\s\S]*?:pendingDimensionType!==null/);
+  assert.match(app,/if\(!canceledSelectionTouch&&validTap\)/);
   assert.match(app,/selectedObjects\.includes\(obj\)/);
   assert.match(app,/function setSelectedObject\(obj,additive=false\)/);
   assert.match(app,/Toca dos círculos para seleccionarlos y aplicar Concéntrico/);
