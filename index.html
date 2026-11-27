@@ -1940,7 +1940,7 @@ function beginSketch(event){
 }
 function moveSketch(event){
  if(event.pointerType==='touch'&&(pinchGesture||activeTouchPointers.size>=2))return;
- if(event.pointerType==='touch'&&(activeTool==='trim'||activeTool==='extend')){positionTouchCursor(event);return;}
+ if(event.pointerType==='touch'&&(activeTool==='trim'||activeTool==='extend'||activeTool==='offset')){positionTouchCursor(event);return;}
  if(event.pointerType==='touch'&&(activeTool==='rect'||activeTool==='rectCenter'||activeTool==='circle'||activeTool==='polygon'||activeTool==='ellipse')&&shapeTouchDragPointerId===event.pointerId&&drawStart){
   const p=pointForSketch(event);if(!p)return;
   positionTouchCursor(event);
@@ -2067,6 +2067,7 @@ function finishSketch(event){
    else if(activeTool==='mirror'||activeTool==='linearPattern'||activeTool==='circularPattern'){const p=pointForSketch(event,true);if(p)patternToolPoint(activeTool,p,event);}
    else{const picked=findSelectableObject(event.clientX,event.clientY);const additive=picked&&(event.pointerType==='touch'||event.shiftKey||event.ctrlKey||event.metaKey);setSelectedObject(picked,!!additive);}
   }
+  hideSnapFeedback();hideLineGuide();
   return;
  }
  hideSnapFeedback();hideLineGuide();
