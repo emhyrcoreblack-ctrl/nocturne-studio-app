@@ -2246,7 +2246,7 @@ function offsetSelectedAtScreen(clientX,clientY){
   if(!valid){document.getElementById('saveState').textContent='Equidistancia inválida · distancia demasiado grande o contorno cruzado';return false;}
   const color=picked.userData.selectionOriginalColor!==undefined?picked.userData.selectionOriginalColor:(picked.material&&picked.material.color?picked.material.color.getHex():0xe5efff);
   const obj=makeFatStroke(vectors,color,1,closed);if(!obj)return false;
-  obj.userData.sketch=createSketchDefinition('polyline',vectors,meta.plane||activePlane,{...(meta.parameters||{}),offset:true,offsetDistance:distance,offsetOf:meta.id||null,sourceType:meta.type});
+  obj.userData.sketch=createSketchDefinition('polyline',vectors,meta.plane||activePlane,{...(meta.parameters||{}),offset:true,operation:'offset',offsetDistance:distance,offsetOf:meta.id||null,sourceType:meta.type});
   obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;
   scene.add(obj);drawnObjects.push(obj);setSelectedObject(obj);
   document.getElementById('saveState').textContent='Equidistancia creada · '+fmt(distance)+' cm';
