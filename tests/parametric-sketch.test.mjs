@@ -112,23 +112,27 @@ test('solves a target angle between two lines',()=>{
   near(Math.atan2(da.u*db.v-da.v*db.u,da.u*db.u+da.v*db.v),Math.PI/2);
 });
 
-test('keeps a point on a line and supports tangent line-circle contact',()=>{
+test('keeps a point on a fixed line and supports tangent line-circle contact',()=>{
   const sketch=new ParametricSketch();
-  const base=sketch.addLine({u:-3,v:0},{u:3,v:0});
+  const base=sketch.addLine({u:-3,v:0},{u:3,v:0}),baseEntity=sketch.entities[base];
+  sketch.addConstraint('fixed',[baseEntity.a]); sketch.addConstraint('fixed',[baseEntity.b]);
   const p=sketch.addPoint(1,2);
   sketch.addConstraint('pointOnLine',[p,base]);
   solveParametricSketch(sketch);
   near(sketch.entities[p].v,0);
 
   const tangentSketch=new ParametricSketch();
-  const tangent=tangentSketch.addLine({u:-3,v:2},{u:3,v:2});
+  const tangent=tangentSketch.addLine({u:-3,v:2},{u:3,v:2}),lineEntity=tangentSketch.entities[tangent];
+  sketchFixed(tangentSketch,lineEntity.a); sketchFixed(tangentSketch,lineEntity.b);
   const circle=tangentSketch.addCircle({u:0,v:0},1);
+  sketchFixed(tangentSketch,tangentSketch.entities[circle].center);
   tangentSketch.addConstraint('tangentLineCircle',[tangent,circle]);
   solveParametricSketch(tangentSketch);
   const l=tangentSketch.entities[tangent],a=tangentSketch.entities[l.a],b=tangentSketch.entities[l.b],center=tangentSketch.entities[tangentSketch.entities[circle].center];
   const signedDistance=Math.abs((b.u-a.u)*(center.v-a.v)-(b.v-a.v)*(center.u-a.u))/Math.hypot(b.u-a.u,b.v-a.v);
   near(signedDistance,tangentSketch.entities[circle].radius);
 });
+function sketchFixed(sketch,id){sketch.addConstraint('fixed',[id]);}
 
 
 test('stores arcs with center, radius, start angle and signed sweep',()=>{
