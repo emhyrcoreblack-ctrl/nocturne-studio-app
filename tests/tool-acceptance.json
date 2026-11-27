@@ -103,6 +103,23 @@
       ]
     },
     {
+      "id": "slot",
+      "buttonId": "slotTool",
+      "label": "Ranura por 3 puntos",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Construcción de contorno cerrado con dos extremos semicirculares mediante createSlotPath.",
+        "Integración táctil de tres puntos: dos centros y un punto que define el radio; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Marcar dos centros distintos sobre el eje longitudinal de la ranura.",
+        "Definir el ancho con un tercer toque perpendicular al eje.",
+        "Comprobar simetría, ancho constante y cierre del contorno.",
+        "Probar ambos sentidos del eje y diferentes anchos.",
+        "Comprobar guardado, reapertura y deshacer con dedo y lápiz táctil."
+      ]
+    },
+    {
       "id": "polygon",
       "buttonId": "polygonTool",
       "label": "Polígono",
