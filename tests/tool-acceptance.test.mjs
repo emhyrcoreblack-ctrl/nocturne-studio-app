@@ -108,7 +108,7 @@ test('Capas controla visibilidad de croquis y entidades y conserva el estado', (
 
 
 test('Polyline and rectangle constraints use the parametric solver and update rendered geometry',()=>{
-  assert.match(app,/import \{ ParametricSketch, solveParametricSketch \} from '\.\/parametric-sketch\.mjs'/);
+  assert.match(app,/import \{ ParametricSketch \} from '\.\/parametric-sketch\.mjs'/);
   assert.match(app,/meta\.parametricModel=buildParametricSketchModel\(meta,obj\.userData\.controlPoints\|\|\[\]\)/);
   assert.match(app,/function solveSketchConstraints\(obj\)[\s\S]*?ParametricSketch\.fromJSON\(meta\.parametricModel\)[\s\S]*?solveParametricSketch\(model\)[\s\S]*?updateFatStroke\(obj,next\)/);
   assert.match(app,/model\.addConstraint\(c\.type,refs/);
