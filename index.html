@@ -1270,9 +1270,9 @@ function setTool(tool){
  refreshWorkspacePanels();
  
  if(tool!=='line')hideMeasure();
- const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',rectCenter:'Rectángulo centro',circle:'Círculo',circle3:'Círculo 3 puntos',slot:'Ranura',bezier:'Bézier',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia'},glyphs={select:'⌖',line:'／',rect:'□',rectCenter:'▣',circle:'○',circle3:'◉',slot:'▱',bezier:'⌁',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗',split:'⑂',offset:'⇔'};
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',rectCenter:'Rectángulo centro',circle:'Círculo',circle3:'Círculo 3 puntos',slot:'Ranura',bezier:'Bézier',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia',fillet:'Redondeo',chamfer:'Chaflán'},glyphs={select:'⌖',line:'／',rect:'□',rectCenter:'▣',circle:'○',circle3:'◉',slot:'▱',bezier:'⌁',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗',split:'⑂',offset:'⇔',fillet:'⌒',chamfer:'／'};
  if(tool!=='select')lastDrawingTool=tool;
- ['select','line','rect','rectCenter','circle','circle3','slot','bezier','polygon','ellipse','arc','trim','extend','split','offset'].forEach(t=>{const button=document.getElementById(t+'Tool');if(button)button.classList.toggle('tool-active',t===tool);});
+ ['select','line','rect','rectCenter','circle','circle3','slot','bezier','polygon','ellipse','arc','trim','extend','split','offset','fillet','chamfer'].forEach(t=>{const button=document.getElementById(t+'Tool');if(button)button.classList.toggle('tool-active',t===tool);});
  const palette=document.getElementById('drawToolsPanel');if(palette)palette.querySelectorAll('button[data-palette-tool]').forEach(button=>{const selected=button.dataset.paletteTool===tool;button.classList.toggle('tool-active',selected);button.setAttribute('aria-pressed',String(selected));});
  const activeToggle=document.getElementById('activeToolToggle');
  activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
@@ -1280,7 +1280,7 @@ function setTool(tool){
  activeToggle.title='Herramienta '+labels[shownTool]+' · '+(activeTool===shownTool?'Desactivar':'Activar');
  activeToggle.setAttribute('aria-label',activeToggle.title);
  activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===lastDrawingTool));
- const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',rectCenter:'Marca el centro y arrastra hasta una esquina',circle:'Arrastra para dibujar',circle3:'Marca tres puntos de la circunferencia',slot:'Marca los dos centros y después el ancho de la ranura',bezier:'Marca inicio, punto de control y final',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección',split:'Selecciona una geometría y toca el punto donde dividirla',offset:'Toca una geometría y define la distancia de equidistancia'};
+ const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',rectCenter:'Marca el centro y arrastra hasta una esquina',circle:'Arrastra para dibujar',circle3:'Marca tres puntos de la circunferencia',slot:'Marca los dos centros y después el ancho de la ranura',bezier:'Marca inicio, punto de control y final',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección',split:'Selecciona una geometría y toca el punto donde dividirla',offset:'Toca una geometría y define la distancia de equidistancia',fillet:'Toca un vértice y define el radio',chamfer:'Toca un vértice y define la distancia'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
  if(controls){
   controls.enabled=true;
@@ -2340,7 +2340,7 @@ function refreshWorkspacePanels(){
  const projectName=document.getElementById('documentTitle')?.textContent||'Proyecto';
  const treeName=document.getElementById('treeProjectName');if(treeName)treeName.textContent=projectName;
  const count=document.getElementById('inspectorCount');if(count)count.textContent=String(drawnObjects.length);
- const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',slot:'Ranura',bezier:'Bézier',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia'}[activeTool]||activeTool);
+ const tool=document.getElementById('inspectorTool');if(tool)tool.textContent=({select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',slot:'Ranura',bezier:'Bézier',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia',fillet:'Redondeo',chamfer:'Chaflán'}[activeTool]||activeTool);
  const plane=document.getElementById('inspectorPlane');if(plane)plane.textContent=({VIEW:'Vista',XZ:'Suelo · XZ',XY:'Frente · XY',YZ:'Lado · YZ'}[activePlane]||activePlane);
  const selection=document.getElementById('inspectorSelection');
  if(selection){
