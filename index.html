@@ -1102,7 +1102,7 @@ function setTool(tool){
  const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender'},glyphs={select:'⌖',line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
  if(tool!=='select')lastDrawingTool=tool;
  ['select','line','rect','circle','polygon','ellipse','arc','trim','extend'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
- drawToolsPanel.querySelectorAll('button[data-palette-tool]').forEach(button=>{const selected=button.dataset.paletteTool===tool;button.classList.toggle('tool-active',selected);button.setAttribute('aria-pressed',String(selected));});
+ const palette=document.getElementById('drawToolsPanel');if(palette)palette.querySelectorAll('button[data-palette-tool]').forEach(button=>{const selected=button.dataset.paletteTool===tool;button.classList.toggle('tool-active',selected);button.setAttribute('aria-pressed',String(selected));});
  const activeToggle=document.getElementById('activeToolToggle');
  activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
  activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
