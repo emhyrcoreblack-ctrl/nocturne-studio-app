@@ -975,10 +975,10 @@ function applyConcentricConstraint(){
  if(ma.fixed||mb.fixed){setSketchConstraintHint('Desbloquea ambos círculos antes de aplicar Concéntrico.');return;}
  const relationId='concentric-'+[ma.id,mb.id].sort().join('-');
  if((ma.constraints||[]).some(c=>c.id===relationId)||(mb.constraints||[]).some(c=>c.id===relationId)){setSketchConstraintHint('Estos círculos ya tienen una relación concéntrica.');return;}
- const modelA=ParametricSketch.fromJSON(ma.parametricModel||buildParametricSketchModel(ma,a.userData.controlPoints||[]));
- const modelB=ParametricSketch.fromJSON(mb.parametricModel||buildParametricSketchModel(mb,b.userData.controlPoints||[]));
- Object.assign(modelA.entities,modelB.entities);
+ const axes=sketchPlaneAxes(ma),centerA=sketchPointUV(new THREE.Vector3(...ma.parameters.center),axes),centerB=sketchPointUV(new THREE.Vector3(...mb.parameters.center),axes);
+ const modelA=new ParametricSketch({id:relationId,plane:ma.plane,units:'cm'});
  const circleA=ma.id+'-circle',circleB=mb.id+'-circle';
+ modelA.addCircle(centerA,ma.parameters.radius,{id:circleA});modelA.addCircle(centerB,mb.parameters.radius,{id:circleB});
  modelA.addConstraint('concentric',[circleA,circleB],{id:relationId});
  const result=solveParametricSketch(modelA);
  if(result.status==='conflict'){setSketchConstraintHint('No se pudo resolver la relación concéntrica.');return;}
@@ -987,7 +987,7 @@ function applyConcentricConstraint(){
   const origin=new THREE.Vector3(...meta.parameters.center),centerWorld=sketchPointFromUV(origin,{u:center.u,v:center.v},axes);
   const count=Math.max(16,points.length-1),next=[];
   for(let i=0;i<count;i++){const angle=i/count*Math.PI*2;next.push(sketchPointFromUV(centerWorld,{u:center.u+Math.cos(angle)*entity.radius,v:center.v+Math.sin(angle)*entity.radius},axes));}
-  meta.parameters.center=centerWorld.toArray();meta.parametricModel=buildParametricSketchModel(meta,next);updateFatStroke(obj,next);
+  meta.parameters.center=centerWorld.toArray();meta.parameters.radius=entity.radius;meta.parametricModel=model.toJSON();updateFatStroke(obj,next);
   meta.constraints=Array.isArray(meta.constraints)?meta.constraints:[];
   meta.constraints.push({id:relationId,type:'concentric',targetObjectId:targetId,enabled:true});
  };
@@ -1040,10 +1040,10 @@ function refreshSketchConstraintControls(){
  ['radiusDimensionTool','diameterDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=!obj||!['circle','arc'].includes(meta.type)||meta.fixed;});
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
-  button.disabled=!obj||(meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
+  button.disabled=(type==='concentric'?selectedObjects.filter(item=>item&&sketchMetaForObject(item).type==='circle').length!==2:!obj)||(meta&&meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
   button.classList.toggle('active',!!(meta&&type==='fixed'&&meta.fixed));
  });
- setSketchConstraintHint(!obj?'Selecciona una geometría para aplicar relaciones geométricas.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
+ setSketchConstraintHint(selectedObjects.length===2?'Dos entidades seleccionadas · Concéntrico disponible si ambas son círculos.':!obj?'Selecciona una geometría para aplicar relaciones geométricas.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
 }
 document.getElementById('sketchConstraintCard')?.addEventListener('click',event=>{const button=event.target.closest('[data-sketch-constraint]');if(button&&!button.disabled)applySketchConstraint(button.dataset.sketchConstraint);});
 async function startViewport(){
