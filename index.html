@@ -901,7 +901,8 @@ function solveSketchConstraints(obj){
   for(const dimension of (meta.dimensions||[]).filter(item=>item&&item.enabled!==false)){
    if(!['radius','diameter'].includes(dimension.type)||!Number.isFinite(dimension.value)||dimension.value<=0)continue;
    const constraintId='dimension-'+dimension.id;
-   if(model.constraints.some(item=>item.id===constraintId))continue;
+   const existingConstraint=model.constraints.find(item=>item.id===constraintId);
+   if(existingConstraint){existingConstraint.type=dimension.type;existingConstraint.value=dimension.value;continue;}
    try{model.addConstraint(dimension.type,[entityId],{id:constraintId,value:dimension.value});}
    catch(error){return {ok:false,reason:'Cota incompatible: '+error.message};}
   }
@@ -941,7 +942,8 @@ function solveSketchConstraints(obj){
   }
   for(const dimension of (meta.dimensions||[]).filter(item=>item&&item.enabled!==false&&item.type==='distance'&&Number.isInteger(item.a)&&Number.isInteger(item.b)&&Number.isFinite(item.value)&&item.value>0)){
    const constraintId='dimension-'+dimension.id;
-   if(model.constraints.some(item=>item.id===constraintId))continue;
+   const existingConstraint=model.constraints.find(item=>item.id===constraintId);
+   if(existingConstraint){existingConstraint.value=dimension.value;continue;}
    try{model.addConstraint('distance',[meta.id+'-p'+dimension.a,meta.id+'-p'+dimension.b],{id:constraintId,value:dimension.value});}
    catch(error){return {ok:false,reason:'Cota lineal incompatible: '+error.message};}
   }
@@ -1045,15 +1047,28 @@ async function applySketchDimension(type){
  if(linear&&!['polyline','rect','line'].includes(meta.type)){setSketchConstraintHint('Selecciona una línea o un croquis con segmentos para aplicar una cota lineal.');return;}
  if(linear&&points.length<2){setSketchConstraintHint('La geometría no contiene un segmento acotable.');return;}
  if(!linear&&!['circle','arc'].includes(meta.type)){setSketchConstraintHint('Selecciona un círculo o arco para acotar su radio o diámetro.');return;}
- const segmentIndex=linear?Math.max(0,Math.min(Number.isInteger(obj.userData.lastPickedSegmentIndex)?obj.userData.lastPickedSegmentIndex:0,meta.type==='rect'?points.length-1:points.length-2)):0;const segmentEnd=linear?(meta.type==='rect'?(segmentIndex+1)%points.length:segmentIndex+1):1;const current=linear?points[segmentIndex].distanceTo(points[segmentEnd]):(meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1)*(type==='diameter'?2:1);
+ const segmentIndex=linear?Math.max(0,Math.min(Number.isInteger(obj.userData.lastPickedSegmentIndex)?obj.userData.lastPickedSegmentIndex:0,meta.type==='rect'?points.length-1:points.length-2)):0;
+ const segmentEnd=linear?(meta.type==='rect'?(segmentIndex+1)%points.length:segmentIndex+1):1;
+ const dimensionType=linear?'distance':type;
+ const existing=meta.dimensions.find(item=>item&&item.enabled!==false&&(linear?item.type==='distance'&&item.a===segmentIndex&&item.b===segmentEnd:['radius','diameter'].includes(item.type)));
+ const current=existing?(linear?existing.value:existing.value*(existing.type==='radius'?(type==='diameter'?2:1):(type==='radius'?.5:1))):(linear?points[segmentIndex].distanceTo(points[segmentEnd]):(meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1)*(type==='diameter'?2:1));
  const title=linear?'Cota lineal':type==='radius'?'Cota de radio':'Cota de diámetro';
  const value=await requestDimensionValue(title,current);
  if(value===null)return;
- const dimension={id:'d-'+(++sketchEntitySequence).toString(36),type:linear?'distance':type,value,enabled:true,...(linear?{a:segmentIndex,b:segmentEnd}:{})};
- meta.dimensions=Array.isArray(meta.dimensions)?meta.dimensions:[];
- meta.dimensions.push(dimension);
+ const previous=existing?{type:existing.type,value:existing.value,enabled:existing.enabled}:null;
+ let dimension=existing;
+ if(dimension){dimension.type=dimensionType;dimension.value=value;dimension.enabled=true;}
+ else{
+  dimension={id:'d-'+(++sketchEntitySequence).toString(36),type:dimensionType,value,enabled:true,...(linear?{a:segmentIndex,b:segmentEnd}:{})};
+  meta.dimensions=Array.isArray(meta.dimensions)?meta.dimensions:[];
+  meta.dimensions.push(dimension);
+ }
  const result=solveSketchConstraints(obj);
- if(!result.ok){meta.dimensions.pop();setSketchConstraintHint(result.reason);return;}
+ if(!result.ok){
+  if(previous)Object.assign(dimension,previous);
+  else meta.dimensions=meta.dimensions.filter(item=>item!==dimension);
+  setSketchConstraintHint(result.reason);return;
+ }
  saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
  setSketchConstraintHint((linear?'Cota lineal':type==='radius'?'Radio':'Diámetro')+' aplicada: '+value+' cm · '+(result.dof===0?'Totalmente restringido':result.dof+' grados de libertad'));
 }
