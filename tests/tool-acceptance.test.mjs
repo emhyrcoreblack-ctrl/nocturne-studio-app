@@ -42,11 +42,11 @@ test('Croquis starts and finishes independent sketch sessions on the selected pl
   assert.doesNotMatch(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
 });
 
-test('Tools palette toggles independently and stays open during tool selection', () => {
+test('Tools palette toggles independently and closes after choosing a drawing tool', () => {
   assert.match(app, /getElementById\('dockTools'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-toggle-sketch-tools'\)\)\)/);
   assert.match(app, /addEventListener\('nocturne-open-sketch-tools',\(\)=>setDrawPaletteOpen\(true\)\)/);
   assert.match(app, /addEventListener\('nocturne-toggle-sketch-tools',\(\)=>setDrawPaletteOpen\(!drawPaletteOpen\)\)/);
-  assert.match(app, /function chooseTool\(tool\)[\s\S]*?setDrawPaletteOpen\(true\)[\s\S]*?setTool\(activeTool===tool\?'select':tool\)/);
+  assert.match(app, /function chooseTool\(tool\)[\s\S]*?setTool\(activeTool===tool\?'select':tool\);[\s\S]*?if\(tool!=='select'\)closeDrawPalette\(\)/);
   assert.match(app, /activeToggle\.hidden=!lastDrawingTool/);
   assert.match(app, /activeToggle\.setAttribute\('aria-pressed',String\(!!lastDrawingTool&&activeTool===shownTool\)\)/);
 });
