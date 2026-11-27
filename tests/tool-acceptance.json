@@ -190,6 +190,23 @@
       ]
     },
     {
+      "id": "offset",
+      "buttonId": "offsetTool",
+      "label": "Equidistancia",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Desplazamiento de polilíneas abiertas y cerradas mediante offsetPolyline.",
+        "Integración táctil con distancia firmada, copia persistente y control de coplanaridad; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Tocar una geometría abierta y definir una distancia positiva.",
+        "Repetir con distancia negativa y comprobar que cambia el lado.",
+        "Crear equidistancia de un perfil cerrado y revisar el sentido del contorno.",
+        "Probar curvas muestreadas, esquinas agudas, distancias grandes y geometrías coplanares.",
+        "Comprobar que la original no cambia y que la copia persiste y admite deshacer/rehacer."
+      ]
+    },
+    {
       "id": "trim",
       "buttonId": "trimTool",
       "label": "Recortar",
