@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'split', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -213,4 +213,16 @@ test('quadratic Bezier tool is wired to three-point touch construction and persi
   assert.match(app,/activeTool==='bezier'\)addBezierPoint\(p\)/);
   const bezier=matrix.tools.find(tool=>tool.id==='bezier');
   assert.ok(bezier&&bezier.status==='not_verified');
+});
+
+test('split tool is wired to selected geometry and tactile point operation',()=>{
+  assert.match(app,/data-palette-tool="split"/);
+  assert.match(app,/id="splitTool"/);
+  assert.match(app,/splitPolylineAt/);
+  assert.match(app,/function splitSelectedAtScreen\(clientX,clientY\)/);
+  assert.match(app,/activeTool==='split'\)\{const changed=splitSelectedAtScreen/);
+  assert.match(app,/if\(target\.userData\.closed\|\|points\.length<2\)/);
+  assert.match(app,/operation:'split'/);
+  const split=matrix.tools.find(tool=>tool.id==='split');
+  assert.ok(split&&split.status==='not_verified');
 });
