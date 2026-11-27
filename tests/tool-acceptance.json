@@ -294,7 +294,8 @@
       "label": "Recortar",
       "status": "not_verified",
       "automatedCoverage": [
-        "Intersección 2D y límites de recorte: suite cad-geometry.test.mjs; requiere ampliar casos e integración."
+        "Intersecciones, límites abiertos/cerrados y vértices complementarios: cad-geometry.test.mjs.",
+        "Integración transforma geometría local a mundo, filtra plano activo, preserva color y metadatos; pendiente E2E Android."
       ],
       "manualScenarios": [
         "Recortar una línea abierta entre dos intersecciones.",
@@ -310,7 +311,10 @@
       "buttonId": "extendTool",
       "label": "Extender",
       "status": "not_verified",
-      "automatedCoverage": [],
+      "automatedCoverage": [
+        "Intersección de semirrecta con segmentos y rechazo de objetivos no válidos: cad-geometry.test.mjs.",
+        "Integración selecciona extremo visible, limita plano activo, conserva color y pertenencia al croquis; pendiente E2E Android."
+      ],
       "manualScenarios": [
         "Extender cada extremo de una línea hacia una intersección válida.",
         "Comprobar que no extiende en dirección contraria ni hasta un objeto fuera del plano.",
