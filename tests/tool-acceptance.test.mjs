@@ -38,7 +38,7 @@ test('Croquis starts and finishes independent sketch sessions on the selected pl
   assert.match(app, /layer\.status='active';sketchLayers\.push\(layer\);activeSketchId=layer\.id/);
   assert.match(app, /finished\.status='completed'/);
   assert.match(app, /getElementById\('dockSketch'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-toggle-sketch-mode'\)\)\)/);
-  assert.match(app, /addEventListener('nocturne-toggle-sketch-mode',\(\)=>setSketchMode\(!sketchMode\)\)/);
+  assert.match(app, /addEventListener\('nocturne-toggle-sketch-mode',\(\)=>setSketchMode\(!sketchMode\)\)/);
   assert.doesNotMatch(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
 });
 
