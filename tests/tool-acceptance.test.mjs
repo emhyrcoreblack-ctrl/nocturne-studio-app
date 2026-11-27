@@ -253,3 +253,13 @@ test('trim and extend operate on world-space geometry and preserve sketch metada
 
 
 test('offset touch cursor follows the finger and is cleared after pointer release',()=>{assert.match(app,/activeTool==='trim'\|\|activeTool==='extend'\|\|activeTool==='offset'\)\)\{positionTouchCursor\(event\);return;\}/);const finish=app.slice(app.indexOf('function finishSketch'),app.indexOf('function extendEndpointAtScreen'));assert.match(finish,/hideSnapFeedback\(\);hideLineGuide\(\);\s*return;/);});
+
+test('CAD dimensions use the parametric solver and the mobile expression calculator', () => {
+  assert.match(app, /id="radiusDimensionTool"/);
+  assert.match(app, /id="diameterDimensionTool"/);
+  assert.match(app, /id="linearDimensionTool"/);
+  assert.match(app, /addConstraint\('distance',\[meta\.id\+'-p'\+dimension\.a,meta\.id\+'-p'\+dimension\.b\]/);
+  assert.match(app, /function requestDimensionValue\(title,initial\)/);
+  assert.match(app, /evaluateDimensionExpression\(input\.value\)/);
+  assert.doesNotMatch(app, /window\.prompt\(type==='radius'\?/);
+});
