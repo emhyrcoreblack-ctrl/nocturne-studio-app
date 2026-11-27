@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'split', 'offset', 'fillet', 'chamfer', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'split', 'offset', 'fillet', 'chamfer', 'mirror', 'linearPattern', 'circularPattern', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -244,3 +244,6 @@ test('offset tool is wired to tactile geometry selection and signed offset const
 
 
 test('fillet and chamfer tools are wired into toolbar, palette and touch editing',()=>{assert.match(app,/id="filletTool"/);assert.match(app,/id="chamferTool"/);assert.match(app,/data-palette-tool="fillet"/);assert.match(app,/data-palette-tool="chamfer"/);assert.match(app,/function cornerEditAtScreen\(mode,clientX,clientY\)/);assert.match(app,/filletPolylineVertex/);assert.match(app,/chamferPolylineVertex/);assert.ok(matrix.tools.find(t=>t.id==='fillet').status==='not_verified');assert.ok(matrix.tools.find(t=>t.id==='chamfer').status==='not_verified');});
+
+
+test('symmetry and linear/circular patterns are wired for touch construction',()=>{for(const id of ['mirror','linearPattern','circularPattern'])assert.match(app,new RegExp('data-palette-tool="'+id+'"'));assert.match(app,/function patternToolPoint\(mode,point,event\)/);assert.match(app,/mirrorPolyline\(state\.uv,state\.axisA,q\)/);assert.match(app,/linearPattern\(state\.uv,count/);assert.match(app,/circularPattern\(state\.uv,q,count\)/);assert.match(app,/patternEditState=null/);for(const id of ['mirror','linearPattern','circularPattern'])assert.equal(matrix.tools.find(t=>t.id===id).status,'not_verified');});
