@@ -304,7 +304,7 @@ test('Visible Android sketch palette exposes and activates the dimension tool',(
   assert.doesNotMatch(app,/title="Cota" aria-label="Cota" disabled/);
   assert.match(app,/button\[data-palette-dimension\]/);
   assert.match(app,/startSketchDimension\(dimensionButton\.dataset\.paletteDimension\)/);
-  assert.match(app,/Cota activa · toca una línea, círculo o arco/);
+  assert.match(app,/Cota · toca una línea, círculo o arco/);
 });
 
 test('Automatic dimension selection resolves line, circle and arc to supported dimension types',()=>{
@@ -315,10 +315,24 @@ test('Automatic dimension selection resolves line, circle and arc to supported d
 
 test('Dimension activation feedback is rendered outside the hidden legacy toolbar',()=>{
   assert.match(app,/const sketchConstraintHint=document\.getElementById\('sketchConstraintHint'\);if\(sketchConstraintHint\)document\.body\.appendChild\(sketchConstraintHint\)/);
-  assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?el\.hidden=false/);
+  assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?el\.hidden=true[\s\S]*?status\.textContent=message/);
 });
 
 test('Android palette starts dimension mode on pointerdown and keeps keyboard activation',()=>{
   assert.match(app,/drawToolsPanel\.addEventListener\('pointerdown',[\s\S]*?button\[data-palette-dimension\][\s\S]*?startSketchDimension\(dimensionButton\.dataset\.paletteDimension\)/);
   assert.match(app,/button\[data-palette-dimension\][\s\S]*?event\.detail===0/);
+});
+
+\ntest('Cota automática resuelve el tipo correcto cuando ya hay una geometría seleccionada',()=>{
+ assert.match(app,/const resolved=type==='auto'&&meta\?\(\['polyline','rect','line'\]\.includes\(meta\.type\)\?'distance':meta\.type==='circle'\?'diameter':meta\.type==='arc'\?'radius':null\):type/);
+ assert.match(app,/if\(supported\)\{pendingDimensionType=null;applySketchDimension\(resolved\);return;\}/);
+});
+\ntest('La calculadora de cotas no bloquea el lienzo con una ventana modal y el estado no usa avisos flotantes',()=>{
+ assert.match(app,/overlay\.setAttribute\('aria-modal','false'\)/);
+ assert.match(app,/\.dimension-calculator-backdrop\{position:fixed;inset:auto 8px 86px[\s\S]*?pointer-events:none\}/);
+ assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?el\.hidden=true[\s\S]*?status\.textContent=message/);
+});
+\ntest('La paleta actual no conserva la barra ficticia ni la búsqueda antigua desactivada',()=>{
+ assert.doesNotMatch(app,/class="onshape-topbar"/);
+ assert.doesNotMatch(app,/class="onshape-search"/);
 });
