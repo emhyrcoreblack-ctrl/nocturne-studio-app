@@ -1187,7 +1187,22 @@ function setWorkPlane(name,orientCamera=true,recaptureView=false){
  }
  if(!config||!groundPlane)return;
  activePlane=name;
- if(sketchMode){const requestedPlane=name==='VIEW'?(config.sourcePlane||'XZ'):name;const layer=sketchLayers.find(item=>item.id===activeSketchId);const hasGeometry=drawnObjects.some(obj=>sketchMetaForObject(obj).sketchId===activeSketchId);if(hasGeometry&&requestedPlane!==sketchPlane){setWorkPlane(sketchPlane,true);return;}sketchPlane=requestedPlane;if(layer)layer.plane=requestedPlane;lastDrawingTool=null;if(activeTool!=='select')setTool('select');}
+ if(sketchMode){
+  const requestedPlane=name==='VIEW'?(config.sourcePlane||'XZ'):name;
+  const planeChanged=requestedPlane!==sketchPlane;
+  const layer=sketchLayers.find(item=>item.id===activeSketchId);
+  const hasGeometry=drawnObjects.some(obj=>sketchMetaForObject(obj).sketchId===activeSketchId);
+  if(hasGeometry&&planeChanged){setWorkPlane(sketchPlane,true);return;}
+  // Solo cambiar a Seleccionar cuando el usuario cambia realmente el plano.
+  // setTool() también sincroniza el plano actual; no debe desactivar la
+  // herramienta recién elegida cuando vuelve a aplicar el mismo plano.
+  if(planeChanged){
+   sketchPlane=requestedPlane;
+   if(layer)layer.plane=requestedPlane;
+   lastDrawingTool=null;
+   if(activeTool!=='select')setTool('select');
+  }
+ }
  refreshWorkspacePanels();
  groundPlane.setFromNormalAndCoplanarPoint(config.normal,new THREE.Vector3(0,0,0));
  if(gridObject){
