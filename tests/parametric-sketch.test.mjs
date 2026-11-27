@@ -158,3 +158,15 @@ test('applies a radius dimension to a parametric arc',()=>{
   near(restored.entities[arc].radius,6);
   assert.notEqual(result.status,'conflict');
 });
+
+
+test('equal-length constraint solves the first and second segment lengths',()=>{
+  const sketch=new ParametricSketch();
+  const first=sketch.addLine({u:0,v:0},{u:5,v:0});
+  const second=sketch.addLine({u:0,v:2},{u:2,v:5});
+  sketch.addConstraint('equal',[first,second]);
+  const result=solveParametricSketch(sketch);
+  const length=id=>{const l=sketch.entities[id],a=sketch.entities[l.a],b=sketch.entities[l.b];return Math.hypot(b.u-a.u,b.v-a.v);};
+  near(length(first),length(second));
+  assert.notEqual(result.status,'conflict');
+});
