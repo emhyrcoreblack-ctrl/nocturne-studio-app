@@ -969,7 +969,7 @@ function solveSketchConstraints(obj){
 }
 function applyConcentricConstraint(){
  const pair=selectedObjects.filter(obj=>obj&&sketchMetaForObject(obj).type==='circle');
- if(pair.length!==2){setSketchConstraintHint('Selecciona exactamente dos círculos con Ctrl o ⌘ + clic.');return;}
+ if(selectedObjects.length!==2||pair.length!==2){setSketchConstraintHint('Selecciona exactamente dos círculos con Ctrl o ⌘ + clic.');return;}
  const [a,b]=pair,ma=sketchMetaForObject(a),mb=sketchMetaForObject(b);
  if(ma.plane!==mb.plane){setSketchConstraintHint('Los círculos deben pertenecer al mismo plano.');return;}
  if(ma.fixed||mb.fixed){setSketchConstraintHint('Desbloquea ambos círculos antes de aplicar Concéntrico.');return;}
@@ -1040,7 +1040,7 @@ function refreshSketchConstraintControls(){
  ['radiusDimensionTool','diameterDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=!obj||!['circle','arc'].includes(meta.type)||meta.fixed;});
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
-  button.disabled=(type==='concentric'?selectedObjects.filter(item=>item&&sketchMetaForObject(item).type==='circle').length!==2:!obj)||(meta&&meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
+  button.disabled=(type==='concentric'?(selectedObjects.length!==2||selectedObjects.filter(item=>item&&sketchMetaForObject(item).type==='circle').length!==2):!obj)||(meta&&meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
   button.classList.toggle('active',!!(meta&&type==='fixed'&&meta.fixed));
  });
  setSketchConstraintHint(selectedObjects.length===2?'Dos entidades seleccionadas · Concéntrico disponible si ambas son círculos.':!obj?'Selecciona una geometría para aplicar relaciones geométricas.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
