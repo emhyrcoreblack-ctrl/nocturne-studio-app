@@ -1004,14 +1004,14 @@ function setTool(tool){
  refreshWorkspacePanels();
  
  if(tool!=='line')hideMeasure();
- const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar segmento',extend:'Extender'},glyphs={line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
+ const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco de 3 puntos',trim:'Recortar segmento',extend:'Extender'},glyphs={select:'↖',line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
  if(tool!=='select')lastDrawingTool=tool;
  ['select','line','rect','circle','polygon','ellipse','arc','trim','extend'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
  const activeToggle=document.getElementById('activeToolToggle');
- activeToggle.hidden=!sketchMode||!lastDrawingTool;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:'';
- activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'';
- activeToggle.setAttribute('aria-label',activeToggle.title||'Herramienta');
- activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&tool===lastDrawingTool));
+ activeToggle.hidden=!sketchMode;activeToggle.textContent=lastDrawingTool?glyphs[lastDrawingTool]:glyphs.select;
+ activeToggle.title=lastDrawingTool?(tool===lastDrawingTool?'Desactivar '+labels[lastDrawingTool]:'Activar '+labels[lastDrawingTool]):'Herramienta de selección activa';
+ activeToggle.setAttribute('aria-label',activeToggle.title);
+ activeToggle.setAttribute('aria-pressed',String(lastDrawingTool?tool===lastDrawingTool:tool==='select'));
  const guidance={select:'Seleccionar',line:'Arrastra cada tramo · Seleccionar para terminar',rect:'Arrastra para dibujar',circle:'Arrastra para dibujar',polygon:'Centro y radio · 6 lados',ellipse:'Centro y radios X/Y',arc:'Marca inicio, punto de curva y final',trim:'Pulsa el tramo entre dos intersecciones',extend:'Pulsa un extremo y se extenderá hasta la primera intersección'};
  document.getElementById('saveState').textContent=guidance[tool]||labels[tool];
  if(controls){
