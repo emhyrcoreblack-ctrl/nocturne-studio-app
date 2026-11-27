@@ -58,6 +58,14 @@ export class ParametricSketch {
     if(this.entities[key]) throw new Error(`Duplicate entity id "${key}"`);
     this.entities[key]={id:key,type:'circle',center:centerId,radius}; this.revision++; return key;
   }
+  addArc(center,radius,startAngle,sweep,{id}={}) {
+    if(!finite(radius)||radius<=EPS||!finite(startAngle)||!finite(sweep)||Math.abs(sweep)<=EPS||Math.abs(sweep)>Math.PI*2+EPS) throw new RangeError('Arc parameters are invalid');
+    const centerId=typeof center==='string'?center:this.addPoint(center.u,center.v);
+    point(this,centerId);
+    const key=id||this._id('arc');
+    if(this.entities[key]) throw new Error(`Duplicate entity id "${key}"`);
+    this.entities[key]={id:key,type:'arc',center:centerId,radius,startAngle,sweep}; this.revision++; return key;
+  }
   addConstraint(type,refs,options={}) {
     const allowed=new Set(['coincident','horizontal','vertical','parallel','perpendicular','equal','concentric','midpoint','fixed','distance','radius','diameter','horizontalDistance','verticalDistance','angle','pointOnLine','tangentLineCircle']);
     if(!allowed.has(type)) throw new Error(`Unsupported constraint "${type}"`);
@@ -124,7 +132,7 @@ function parameterLayout(model) {
   const values=[], descriptors=[];
   for(const entity of Object.values(model.entities)) {
     if(entity.type==='point') for(const key of ['u','v']) { values.push(entity[key]); descriptors.push({id:entity.id,key}); }
-    if(entity.type==='circle') { values.push(entity.radius); descriptors.push({id:entity.id,key:'radius'}); }
+    if(entity.type==='circle'||entity.type==='arc') { values.push(entity.radius); descriptors.push({id:entity.id,key:'radius'}); }\n    if(entity.type==='arc') for(const key of ['startAngle','sweep']) { values.push(entity[key]); descriptors.push({id:entity.id,key}); }
   }
   return {values,descriptors};
 }
