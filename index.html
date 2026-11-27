@@ -1137,6 +1137,7 @@ function startSketchDimension(type){
  const supported=!!(selectedObject&&meta&&!meta.fixed&&resolved&&(resolved==='distance'?['polyline','rect','line'].includes(meta.type)&&(selectedObject.userData.controlPoints||[]).length>=2:['circle','arc'].includes(meta.type)));
  if(supported){pendingDimensionType=null;updateDimensionToolIndicator();applySketchDimension(resolved);return;}
  if(activeTool!=='select')setTool('select');
+ activeDimensionLabel=type==='distance'?'Cota lineal':type==='radius'?'Cota de radio':type==='diameter'?'Cota de diámetro':'Cota';
  setSelectedObject(null);
  pendingDimensionType=type;
  updateDimensionToolIndicator();
