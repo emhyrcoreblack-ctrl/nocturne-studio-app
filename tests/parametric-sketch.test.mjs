@@ -126,7 +126,7 @@ test('keeps a point on a fixed line and supports tangent line-circle contact',()
   sketchFixed(tangentSketch,lineEntity.a); sketchFixed(tangentSketch,lineEntity.b);
   const circle=tangentSketch.addCircle({u:0,v:0},1);
   sketchFixed(tangentSketch,tangentSketch.entities[circle].center);
-  tangentSketch.addConstraint('tangentLineCircle',[tangent,circle]);
+  tangentSketch.addConstraint('tangentLineCircle',[tangent,circle],{side:-1});
   solveParametricSketch(tangentSketch);
   const l=tangentSketch.entities[tangent],a=tangentSketch.entities[l.a],b=tangentSketch.entities[l.b],center=tangentSketch.entities[tangentSketch.entities[circle].center];
   const signedDistance=Math.abs((b.u-a.u)*(center.v-a.v)-(b.v-a.v)*(center.u-a.u))/Math.hypot(b.u-a.u,b.v-a.v);
