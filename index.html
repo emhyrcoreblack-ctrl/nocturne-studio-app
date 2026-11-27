@@ -666,6 +666,7 @@
  outline-offset:-2px;
  border-radius:8px!important;
 }
+.tree-layer-header{display:flex;align-items:center;gap:3px}.tree-layer-header>.tree-row{flex:1;min-width:0}.tree-object-row{display:flex;align-items:center;gap:2px}.tree-object-row>.tree-row{flex:1;min-width:0}.tree-visibility{flex:0 0 28px;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:#9fb5ce;font-size:15px}.tree-visibility:hover{background:#263d56;color:#fff}.tree-visibility-object{font-size:13px}.tree-layer-header.active>.tree-row{background:#1c3b5b;color:#e5f1ff}#dockModeling:disabled{opacity:.32!important;cursor:not-allowed!important;filter:grayscale(1)}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -699,7 +700,7 @@
 </header>
 <nav id="onshapeDock" aria-label="Herramientas principales">
  <div class="dock-project">
-  <button id="dockModeling" type="button" aria-pressed="false" title="Modelado · árbol del proyecto"><span>⬡</span><small>Modelado</small></button>
+  <button id="dockModeling" type="button" aria-pressed="false" aria-disabled="true" disabled title="Modelado · próximamente"><span>⬡</span><small>Modelado</small></button>
   <button id="dockItems" type="button" aria-pressed="false" title="Capas · croquis del proyecto"><span class="layers-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></svg></span><small>Capas</small></button>
  </div>
  <div class="dock-tools">
@@ -788,7 +789,7 @@
  document.getElementById('moreButton').addEventListener('click',()=>document.getElementById('moreMenu').classList.toggle('show'));
  document.getElementById('saveProject').addEventListener('click',()=>{if(window.saveViewportProject)window.saveViewportProject();save();document.getElementById('saveState').textContent='Guardado';document.getElementById('moreMenu').classList.remove('show');});
 
- document.getElementById('dockModeling').addEventListener('click',()=>{document.getElementById('treeToggle').click();document.getElementById('dockModeling').setAttribute('aria-pressed',String(workspace.classList.contains('show-tree')));document.getElementById('dockItems').setAttribute('aria-pressed','false');});
+ 
  document.getElementById('dockItems').addEventListener('click',()=>{document.getElementById('treeToggle').click();const open=workspace.classList.contains('show-tree');document.getElementById('dockItems').setAttribute('aria-pressed',String(open));document.getElementById('dockModeling').setAttribute('aria-pressed','false');});
  document.getElementById('dockSketch').addEventListener('click',()=>window.dispatchEvent(new Event('nocturne-toggle-sketch-mode')));
  document.getElementById('dockTools').addEventListener('click',()=>window.dispatchEvent(new Event('nocturne-toggle-sketch-tools')));
@@ -832,7 +833,7 @@ function normalizeSketchDefinition(meta,closed,points){
  return createSketchDefinition(closed?'profile':'polyline',points,'XZ',{legacy:true});
 }
 function sketchMetaForObject(obj){if(!obj)return null;const points=obj.userData.controlPoints||[];obj.userData.sketch=normalizeSketchDefinition(obj.userData.sketch,obj.userData.closed,points);return obj.userData.sketch;}
-function serializeSketchObject(obj){const meta=sketchMetaForObject(obj);return {closed:!!obj.userData.closed,color:obj.userData&&obj.userData.selectionOriginalColor!==undefined?obj.userData.selectionOriginalColor:(obj.material&&obj.material.color?obj.material.color.getHex():0xe5efff),points:(obj.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z]),sketch:meta?JSON.parse(JSON.stringify(meta)):null};}
+function serializeSketchObject(obj){const meta=sketchMetaForObject(obj);return {closed:!!obj.userData.closed,visible:obj.userData.layerVisible!==false,color:obj.userData&&obj.userData.selectionOriginalColor!==undefined?obj.userData.selectionOriginalColor:(obj.material&&obj.material.color?obj.material.color.getHex():0xe5efff),points:(obj.userData.controlPoints||[]).flatMap(p=>[p.x,p.y,p.z]),sketch:meta?JSON.parse(JSON.stringify(meta)):null};}
 function attachSketchDefinition(obj,type,start,end){
  if(!obj)return obj;const a=planeCoords(start),b=planeCoords(end);let parameters={};
  if(type==='line')parameters={length:start.distanceTo(end),angle:Math.atan2(b.v-a.v,b.u-a.u)};
@@ -2108,24 +2109,38 @@ function refreshWorkspacePanels(){
  let objectIndex=0;
  groups.forEach(layer=>{
   const section=document.createElement('div');section.className='tree-sketch-group';
-  const header=document.createElement('button');header.type='button';header.className='tree-row tree-sketch'+(layer.id===activeSketchId?' active':'');
+  const header=document.createElement('div');header.className='tree-layer-header'+(layer.id===activeSketchId?' active':'');
+  const selectLayer=document.createElement('button');selectLayer.type='button';selectLayer.className='tree-row tree-sketch'+(layer.id===activeSketchId?' active':'');
   const planeLabel=({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[layer.plane]||layer.plane||'Plano');
   const icon=document.createElement('span');icon.className='tree-icon';icon.textContent='▱';
   const name=document.createElement('span');name.className='tree-sketch-name';name.textContent=layer.name||'Croquis';
   const detail=document.createElement('small');detail.className='tree-sketch-plane';detail.textContent=planeLabel;
-  header.append(icon,name,detail);
-  header.addEventListener('click',()=>{if(layer.plane&&workPlanes[layer.plane])setWorkPlane(layer.plane,true);});
-  section.appendChild(header);
+  selectLayer.append(icon,name,detail);
+  selectLayer.addEventListener('click',()=>{if(layer.plane&&workPlanes[layer.plane])setWorkPlane(layer.plane,true);});
+  const layerVisibility=document.createElement('button');layerVisibility.type='button';layerVisibility.className='tree-visibility';layerVisibility.textContent=layer.visible===false?'◌':'◉';layerVisibility.title=layer.visible===false?'Mostrar croquis':'Ocultar croquis';layerVisibility.setAttribute('aria-label',layerVisibility.title);
+  layerVisibility.addEventListener('click',event=>{
+   event.stopPropagation();layer.visible=layer.visible===false;
+   drawnObjects.filter(obj=>sketchMetaForObject(obj).sketchId===layer.id).forEach(obj=>{obj.visible=layer.visible&&obj.userData.layerVisible!==false;});
+   saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
+  });
+  header.append(selectLayer,layerVisibility);section.appendChild(header);
   const children=document.createElement('div');children.className='tree-children tree-indent';
   const members=drawnObjects.filter(obj=>sketchMetaForObject(obj).sketchId===layer.id);
   if(!members.length){const empty=document.createElement('div');empty.className='tree-row tree-empty';empty.textContent='Sin geometría';children.appendChild(empty);}
   members.forEach(obj=>{
    objectIndex++;
-   const row=document.createElement('button');row.type='button';row.className='tree-row'+(selectedObject===obj?' active':'');
+   const row=document.createElement('div');row.className='tree-object-row';
+   const selectObject=document.createElement('button');selectObject.type='button';selectObject.className='tree-row'+(selectedObject===obj?' active':'');
    const meta=sketchMetaForObject(obj),label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';
    const glyph=document.createElement('span');glyph.className='tree-icon';glyph.textContent=obj.userData.closed?'□':'／';
-   const text=document.createElement('span');text.textContent=label+' '+objectIndex;row.append(glyph,text);
-   row.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});children.appendChild(row);
+   const text=document.createElement('span');text.textContent=label+' '+objectIndex;selectObject.append(glyph,text);
+   selectObject.addEventListener('click',()=>{setSelectedObject(obj);refreshWorkspacePanels();});
+   const objectVisibility=document.createElement('button');objectVisibility.type='button';objectVisibility.className='tree-visibility tree-visibility-object';objectVisibility.textContent=obj.userData.layerVisible===false?'◌':'◉';objectVisibility.title=obj.userData.layerVisible===false?'Mostrar elemento':'Ocultar elemento';objectVisibility.setAttribute('aria-label',objectVisibility.title);
+   objectVisibility.addEventListener('click',event=>{
+    event.stopPropagation();obj.userData.layerVisible=obj.userData.layerVisible===false;obj.visible=layer.visible!==false&&obj.userData.layerVisible;
+    saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
+   });
+   row.append(selectObject,objectVisibility);children.appendChild(row);
   });
   section.appendChild(children);list.appendChild(section);
  });
@@ -2172,7 +2187,7 @@ function updateContinuousLine(cursor,fromPoint){
 function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);lineObject.userData.sketch=createSketchDefinition('polyline',linePoints,activePlane,{segmentCount:linePoints.length-1});drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function addArcPoint(point){
  if(!point)return false;
- if(arcPoints.length<2){arcPoints.push(point.clone());const status=arcPoints.length===1?'Arco: punto inicial fijado':'Arco: punto de curva fijado · marca el final';document.getElementById('saveState').textContent=status;hideMeasure();return true;}
+ if(arcPoints.length<2){arcPoints.push(point.clone());const status=arcPoints.length===1?'Arco: punto inicial fijado':'Arco: punto de curva fijado · marca el final';document.getElementById('saveState').textContent=status;hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
  const start=arcPoints[0],through=arcPoints[1],end=point.clone();
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
  const obj=makeArcShape(start,through,end,false);
@@ -2240,8 +2255,8 @@ function setView(name){
 }function updateAxisIndicators(){if(!camera||!host)return;const r=host.getBoundingClientRect();const place=(el,point)=>{const p=point.clone().project(camera);const visible=p.z>-1&&p.z<1&&p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1;el.style.display=visible?'block':'none';if(visible){el.style.left=((p.x+1)*r.width/2)+'px';el.style.top=((1-p.y)*r.height/2)+'px';}};axisLabelEls.forEach(item=>place(item.el,item.point));if(originMarkerEl)place(originMarkerEl,new THREE.Vector3(0,0,0));}
 function animate(){cancelAnimationFrame(raf);const tick=()=>{raf=requestAnimationFrame(tick);if(controls){controls.update();}if(renderer&&scene&&camera){renderer.render(scene,camera);updateAxisIndicators();positionMeasure();}};tick();}
 function stopViewport(){if(raf)cancelAnimationFrame(raf);raf=0;}
-function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return;const objects=drawnObjects.map(serializeSketchObject);window.nocturneProjectData.set(activeProjectId,{schema:SKETCH_SCHEMA_VERSION,objects,sketches:sketchLayers.map(layer=>({...layer})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])});}
-function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);sketchLayers=data&&Array.isArray(data.sketches)?data.sketches.filter(layer=>layer&&typeof layer.id==='string').map(layer=>({...layer,status:'completed'})):[];activeSketchId=null;if(data&&Array.isArray(data.objects)){let legacyLayer=null;data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;obj.userData.sketch=normalizeSketchDefinition(item.sketch,!!item.closed,pts);if(!obj.userData.sketch.sketchId||!sketchLayers.some(layer=>layer.id===obj.userData.sketch.sketchId)){if(!legacyLayer){legacyLayer=createSketchLayerRecord(obj.userData.sketch.plane,'Croquis recuperado');legacyLayer.status='completed';sketchLayers.push(legacyLayer);}obj.userData.sketch.sketchId=legacyLayer.id;}scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';refreshWorkspacePanels();if(resetHistory)resetDrawingHistory();}
+function saveViewportProject(){if(!activeProjectId||!window.nocturneProjectData)return false;const objects=drawnObjects.map(serializeSketchObject);window.nocturneProjectData.set(activeProjectId,{schema:SKETCH_SCHEMA_VERSION,objects,sketches:sketchLayers.map(layer=>({...layer})),activeSketchId,sketchMode,sketchPlane,activeLine:linePoints.map(p=>[p.x,p.y,p.z]),activeArc:arcPoints.map(p=>[p.x,p.y,p.z])});return true;}
+function loadViewportProject(id,resetHistory=true){if(!scene)return;if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}activeTouchPointers.clear();pinchGesture=false;touchPendingEvent=null;touchLineGuideActive=false;cancelLineGesture();hideLineGuide();hideSnapFeedback();selectionPointerDown=null;setSelectedObject(null);activeProjectId=id;drawnObjects.forEach(o=>{scene.remove(o);disposePreview(o);});drawnObjects=[];if(lineObject){scene.remove(lineObject);disposePreview(lineObject);lineObject=null;}linePoints=[];if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}drawStart=null;const data=window.nocturneProjectData&&window.nocturneProjectData.get(id);sketchLayers=data&&Array.isArray(data.sketches)?data.sketches.filter(layer=>layer&&typeof layer.id==='string').map(layer=>({...layer,visible:layer.visible!==false})):[];activeSketchId=data&&typeof data.activeSketchId==='string'&&sketchLayers.some(layer=>layer.id===data.activeSketchId)?data.activeSketchId:null;sketchMode=!!activeSketchId;sketchPlane=data&&data.sketchPlane||((sketchLayers.find(layer=>layer.id===activeSketchId)||{}).plane)||'XZ';arcPoints=data&&Array.isArray(data.activeArc)?data.activeArc.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2])):[];if(data&&Array.isArray(data.objects)){let legacyLayer=null;data.objects.forEach(item=>{if(!item||!Array.isArray(item.points)||item.points.length<6)return;const pts=[];for(let i=0;i+2<item.points.length;i+=3)pts.push(new THREE.Vector3(item.points[i],item.points[i+1],item.points[i+2]));const obj=makeFatStroke(pts,Number.isFinite(item.color)?item.color:0xe5efff,1,!!item.closed);if(!obj)return;obj.userData.sketch=normalizeSketchDefinition(item.sketch,!!item.closed,pts);obj.userData.layerVisible=item.visible!==false;const owningLayer=sketchLayers.find(layer=>layer.id===obj.userData.sketch.sketchId);obj.visible=obj.userData.layerVisible&&(!owningLayer||owningLayer.visible!==false);if(!obj.userData.sketch.sketchId||!sketchLayers.some(layer=>layer.id===obj.userData.sketch.sketchId)){if(!legacyLayer){legacyLayer=createSketchLayerRecord(obj.userData.sketch.plane,'Croquis recuperado');legacyLayer.status='completed';sketchLayers.push(legacyLayer);}obj.userData.sketch.sketchId=legacyLayer.id;}scene.add(obj);drawnObjects.push(obj);});}if(data&&Array.isArray(data.activeLine)&&data.activeLine.length){linePoints=data.activeLine.filter(p=>Array.isArray(p)&&p.length===3).map(p=>new THREE.Vector3(p[0],p[1],p[2]));if(linePoints.length){lineObject=makeFatStroke(linePoints,0xe5efff,1,false);scene.add(lineObject);}}document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';refreshWorkspacePanels();if(resetHistory)resetDrawingHistory();}
 function captureDrawingState(){return {schema:SKETCH_SCHEMA_VERSION,objects:drawnObjects.map(serializeSketchObject),sketches:sketchLayers.map(layer=>({...layer})),activeLine:linePoints.map(p=>[p.x,p.y,p.z])};}
 function updateHistoryButtons(){const undo=document.getElementById('undoButton'),redo=document.getElementById('redoButton');if(undo)undo.disabled=drawingHistoryIndex<=0;if(redo)redo.disabled=drawingHistoryIndex<0||drawingHistoryIndex>=drawingHistory.length-1;}
 function resetDrawingHistory(){drawingHistory=[];drawingHistoryIndex=-1;historyProjectId=activeProjectId;recordDrawingHistory();}
