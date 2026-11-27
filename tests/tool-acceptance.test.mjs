@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -201,4 +201,16 @@ test('three-point slot tool is wired to touch preview, construction and persiste
   assert.match(app,/activeTool==='slot'\)addSlotPoint\(p\)/);
   const slot=matrix.tools.find(tool=>tool.id==='slot');
   assert.ok(slot&&slot.status==='not_verified');
+});
+
+test('quadratic Bezier tool is wired to three-point touch construction and persistence',()=>{
+  assert.match(app,/data-palette-tool="bezier"/);
+  assert.match(app,/id="bezierTool"/);
+  assert.match(app,/sampleBezier/);
+  assert.match(app,/function makeBezierShape\(start,control,end,preview\)/);
+  assert.match(app,/function addBezierPoint\(point\)/);
+  assert.match(app,/activeTool==='bezier'\?makeBezierShape/);
+  assert.match(app,/activeTool==='bezier'\)addBezierPoint\(p\)/);
+  const bezier=matrix.tools.find(tool=>tool.id==='bezier');
+  assert.ok(bezier&&bezier.status==='not_verified');
 });
