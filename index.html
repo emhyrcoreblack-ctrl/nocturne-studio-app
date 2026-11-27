@@ -2115,7 +2115,14 @@ function finishSketch(event){
  }
  if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'){
   const down=selectionPointerDown;selectionPointerDown=null;
-  if(!canceledSelectionTouch&&down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=(event.pointerType==='touch'?22:6)){
+  // Android/WebView puede entregar pointerup aunque el pointerdown haya sido
+  // capturado por un overlay o perdido durante el cambio de foco. En modo Cota,
+  // el punto de liberación es suficiente para intentar la selección; no dejamos
+  // que la ausencia de selectionPointerDown descarte silenciosamente el toque.
+  const matchingDown=!!(down&&down.pointerId===event.pointerId);
+  const tapDistance=matchingDown?Math.hypot(event.clientX-down.x,event.clientY-down.y):0;
+  const validTap=matchingDown?tapDistance<=(event.pointerType==='touch'?22:6):pendingDimensionType!==null;
+  if(!canceledSelectionTouch&&validTap){
    const aim=lineGuideEvent(event);
    if(pendingDimensionType){
     // La selección táctil debe usar el mismo punto compensado que muestra la cruz sobre el dedo.
