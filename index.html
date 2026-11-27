@@ -656,6 +656,16 @@
 /* Icono de Capas, inspirado en el lenguaje visual de Shapr3D */
 #onshapeDock #dockItems .layers-icon{display:grid;place-items:center;flex:0 0 22px;height:24px;color:#e7e0e8}
 #onshapeDock #dockItems .layers-icon svg{display:block;width:21px;height:21px}
+
+/* Estado activo visible en la paleta nueva de croquis */
+#drawToolsPanel .onshape-row button.tool-active,
+#drawToolsPanel .onshape-row button[aria-pressed="true"]{
+ background:#514253!important;
+ color:#fff!important;
+ outline:2px solid #b69abc!important;
+ outline-offset:-2px;
+ border-radius:8px!important;
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -1060,7 +1070,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   function chooseTool(tool){if(tool!=='select'&&!sketchMode)setSketchMode(true);setTool(activeTool===tool?'select':tool);closeDrawPalette();}
   drawMenuButton.addEventListener('click',toggleDrawPalette);
   document.getElementById('bottomSketch').addEventListener('click',toggleDrawPalette);
-  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('[data-palette-tool]');if(toolButton){const tool=toolButton.dataset.paletteTool;const target=document.getElementById(({select:'selectTool',line:'lineTool',rect:'rectTool',circle:'circleTool',polygon:'polygonTool',ellipse:'ellipseTool',arc:'arcTool',trim:'trimTool',extend:'extendTool'})[tool]);if(target)target.click();closeDrawPalette();return;}const constraint=event.target.closest('[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
+  drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();const tool=toolButton.dataset.paletteTool;const supported=['select','line','rect','circle','polygon','ellipse','arc','trim','extend'];if(supported.includes(tool)){chooseTool(tool);return;}}const constraint=event.target.closest('[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDrawPalette();});
   document.getElementById('activeToolToggle').addEventListener('click',()=>{if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
@@ -1092,6 +1102,7 @@ function setTool(tool){
  const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',circle:'Círculo',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender'},glyphs={select:'⌖',line:'／',rect:'□',circle:'○',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗'};
  if(tool!=='select')lastDrawingTool=tool;
  ['select','line','rect','circle','polygon','ellipse','arc','trim','extend'].forEach(t=>document.getElementById(t+'Tool').classList.toggle('tool-active',t===tool));
+ drawToolsPanel.querySelectorAll('button[data-palette-tool]').forEach(button=>{const selected=button.dataset.paletteTool===tool;button.classList.toggle('tool-active',selected);button.setAttribute('aria-pressed',String(selected));});
  const activeToggle=document.getElementById('activeToolToggle');
  activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
  activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
