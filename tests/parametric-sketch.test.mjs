@@ -86,7 +86,8 @@ test('solves radius and diameter dimensions on circles',()=>{
   sketch.addConstraint('diameter',[circle],{value:10});
   const result=solveParametricSketch(sketch);
   near(sketch.entities[circle].radius,5);
-  assert.equal(result.status,'fully-constrained');
+  assert.equal(result.status,'underconstrained');
+  assert.equal(result.dof,2);
 });
 
 test('solves horizontal and vertical distance dimensions',()=>{
