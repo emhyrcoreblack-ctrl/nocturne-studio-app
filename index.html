@@ -454,6 +454,17 @@
  #sceneStatus{left:7px!important;bottom:7px!important;font-size:8px!important}
  #helpPanel{top:106px!important;right:8px!important}
 }
+
+/* Ajuste de limpieza solicitado tras la prueba real en Android */
+#sceneStatus{display:none!important}
+#viewport{inset:104px 0 0!important}
+#workPlaneSwitcher{left:9px!important;top:9px!important;max-width:calc(100% - 112px)!important;gap:3px!important;padding:4px!important}
+#workPlaneSwitcher button{min-height:28px!important;padding:5px 7px!important;font-size:9px!important}
+@media(max-width:640px){
+ #viewport{inset:100px 0 0!important}
+ #workPlaneSwitcher{left:8px!important;top:8px!important;max-width:calc(100% - 96px)!important;gap:2px!important}
+ #workPlaneSwitcher button{min-height:27px!important;padding:4px 6px!important;font-size:8px!important}
+}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -702,18 +713,7 @@ async function startViewport(){
 axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
 // Planos de referencia permanentes: están anclados al origen mundial y giran
 // únicamente porque la cámara orbita; nunca se pegan a la pantalla.
-const referencePlaneGroup=new THREE.Group();referencePlaneGroup.name="NOCTURNE_REFERENCE_PLANES";scene.add(referencePlaneGroup);
-function addReferencePlane(label,color,rotation,position){
- const geometry=new THREE.PlaneGeometry(76,76);
- const material=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.105,side:THREE.DoubleSide,depthWrite:false});
- const mesh=new THREE.Mesh(geometry,material);mesh.rotation.set(rotation[0],rotation[1],rotation[2]);mesh.position.set(position[0],position[1],position[2]);mesh.renderOrder=1;referencePlaneGroup.add(mesh);
- const border=new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color,transparent:true,opacity:.72,depthWrite:false}));
- border.rotation.copy(mesh.rotation);border.position.copy(mesh.position);border.renderOrder=2;referencePlaneGroup.add(border);
- // Se conservan los planos geométricos sin rótulos superpuestos en el origen.
-}
-addReferencePlane("FRONT",0x3b82c4,[0,0,0],[0,0,0.12]);
-addReferencePlane("RIGHT",0x21a8a0,[0,Math.PI/2,0],[0.12,0,0]);
-addReferencePlane("TOP",0xd4a33f,[Math.PI/2,0,0],[0,0.12,0]);
+// Los planos de referencia adicionales se ocultan: solo se muestra la cuadrícula del plano activo.
 
   // Identificación discreta de los ejes positivos y del origen del sistema mundial.
   axisLabelEls=[];
