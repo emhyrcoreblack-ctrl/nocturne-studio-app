@@ -2050,7 +2050,7 @@ function finishSketch(event){
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
   touchPendingEvent=null;touchLineGuideActive=false;
  }
- if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'){
   const down=selectionPointerDown;selectionPointerDown=null;
   if(!canceledSelectionTouch&&down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
    const aim=lineGuideEvent(event);
