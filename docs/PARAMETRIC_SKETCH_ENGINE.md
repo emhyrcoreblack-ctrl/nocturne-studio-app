@@ -163,3 +163,10 @@ Antes de añadir la copia se comprueba coplanaridad, número de vértices, longi
 
 **Alcance actual:** el offset de curvas se calcula sobre la polilínea muestreada visible, no como offset analítico exacto. La herramienta no resuelve automáticamente colisiones locales complejas ni reconstruye restricciones paramétricas de la fuente. Su aceptación permanece como `not_verified` hasta pruebas E2E Android/stylus.
 
+
+
+## Edición de esquinas: Redondeo y Chaflán
+
+Las funciones filletPolylineVertex y chamferPolylineVertex trabajan en coordenadas 2D del plano del croquis y no mutan la fuente. Redondeo calcula la distancia de tangencia d = r / tan(θ/2), el centro sobre la bisectriz y un arco circular muestreado con radio constante. Chaflán calcula dos puntos sobre los segmentos adyacentes a una distancia igual. Ambas admiten vértices de perfiles cerrados y vértices interiores de polilíneas abiertas; rechazan extremos abiertos, segmentos degenerados, esquinas rectas o invertidas y medidas que excedan los tramos.
+
+La integración táctil requiere tocar la geometría y acercarse al vértice objetivo; después solicita radio o distancia en centímetros. La operación sustituye la entidad por una nueva polilínea, conserva plano, grupo de croquis y color, y se registra en historial y persistencia. El redondeo de curvas y perfiles usa la polilínea muestreada disponible: no equivale todavía a un kernel B-rep ni reconstruye restricciones paramétricas analíticas. La matriz mantiene ambas herramientas como not_verified hasta E2E Android/stylus.
