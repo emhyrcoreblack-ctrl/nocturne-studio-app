@@ -878,7 +878,7 @@ function attachSketchDefinition(obj,type,start,end){
  else if(type==='polygon')parameters={radius:Math.hypot(b.u-a.u,b.v-a.v),sides:6,center:[start.x,start.y,start.z]};
  else if(type==='ellipse')parameters={radiusU:Math.abs(b.u-a.u),radiusV:Math.abs(b.v-a.v),center:[start.x,start.y,start.z]};
  const meta=createSketchDefinition(type==='rectCenter'?'rect':type,obj.userData.controlPoints||[],activePlane,parameters);
- if(type==='rect'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,b:0,enabled:true}];}
+ if(type==='rect'||type==='rectCenter'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,b:0,enabled:true}];}
  meta.parametricModel=buildParametricSketchModel(meta,obj.userData.controlPoints||[]);
  obj.userData.sketch=meta;return obj;
 }
