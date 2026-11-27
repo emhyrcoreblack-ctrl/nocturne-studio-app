@@ -37,7 +37,9 @@ test('Croquis starts and finishes independent sketch sessions on the selected pl
   assert.match(app, /const layer=createSketchLayerRecord\(planeName\)/);
   assert.match(app, /layer\.status='active';sketchLayers\.push\(layer\);activeSketchId=layer\.id/);
   assert.match(app, /finished\.status='completed'/);
-  assert.match(app, /getElementById\('dockSketch'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-toggle-sketch-mode'\)\)\)/);\n  assert.match(app, /addEventListener\('nocturne-toggle-sketch-mode',\(\)=>setSketchMode\(!sketchMode\)\)/);\n  assert.doesNotMatch(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
+  assert.match(app, /getElementById\('dockSketch'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-toggle-sketch-mode'\)\)\)/);
+  assert.match(app, /addEventListener('nocturne-toggle-sketch-mode',\(\)=>setSketchMode\(!sketchMode\)\)/);
+  assert.doesNotMatch(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
 });
 
 test('Tools palette remains independent from the Croquis session button', () => {
@@ -63,4 +65,13 @@ test('Dock options restore hover, focus and touch feedback with a green status d
   assert.match(app, /#onshapeDock button:hover:not\(:disabled\)::after/);
   assert.match(app, /#onshapeDock button:active:not\(:disabled\)::after/);
   assert.match(app, /background:#9fe0b0/);
+});
+
+test('Orientation cube opens a compact view and work-plane menu', () => {
+  assert.match(app, /id='orientationMenu'/);
+  assert.match(app, /cube\.addEventListener\('click'/);
+  assert.match(app, /data-orient="top"/);
+  assert.match(app, /top:'XZ',bottom:'XZ',front:'XY',back:'XY',right:'YZ',left:'YZ'/);
+  assert.match(app, /#workPlaneSwitcher\{display:none!important\}/);
+  assert.match(app, /function setIsometricView\(\)/);
 });
