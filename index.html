@@ -945,7 +945,8 @@ function applySketchConstraint(type){
  if(type==='fixed'){meta.fixed=true;saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Geometría fijada.');return;}
  let c=null;
  if(type==='horizontal'||type==='vertical'){if(n<2)return;c={type,a:0};}
- else if(type==='parallel'||type==='perpendicular'||type==='equal'){if(meta.type!=='polyline'||n<3){setSketchConstraintHint('Selecciona una polilínea con al menos dos segmentos.');return;}c={type,a:0,b:1};}
+ else if(type==='equal'){if(!['polyline','rect'].includes(meta.type)||n<3){setSketchConstraintHint('Selecciona una polilínea o rectángulo con al menos dos segmentos.');return;}c={type,a:0,b:1};}
+ else if(type==='parallel'||type==='perpendicular'){if(meta.type!=='polyline'||n<3){setSketchConstraintHint('Selecciona una polilínea con al menos dos segmentos.');return;}c={type,a:0,b:1};}
  else if(type==='coincident'){if(meta.type!=='polyline'||obj.userData.closed||n<3){setSketchConstraintHint('Esta relación solo se aplica a polilíneas abiertas.');return;}c={type,a:0,b:n-1};}
  if(!c)return;
  if(meta.constraints.some(x=>x.enabled!==false&&x.type===c.type&&x.a===c.a&&x.b===c.b)){setSketchConstraintHint('Esta restricción ya existe.');return;}
@@ -960,7 +961,7 @@ function refreshSketchConstraintControls(){
  const obj=selectedObject,meta=obj?sketchMetaForObject(obj):null,n=obj?(obj.userData.controlPoints||[]).length:0;
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
-  button.disabled=!obj||(meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular'||type==='equal')&&(meta.type!=='polyline'||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
+  button.disabled=!obj||(meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
   button.classList.toggle('active',!!(meta&&type==='fixed'&&meta.fixed));
  });
  setSketchConstraintHint(!obj?'Selecciona una geometría para aplicar relaciones geométricas.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
