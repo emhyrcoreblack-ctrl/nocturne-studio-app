@@ -143,10 +143,18 @@ test('Radius and diameter controls are disabled for unsupported or fixed selecti
   assert.match(app,/saveViewportProject\(\);recordDrawingHistory\(\);refreshWorkspacePanels\(\)/);
 });
 
+test('Android touch selection toggles multiple entities without keyboard modifiers',()=>{
+  assert.match(app,/const selectionTouchPointers=new Set\(\);let selectionTouchMulti=false/);
+  assert.match(app,/if\(activeTool==='select'&&event\.pointerType==='touch'\)[\s\S]*?selectionTouchPointers\.add\(event\.pointerId\)/);
+  assert.match(app,/event\.pointerType==='touch'\|\|event\.shiftKey\|\|event\.ctrlKey\|\|event\.metaKey/);
+  assert.match(app,/if\(!canceledSelectionTouch&&down&&down\.pointerId===event\.pointerId/);
+  assert.match(app,/selectedObjects\.includes\(obj\)/);
+  assert.match(app,/function setSelectedObject\(obj,additive=false\)/);
+  assert.match(app,/Toca dos círculos para seleccionarlos y aplicar Concéntrico/);
+});
+
 test('Concentric relation is exposed only for exactly two selected circles',()=>{
   assert.match(app,/data-sketch-constraint="concentric"/);
-  assert.match(app,/event\.shiftKey\|\|event\.ctrlKey\|\|event\.metaKey/);
-  assert.match(app,/function setSelectedObject\(obj,additive=false\)/);
   assert.match(app,/selectedObjects=\[\]/);
   assert.match(app,/selectedObjects\.length!==2\|\|pair\.length!==2/);
   assert.match(app,/modelA\.addConstraint\('concentric',\[circleA,circleB\]/);
