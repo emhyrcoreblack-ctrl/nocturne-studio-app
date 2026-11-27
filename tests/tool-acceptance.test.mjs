@@ -311,3 +311,14 @@ test('Automatic dimension selection resolves line, circle and arc to supported d
   assert.match(app,/requested==='auto'\?\(\['polyline','rect','line'\]\.includes\(pickedMeta\.type\)\?'distance':pickedMeta\.type==='circle'\?'diameter':pickedMeta\.type==='arc'\?'radius':null\)/);
   assert.match(app,/if\(resolved\)applySketchDimension\(resolved\)/);
 });
+
+
+test('Dimension activation feedback is rendered outside the hidden legacy toolbar',()=>{
+  assert.match(app,/const sketchConstraintHint=document\.getElementById\('sketchConstraintHint'\);if\(sketchConstraintHint\)document\.body\.appendChild\(sketchConstraintHint\)/);
+  assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?el\.hidden=false/);
+});
+
+test('Android palette starts dimension mode on pointerdown and keeps keyboard activation',()=>{
+  assert.match(app,/drawToolsPanel\.addEventListener\('pointerdown',[\s\S]*?button\[data-palette-dimension\][\s\S]*?startSketchDimension\(dimensionButton\.dataset\.paletteDimension\)/);
+  assert.match(app,/button\[data-palette-dimension\][\s\S]*?event\.detail===0/);
+});
