@@ -57,6 +57,23 @@
       ]
     },
     {
+      "id": "rectCenter",
+      "buttonId": "rectCenterTool",
+      "label": "Rectángulo por centro",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Generación de cuatro vértices simétricos respecto al centro mediante rectangleFromCenter.",
+        "Integración como perfil rectangular paramétrico con cuatro restricciones ortogonales; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Marcar el centro y arrastrar hacia cada cuadrante para crear el rectángulo.",
+        "Comprobar que el centro coincide con el punto inicial y las dimensiones son el doble del desplazamiento.",
+        "Comprobar cierre, cuatro lados y restricciones horizontal/vertical.",
+        "Probar selección, guardado, reapertura y deshacer.",
+        "Repetir con dedo y lápiz táctil."
+      ]
+    },
+    {
       "id": "circle",
       "buttonId": "circleTool",
       "label": "Círculo",
