@@ -137,8 +137,11 @@ test('Circle and arc dimensions are connected to the parametric solver and rende
   assert.match(app,/diameterDimensionTool/);
 });
 
-test('Radius and diameter controls are disabled for unsupported or fixed selections',()=>{
-  assert.match(app,/!obj\|\|!\['circle','arc'\]\.includes\(meta\.type\)\|\|meta\.fixed/);
+test('Dimension controls stay available for touch-first selection and validate geometry before solving',()=>{
+  assert.match(app,/['radiusDimensionTool','diameterDimensionTool','linearDimensionTool']\.forEach\(id=>\{const button=document\.getElementById\(id\);if\(button\)button\.disabled=false;\}\)/);
+  assert.match(app,/if\(meta\.fixed\)\{setSketchConstraintHint/);
+  assert.match(app,/if\(linear&&!\['polyline','rect','line'\]\.includes\(meta\.type\)\)/);
+  assert.match(app,/if\(!linear&&!\['circle','arc'\]\.includes\(meta\.type\)\)/);
   assert.match(app,/await requestDimensionValue\(title,current\)/);
   assert.match(app,/saveViewportProject\(\);recordDrawingHistory\(\);refreshWorkspacePanels\(\)/);
 });
