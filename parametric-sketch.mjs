@@ -255,7 +255,7 @@ export function solveParametricSketch(model,options={}) {
     }
     const step=solveLinear(normal,gradient.map(value=>-value));
     if(!step) break;
-    const candidate=values.map((value,index)=>value+step[index]);
+    const candidate=values.map((value,index)=>descriptors[index].key==='radius'?Math.max(EPS*10,value+step[index]):value+step[index]);
     applyParameters(model,candidate,descriptors);
     const candidateResiduals=residuals(model), candidateError=norm(candidateResiduals);
     if(candidateError<error) {
