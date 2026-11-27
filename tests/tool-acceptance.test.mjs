@@ -343,7 +343,7 @@ test('Cota edita dimensiones existentes sin acumular restricciones contradictori
 
 test('Cota automática resuelve el tipo correcto cuando ya hay una geometría seleccionada',()=>{
  assert.match(app,/const resolved=type==='auto'&&meta\?\(\['polyline','rect','line'\]\.includes\(meta\.type\)\?'distance':meta\.type==='circle'\?'diameter':meta\.type==='arc'\?'radius':null\):type/);
- assert.match(app,/if\(supported\)\{pendingDimensionType=null;applySketchDimension\(resolved\);return;\}/);
+ assert.match(app,/if\(supported\)\{pendingDimensionType=null;updateDimensionToolIndicator\(\);applySketchDimension\(resolved\);return;\}/);
 });
 
 test('La calculadora de cotas no bloquea el lienzo con una ventana modal y el estado no usa avisos flotantes',()=>{
