@@ -1101,7 +1101,7 @@ function requestDimensionValue(title,initial){
   update();requestAnimationFrame(()=>{input.focus();input.select();});
  });
 }
-async async function applySketchDimension(type){
+async function applySketchDimension(type){
  const obj=selectedObject;if(!obj)return;
  const meta=sketchMetaForObject(obj),points=obj.userData.controlPoints||[];
  if(meta.fixed){setSketchConstraintHint('La geometría está fijada. Desbloquéala antes de modificarla.');return;}
