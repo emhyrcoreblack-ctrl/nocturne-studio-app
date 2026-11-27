@@ -175,3 +175,8 @@ La integración táctil requiere tocar la geometría y acercarse al vértice obj
 ## Simetría y patrones de croquis
 
 La paleta integra tres transformaciones no destructivas: Simetría solicita una geometría y dos puntos de eje; Patrón lineal solicita geometría, dirección, separación y número total de instancias; Patrón circular solicita geometría, centro y número total de instancias. Las copias se generan en el plano activo mediante mirrorPolyline, linearPattern y circularPattern, conservan el croquis de origen y el original permanece intacto. El número total de instancias incluye la original y se limita a 100 para mantener controlado el rendimiento móvil. Cada operación se guarda como una transacción de historial. La aceptación continúa not_verified hasta pruebas E2E Android/stylus.
+
+
+## Robustez de Recortar y Extender
+
+La revisión de ambas operaciones normaliza las entidades desde sus coordenadas locales al espacio mundial antes de proyectar, medir o intersectar, y rechaza geometría que no pertenezca al plano activo. Recortar conserva el color, plano, grupo de croquis y metadatos de origen al sustituir la entidad por sus fragmentos; Extender conserva los mismos datos al prolongar un extremo hasta la primera intersección válida. Esto evita tratar coordenadas locales como si fueran coordenadas globales cuando una entidad tiene una transformación de objeto. La matriz continúa exigiendo validación E2E en Android.
