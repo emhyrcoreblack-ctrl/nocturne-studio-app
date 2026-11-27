@@ -617,25 +617,39 @@
 
 /* Feedback táctil y hover del dock: resalta la opción y muestra el punto verde */
 #onshapeDock button{position:relative;transition:background .14s ease,border-color .14s ease,box-shadow .14s ease}
-#onshapeDock button:hover:not(:disabled),#onshapeDock button:focus-visible,#onshapeDock button:active:not(:disabled),#onshapeDock button[aria-pressed="true"],#onshapeDock button[aria-expanded="true"]{
+/* El estado persistente depende solo de aria-pressed/expanded; el foco táctil no deja luces pegadas. */
+#onshapeDock button[aria-pressed="true"],#onshapeDock button[aria-expanded="true"]{
  background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important;box-shadow:inset 2px 0 0 #c4a8ca,0 2px 9px #0005
 }
-#onshapeDock button:hover:not(:disabled)::after,#onshapeDock button:focus-visible::after,#onshapeDock button:active:not(:disabled)::after,#onshapeDock button[aria-pressed="true"]::after,#onshapeDock button[aria-expanded="true"]::after{
+#onshapeDock button[aria-pressed="true"]::after,#onshapeDock button[aria-expanded="true"]::after{
  content:"";position:absolute;right:7px;top:6px;width:6px;height:6px;border-radius:50%;background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none
 }
+@media(hover:hover) and (pointer:fine){
+ #onshapeDock button:hover:not(:disabled){background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important}
+ #onshapeDock button:hover:not(:disabled)::after{content:"";position:absolute;right:7px;top:6px;width:6px;height:6px;border-radius:50%;background:#9fe0b0;box-shadow:0 0 7px #9fe0b0;pointer-events:none}
+}
+#onshapeDock button:focus-visible{outline:2px solid #b9d8f5;outline-offset:2px}
 #onshapeDock button:disabled::after{display:none}
 
 /* Cubo de orientación: menú compacto para selección de vistas y planos */
 #workPlaneSwitcher{display:none!important}
-#orientationCube{cursor:pointer;touch-action:manipulation}
-#orientationCube:focus-visible{outline:2px solid #9bc5f4;outline-offset:5px}
-#orientationMenu{position:absolute;z-index:80;top:8px;right:78px;width:min(224px,calc(100vw - 24px));max-height:min(68vh,470px);overflow:auto;padding:9px;border:1px solid #66566a;border-radius:13px;background:rgba(35,29,38,.97);box-shadow:0 14px 38px #0009;backdrop-filter:blur(14px)}
+#orientationCube{cursor:default;touch-action:manipulation}
+#orientationMenuToggle{position:absolute;z-index:7;right:3px;bottom:-5px;width:27px;height:27px;min-width:27px;padding:0;border:1px solid #a28ca6;border-radius:50%;background:#302832;color:#fff;font-size:18px;line-height:1;box-shadow:0 3px 10px #0008;touch-action:manipulation}
+#orientationMenuToggle[aria-expanded="true"]{background:#59485d;border-color:#d2b6d7}
+#orientationMenu{position:absolute;z-index:80;top:132px;right:88px;width:min(224px,calc(100vw - 24px));max-height:min(68vh,470px);overflow:auto;padding:9px;border:1px solid #66566a;border-radius:13px;background:rgba(35,29,38,.97);box-shadow:0 14px 38px #0009;backdrop-filter:blur(14px)}
 #orientationMenu[hidden]{display:none!important}
 #orientationMenu .orientation-menu-title{padding:5px 8px 8px;color:#bcaec0;font-size:10px;font-weight:800;letter-spacing:.12em}
 #orientationMenu button{display:block;width:100%;min-height:39px;margin:2px 0;padding:8px 11px;text-align:left;border:1px solid transparent;border-radius:8px;background:transparent;color:#eee7f0;font-size:12px;touch-action:manipulation}
 #orientationMenu button:hover,#orientationMenu button:focus-visible,#orientationMenu button:active{background:#514354;border-color:#a58da9}
 #orientationMenu button.orientation-blocked{border-color:#d49b65;background:#49362f}
 #orientationMenu .orientation-menu-separator{height:1px;margin:6px 3px;background:#554956}
+
+/* Croquis mantiene su indicador dentro del botón y solo durante el modo activo */
+#dockSketch{position:relative}
+#dockSketch[aria-pressed="true"]{background:rgba(79,65,82,.98)!important;border-color:#a28ca6!important;color:#fff!important;box-shadow:inset 2px 0 0 #c4a8ca,0 2px 9px #0005}
+#dockSketch[aria-pressed="false"]::after{display:none}
+#dockSketch:focus{outline:none}
+@media(hover:hover) and (pointer:fine){#dockSketch:hover:not([aria-pressed="true"]){background:#443a45;border-color:#665966}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -723,8 +737,8 @@
 
 <div id="workspaceBottom"><div id="workspaceTabs"><button class="workspace-tab active" id="partStudioTab" title="Part Studio 1" aria-label="Part Studio 1">▣</button><button class="workspace-tab" id="assemblyTab" title="Assembly 1" aria-label="Assembly 1" disabled>⬡</button></div><div id="featureActions"><button title="Croquis" id="bottomSketch">✎</button><span class="feature-sep"></span><button title="Extruir (próximamente)" disabled>▱</button><button title="Revolución (próximamente)" disabled>◉</button><button title="Barrido (próximamente)" disabled>〰</button><button title="Loft (próximamente)" disabled>◇</button><span class="feature-sep"></span><button title="Redondeo (próximamente)" disabled>⌒</button><button title="Chaflán (próximamente)" disabled>／</button><button title="Vaciado / Shell (próximamente)" aria-label="Vaciado" disabled>▣</button><button title="Ángulo de desmoldeo / Draft (próximamente)" aria-label="Desmoldeo" disabled>∠</button><button title="Operaciones booleanas (próximamente)" aria-label="Booleanas" disabled>⊕</button><button title="Patrón 3D (próximamente)" aria-label="Patrón 3D" disabled>▦</button><button title="Medir" id="bottomMeasure">↔</button></div></div>
 <div class="viewcube"><div class="cube" id="orientationCube">
-<button class="face front" data-view="front">FRENTE</button><button class="face back" data-view="back">ATRÁS</button><button class="face right" data-view="right">DERECHA</button><button class="face left" data-view="left">IZQUIERDA</button><button class="face top" data-view="top">ARRIBA</button><button class="face bottom" data-view="bottom">ABAJO</button>
-</div></div>
+<button class="face front" data-view="front" type="button">FRENTE</button><button class="face back" data-view="back" type="button">ATRÁS</button><button class="face right" data-view="right" type="button">DERECHA</button><button class="face left" data-view="left" type="button">IZQUIERDA</button><button class="face top" data-view="top" type="button">ARRIBA</button><button class="face bottom" data-view="bottom" type="button">ABAJO</button>
+</div><button id="orientationMenuToggle" class="orientation-menu-trigger" type="button" aria-label="Abrir opciones de orientación" aria-expanded="false" title="Vistas y planos">⌄</button></div>
 <div id="sceneStatus">ESPACIO VACÍO · <span id="activeProjectName">PROYECTO</span></div><div id="measureLabel"></div>
 <div id="helpPanel"><strong>Cómo dibujar</strong><p>Elige Línea, Rectángulo o Círculo y arrastra una sola vez desde el inicio hasta el final. Con Línea, cada arrastre añade un tramo; cambia a Seleccionar para terminar. Vista dibuja sobre la orientación actual de la cámara; Suelo, Frente y Lado fijan planos conocidos. En Seleccionar puedes girar la vista con un dedo.</p><button id="closeHelp">Entendido</button></div>
 <div id="sceneError"><div><strong>No se pudo iniciar el motor 3D</strong><p id="sceneErrorText">Comprueba tu conexión a Internet y vuelve a intentarlo.</p><button id="retry3D" class="primary">Reintentar</button></div></div>
@@ -940,9 +954,10 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   planeMenu.hidden=true;
   planeMenu.innerHTML='<div class="orientation-menu-title">VISTAS</div><button type="button" data-orient="top">Superior · Suelo XZ</button><button type="button" data-orient="front">Frontal · Frente XY</button><button type="button" data-orient="right">Derecha · Lado YZ</button><button type="button" data-orient="bottom">Inferior · Suelo XZ</button><button type="button" data-orient="back">Posterior · Frente XY</button><button type="button" data-orient="left">Izquierda · Lado YZ</button><div class="orientation-menu-separator"></div><button type="button" data-orient="iso">Isométrica</button><button type="button" data-orient="fit">Ajustar vista</button>';
   host.appendChild(planeMenu);
-  const toggleOrientationMenu=force=>{const open=typeof force==='boolean'?force:planeMenu.hidden;planeMenu.hidden=!open;cube.setAttribute('aria-expanded',String(open));};
+  const toggleOrientationMenu=force=>{const open=typeof force==='boolean'?force:planeMenu.hidden;planeMenu.hidden=!open;cube.setAttribute('aria-expanded',String(open));document.getElementById('orientationMenuToggle').setAttribute('aria-expanded',String(open));};
   cube.setAttribute('role','button');cube.setAttribute('tabindex','0');cube.setAttribute('aria-label','Cubo de orientación. Tocar para elegir vista y plano');
-  cube.addEventListener('click',event=>{if(event.target.closest('[data-view]'))return;toggleOrientationMenu();});
+  document.getElementById('orientationMenuToggle').addEventListener('click',event=>{event.stopPropagation();toggleOrientationMenu();});
+  planeMenu.addEventListener('click',event=>{if(event.target.closest('button'))document.getElementById('orientationMenuToggle').focus({preventScroll:true});});
   cube.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleOrientationMenu();}});
   planeMenu.addEventListener('click',event=>{
    const button=event.target.closest('[data-orient]');if(!button)return;
