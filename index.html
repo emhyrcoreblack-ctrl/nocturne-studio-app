@@ -822,7 +822,7 @@ let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,le
 const activeTouchPointers=new Set();const selectionTouchPointers=new Set();let selectionTouchMulti=false;const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 // En tacto se compensa la oclusión del dedo: el punto CAD sigue el cursor elevado, no la yema.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
-let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null;
+let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null,pendingDimensionType=null;
 const SKETCH_SCHEMA_VERSION=1;
 function createSketchDefinition(type,points,planeName=activePlane,parameters={}){
  const plane=workPlanes&&workPlanes[planeName]?planeName:(workPlanes&&workPlanes[activePlane]?activePlane:'XZ');
@@ -1057,14 +1057,22 @@ async function applySketchDimension(type){
  saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
  setSketchConstraintHint((linear?'Cota lineal':type==='radius'?'Radio':'Diámetro')+' aplicada: '+value+' cm · '+(result.dof===0?'Totalmente restringido':result.dof+' grados de libertad'));
 }
-document.getElementById('radiusDimensionTool')?.addEventListener('click',()=>applySketchDimension('radius'));
-document.getElementById('diameterDimensionTool')?.addEventListener('click',()=>applySketchDimension('diameter'));
-document.getElementById('linearDimensionTool')?.addEventListener('click',()=>applySketchDimension('distance'));
+function startSketchDimension(type){
+ const meta=selectedObject?sketchMetaForObject(selectedObject):null;
+ const supported=selectedObject&&!meta.fixed&&(type==='distance'?['polyline','rect','line'].includes(meta.type)&&(selectedObject.userData.controlPoints||[]).length>=2:['circle','arc'].includes(meta.type));
+ if(supported){pendingDimensionType=null;applySketchDimension(type);return;}
+ pendingDimensionType=type;
+ setSelectedObject(null);
+ setSketchConstraintHint(type==='distance'?'Cota lineal activa · toca una línea o un segmento del croquis.':type==='radius'?'Cota de radio activa · toca un círculo o arco.':'Cota de diámetro activa · toca un círculo o arco.');
+}
+document.getElementById('radiusDimensionTool')?.addEventListener('click',()=>startSketchDimension('radius'));
+document.getElementById('diameterDimensionTool')?.addEventListener('click',()=>startSketchDimension('diameter'));
+document.getElementById('linearDimensionTool')?.addEventListener('click',()=>startSketchDimension('distance'));
 function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el)el.textContent=message;}
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
  const obj=selectedObject,meta=obj?sketchMetaForObject(obj):null,n=obj?(obj.userData.controlPoints||[]).length:0;
- ['radiusDimensionTool','diameterDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=!obj||!['circle','arc'].includes(meta.type)||meta.fixed;});const linearButton=document.getElementById('linearDimensionTool');if(linearButton)linearButton.disabled=!obj||!['polyline','rect','line'].includes(meta.type)||(obj.userData.controlPoints||[]).length<2||meta.fixed;
+ ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=false;});
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
   button.disabled=(type==='concentric'?(selectedObjects.length!==2||selectedObjects.filter(item=>item&&sketchMetaForObject(item).type==='circle').length!==2):!obj)||(meta&&meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
@@ -1291,6 +1299,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
  }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
 }
 function setTool(tool){
+ pendingDimensionType=null;
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}patternEditState=null;touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();selectionTouchPointers.clear();selectionTouchMulti=false;pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
@@ -2085,7 +2094,12 @@ function finishSketch(event){
   const down=selectionPointerDown;selectionPointerDown=null;
   if(!canceledSelectionTouch&&down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
    const aim=lineGuideEvent(event);
-   if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
+   if(pendingDimensionType){
+    const target=findSelectableObject(aim.clientX,aim.clientY);
+    if(target){const requested=pendingDimensionType;pendingDimensionType=null;setSelectedObject(target);applySketchDimension(requested);}
+    else setSketchConstraintHint('No se detectó geometría. Acércate a una línea, círculo o arco y vuelve a tocar.');
+   }
+   else if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
    else if(activeTool==='extend'){const changed=extendEndpointAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un extremo con intersección delante';}
     else if(activeTool==='split'){const changed=splitSelectedAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='Partir: selecciona una geometría abierta y toca un tramo';}
     else if(activeTool==='offset'){const changed=offsetSelectedAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='Equidistancia: selecciona una geometría del plano activo';}
