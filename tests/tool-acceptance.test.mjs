@@ -263,3 +263,12 @@ test('CAD dimensions use the parametric solver and the mobile expression calcula
   assert.match(app, /evaluateDimensionExpression\(input\.value\)/);
   assert.match(app, /await requestDimensionValue\(title,current\)/);
 });
+
+test('dimension tools can start without a preselected entity and select geometry by touch',()=>{
+  assert.match(app,/function startSketchDimension\(type\)[\s\S]*?pendingDimensionType=type;[\s\S]*?setSelectedObject\(null\)/);
+  assert.match(app,/radiusDimensionTool[\s\S]*?startSketchDimension\('radius'\)/);
+  assert.match(app,/diameterDimensionTool[\s\S]*?startSketchDimension\('diameter'\)/);
+  assert.match(app,/linearDimensionTool[\s\S]*?startSketchDimension\('distance'\)/);
+  assert.match(app,/if\(pendingDimensionType\)\{[\s\S]*?findSelectableObject\(aim\.clientX,aim\.clientY\)[\s\S]*?setSelectedObject\(target\);applySketchDimension\(requested\)/);
+  assert.match(app,/function setTool\(tool\)\{\s*pendingDimensionType=null;/);
+});
