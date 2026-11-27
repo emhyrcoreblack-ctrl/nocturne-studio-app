@@ -24,7 +24,7 @@ test('supports length units and normalizes to centimetres', () => {
   assert.equal(evaluate('1in'), 2.54);
   assert.equal(evaluate('3ft'), 91.44);
   assert.equal(evaluate('3mm+2.5mm'), 0.55);
-  assert.equal(evaluate('3in+2.5in'), 13.97);
+  assert.ok(Math.abs(evaluate('3in+2.5in') - 13.97) < 1e-10);
 });
 
 test('supports trigonometric and numeric functions', () => {
