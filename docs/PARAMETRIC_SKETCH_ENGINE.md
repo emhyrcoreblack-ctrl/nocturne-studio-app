@@ -147,3 +147,11 @@ Ambas herramientas comparten el flujo táctil de tres pasos con previsualizació
 
 **Estado de aceptación:** las comprobaciones automáticas verifican integración de paleta, activación, generación, previsualización y persistencia. La matriz mantiene ambas herramientas como `not_verified` hasta registrar pruebas de interacción reales en navegador Android y con stylus. No se declaran certificadas por pasar CI.
 
+## Edición táctil: Partir
+
+La herramienta **Partir** opera sobre una geometría abierta seleccionada en el plano activo. En Android usa dos toques deliberados: el primero selecciona la entidad y el segundo indica el punto interior del tramo que se va a dividir. La detección se realiza en espacio de pantalla con una tolerancia táctil de 18 px; se rechazan puntos demasiado próximos a los extremos para evitar fragmentos degenerados.
+
+La posición de división se calcula con el parámetro (t) del segmento más próximo y se delega en `splitPolylineAt`. Se generan dos entidades independientes que comparten el mismo punto 3D de división, conservan el color original y la pertenencia al croquis. La operación sustituye la entidad original como una única transacción de historial, por lo que puede deshacerse y rehacerse; el proyecto se guarda después de la sustitución.
+
+**Alcance actual:** solo geometrías abiertas. Los perfiles cerrados se rechazan sin modificarlos. Las curvas representadas por polilíneas muestreadas se dividen sobre su aproximación poligonal actual; no se reconstruye todavía una curva analítica exacta ni se transfieren todas sus restricciones paramétricas. La matriz de aceptación mantiene Partir como `not_verified` hasta las pruebas E2E en Android y stylus.
+
