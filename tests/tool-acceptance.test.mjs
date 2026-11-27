@@ -280,3 +280,9 @@ test('linear dimension uses the exact segment selected on the canvas',()=>{
   assert.match(app,/const segmentIndex=linear\?Math\.max\(0,Math\.min\(Number\.isInteger\(obj\.userData\.lastPickedSegmentIndex\)/);
   assert.match(app,/a:segmentIndex,b:segmentEnd/);
 });
+
+test('dimension picking switches drawing tools into the selection pointer lifecycle before arming',()=>{
+  assert.match(app,/function startSketchDimension\(type\)[\s\S]*?if\(activeTool!=='select'\)setTool\('select'\);[\s\S]*?setSelectedObject\(null\);[\s\S]*?pendingDimensionType=type;/);
+  assert.match(app,/if\(activeTool==='select'\|\|activeTool==='trim'\|\|activeTool==='extend'\|\|activeTool==='split'\|\|activeTool==='offset'\)\{[\s\S]*?if\(pendingDimensionType\)\{/);
+  assert.match(app,/selectionPointerDown=\{pointerId:event\.pointerId,x:event\.clientX,y:event\.clientY\}/);
+});
