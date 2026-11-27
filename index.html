@@ -2015,7 +2015,7 @@ function finishSketch(event){
   selectionTouchPointers.delete(event.pointerId);
   if(selectionTouchPointers.size===0)selectionTouchMulti=false;
  }
- if(activeTool==='arc'||activeTool==='circle3'){
+ if(activeTool==='arc'||activeTool==='circle3'||activeTool==='slot'){
   if(event.pointerType==='touch'){
    if(!pinchGesture){const p=pointForSketch(event,true);if(p){if(activeTool==='circle3')addCircleThreePoint(p);else if(activeTool==='slot')addSlotPoint(p);else addArcPoint(p);}}
    activeTouchPointers.delete(event.pointerId);touchPendingEvent=null;touchLineGuideActive=false;
