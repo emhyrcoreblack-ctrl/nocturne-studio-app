@@ -326,6 +326,14 @@ test('Android palette starts dimension mode on pointerdown and keeps keyboard ac
 });
 
 
+test('Cota muestra un estado activo persistente y permite cancelar desde el dock',()=>{
+ assert.match(app,/function updateDimensionToolIndicator\(\)/);
+ assert.match(app,/activeToggle\.innerHTML=.*Cota/);
+ assert.match(app,/activeToggle\.setAttribute\('aria-pressed','true'\)/);
+ assert.match(app,/if\(pendingDimensionType!==null\)\{pendingDimensionType=null/);
+ assert.match(app,/updateDimensionToolIndicator\(\);document\.getElementById\('saveState'\)\.textContent='Cota cancelada'/);
+});
+
 test('Cota edita dimensiones existentes sin acumular restricciones contradictorias',()=>{
  assert.match(app,/const existing=meta\.dimensions\.find/);
  assert.match(app,/if\(dimension\)\{dimension\.type=dimensionType;dimension\.value=value;dimension\.enabled=true;\}/);
