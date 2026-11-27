@@ -284,5 +284,5 @@ test('linear dimension uses the exact segment selected on the canvas',()=>{
 test('dimension picking switches drawing tools into the selection pointer lifecycle before arming',()=>{
   assert.match(app,/function startSketchDimension\(type\)[\s\S]*?if\(activeTool!=='select'\)setTool\('select'\);[\s\S]*?setSelectedObject\(null\);[\s\S]*?pendingDimensionType=type;/);
   assert.match(app,/if\(activeTool==='select'\|\|activeTool==='trim'\|\|activeTool==='extend'\|\|activeTool==='split'\|\|activeTool==='offset'\)\{[\s\S]*?if\(pendingDimensionType\)\{/);
-  assert.match(app,/selectionPointerDown=\{pointerId:event\.pointerId,x:event\.clientX,y:event\.clientY\}/);
+  assert.match(app,/function beginSketchNow\(event\)[\s\S]*?selectionPointerDown=\{x:event\.clientX,y:event\.clientY,pointerId:event\.pointerId\}/);
 });
