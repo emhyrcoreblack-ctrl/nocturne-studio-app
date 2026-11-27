@@ -2219,7 +2219,8 @@ function offsetSelectedAtScreen(clientX,clientY){
   if(!camera)return false;
   const picked=findSelectableObject(clientX,clientY);
   if(!picked)return false;
-  const meta=sketchMetaForObject(picked),points=picked.userData.controlPoints||[],closed=!!picked.userData.closed;
+  const meta=sketchMetaForObject(picked),rawPoints=picked.userData.controlPoints||[],closed=!!picked.userData.closed;
+  const points=closed&&rawPoints.length>2&&rawPoints[0].distanceTo(rawPoints[rawPoints.length-1])<.001?rawPoints.slice(0,-1):rawPoints;
   if(points.length<(closed?3:2)){document.getElementById('saveState').textContent='Equidistancia: geometría insuficiente';return false;}
   if(meta&&meta.plane&&meta.plane!==activePlane){document.getElementById('saveState').textContent='Equidistancia requiere activar el plano de la geometría';return false;}
   const raw=window.prompt('Distancia de equidistancia en cm (negativo para el lado opuesto):','1');
@@ -2235,7 +2236,14 @@ function offsetSelectedAtScreen(clientX,clientY){
   const vectors=shifted.map(p=>planePoint(p.u,p.v));
   let valid=true;
   for(let i=0;i<vectors.length;i++){if(vectors[i].distanceTo(vectors[(i+1)%vectors.length])<.001&& (closed||i<vectors.length-1)){valid=false;break;}}
-  if(!valid){document.getElementById('saveState').textContent='Equidistancia inválida · distancia demasiado grande';return false;}
+  if(valid){
+   const edgeCount=closed?vectors.length:vectors.length-1;
+   for(let i=0;i<edgeCount&&valid;i++)for(let j=i+2;j<edgeCount;j++){
+    if(closed&&i===0&&j===edgeCount-1)continue;
+    if(intersectSegments2D(planeCoords(vectors[i]),planeCoords(vectors[(i+1)%vectors.length]),planeCoords(vectors[j]),planeCoords(vectors[(j+1)%vectors.length]))){valid=false;break;}
+   }
+  }
+  if(!valid){document.getElementById('saveState').textContent='Equidistancia inválida · distancia demasiado grande o contorno cruzado';return false;}
   const color=picked.userData.selectionOriginalColor!==undefined?picked.userData.selectionOriginalColor:(picked.material&&picked.material.color?picked.material.color.getHex():0xe5efff);
   const obj=makeFatStroke(vectors,color,1,closed);if(!obj)return false;
   obj.userData.sketch=createSketchDefinition('polyline',vectors,meta.plane||activePlane,{...(meta.parameters||{}),offset:true,offsetDistance:distance,offsetOf:meta.id||null,sourceType:meta.type});
