@@ -1029,9 +1029,18 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   updateHistoryButtons();
   const drawMenuButton=document.getElementById('drawMenuButton');
   const drawToolsPanel=document.getElementById('drawToolsPanel');
-  const toggleDrawPalette=()=>{const open=!drawToolsPanel.classList.contains('open');drawToolsPanel.classList.toggle('open',open);drawToolsPanel.setAttribute('aria-hidden',String(!open));drawMenuButton.classList.toggle('menu-open',open);drawMenuButton.setAttribute('aria-expanded',String(open));document.getElementById('dockTools').setAttribute('aria-expanded',String(open));document.getElementById('dockTools').setAttribute('aria-pressed',String(open));};
-  const closeDrawPalette=()=>{drawToolsPanel.classList.remove('open');drawToolsPanel.setAttribute('aria-hidden','true');drawMenuButton.classList.remove('menu-open');drawMenuButton.setAttribute('aria-expanded','false');document.getElementById('dockTools').setAttribute('aria-expanded','false');document.getElementById('dockTools').setAttribute('aria-pressed','false');};
-  window.addEventListener('nocturne-open-sketch-tools',toggleDrawPalette);
+  const setDrawPaletteOpen=open=>{
+   drawToolsPanel.classList.toggle('open',!!open);
+   drawToolsPanel.setAttribute('aria-hidden',String(!open));
+   drawMenuButton.classList.toggle('menu-open',!!open);
+   drawMenuButton.setAttribute('aria-expanded',String(!!open));
+   const dockToolsButton=document.getElementById('dockTools');
+   dockToolsButton.setAttribute('aria-expanded',String(!!open));
+   dockToolsButton.setAttribute('aria-pressed',String(!!open));
+  };
+  const toggleDrawPalette=()=>setDrawPaletteOpen(!drawToolsPanel.classList.contains('open'));
+  const closeDrawPalette=()=>setDrawPaletteOpen(false);
+  window.addEventListener('nocturne-open-sketch-tools',()=>setDrawPaletteOpen(true));
   const dockSketchButton=document.getElementById('dockSketch');
   const setSketchMode=enabled=>{
    if(enabled===sketchMode)return;
@@ -1067,7 +1076,15 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   };
   window.addEventListener('nocturne-toggle-sketch-mode',()=>setSketchMode(!sketchMode));
   // El botón ya emite nocturne-toggle-sketch-mode desde el dock; no registrar un segundo toggle.
-  function chooseTool(tool){if(tool!=='select'&&!sketchMode)setSketchMode(true);setTool(activeTool===tool?'select':tool);closeDrawPalette();}
+  function chooseTool(tool){
+   const validTools=new Set(['select','line','rect','circle','polygon','ellipse','arc','trim','extend']);
+   if(!validTools.has(tool))return;
+   if(tool!=='select'&&!sketchMode)setSketchMode(true);
+   setTool(activeTool===tool?'select':tool);
+   // Elegir una herramienta no cambia la visibilidad de la paleta.
+   // El panel permanece disponible para cambiar de herramienta durante el croquis.
+   setDrawPaletteOpen(true);
+  }
   drawMenuButton.addEventListener('click',toggleDrawPalette);
   document.getElementById('bottomSketch').addEventListener('click',toggleDrawPalette);
   drawToolsPanel.addEventListener('click',event=>{const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();const tool=toolButton.dataset.paletteTool;chooseTool(tool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
