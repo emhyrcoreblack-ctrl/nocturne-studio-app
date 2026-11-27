@@ -1958,7 +1958,7 @@ function moveSketch(event){
  else if(event.pointerType==='touch'&&touchPendingEvent){touchPendingEvent.clientX=event.clientX;touchPendingEvent.clientY=event.clientY;return;}
  const p=pointForSketch(event);if(!p)return;
  
- if(activeTool==='arc'&&arcPoints.length>=2){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=makeArcShape(arcPoints[0],arcPoints[1],p,true);if(previewObject)scene.add(previewObject);updateMeasureAt('Arco · 3 puntos','Define el punto final',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));return;}
+ if((activeTool==='arc'||activeTool==='circle3')&&arcPoints.length>=2){if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}previewObject=activeTool==='circle3'?makeCircleThreePointShape(arcPoints[0],arcPoints[1],p,true):makeArcShape(arcPoints[0],arcPoints[1],p,true);if(previewObject)scene.add(previewObject);updateMeasureAt(activeTool==='circle3'?'Círculo · 3 puntos':'Arco · 3 puntos','Define el tercer punto',p.clone().addScaledVector(workPlanes[activePlane].normal,.08));return;}
  if(activeTool==='line'&&linePoints.length){
   if(lineDragStart&&lineDragPointerId===event.pointerId&&p.distanceTo(lineDragStart)>.02)lineDragMoved=true;
   updateContinuousLine(p);return;
