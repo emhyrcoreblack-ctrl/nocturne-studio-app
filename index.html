@@ -810,6 +810,7 @@
 </script>
 <script type="module">
 import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance } from './cad-geometry.mjs';
+import { ParametricSketch, solveParametricSketch } from './parametric-sketch.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
@@ -829,6 +830,27 @@ function createSketchLayerRecord(plane,name){
  const id='layer-'+Date.now().toString(36)+'-'+(++sketchLayerSequence).toString(36);
  return {id,name:name||('Croquis '+(sketchLayers.length+1)),plane:plane||'XZ',status:'completed',visible:true,createdAt:new Date().toISOString()};
 }
+function buildParametricSketchModel(meta,points){
+ const model=new ParametricSketch({id:meta.id,plane:meta.plane,units:'cm'});
+ const params=meta.parameters||{};
+ if(meta.type==='circle'&&Array.isArray(params.center)&&params.center.length===3&&Number.isFinite(params.radius)&&params.radius>0){
+  const center=planeCoords(new THREE.Vector3(params.center[0],params.center[1],params.center[2]));
+  model.addCircle({u:center.u,v:center.v},params.radius,{id:meta.id+'-circle'});
+  return model.toJSON();
+ }
+ const uv=(points||[]).map(p=>planeCoords(p)).filter(p=>Number.isFinite(p.u)&&Number.isFinite(p.v));
+ const clean=uv.filter((p,index)=>index===0||Math.hypot(p.u-uv[index-1].u,p.v-uv[index-1].v)>1e-8);
+ if(clean.length<2)return model.toJSON();
+ const pointIds=clean.map((p,index)=>model.addPoint(p.u,p.v,{id:meta.id+'-p'+index}));
+ const segmentCount=meta.type==='rect'?Math.min(4,pointIds.length):pointIds.length-1;
+ for(let i=0;i<segmentCount;i++){
+  const next=(i+1)%pointIds.length;
+  const lineId=model.addLine(pointIds[i],pointIds[next],{id:meta.id+'-e'+i});
+  if(meta.type==='rect')model.addConstraint(i%2===0?'horizontal':'vertical',[lineId]);
+ }
+ return model.toJSON();
+}
+
 function normalizeSketchDefinition(meta,closed,points){
  if(meta&&typeof meta==='object'&&meta.schema===SKETCH_SCHEMA_VERSION&&typeof meta.id==='string')
   return {...meta,parameters:{...(meta.parameters||{})},constraints:Array.isArray(meta.constraints)?meta.constraints:[],dimensions:Array.isArray(meta.dimensions)?meta.dimensions:[]};
@@ -845,6 +867,7 @@ function attachSketchDefinition(obj,type,start,end){
  else if(type==='ellipse')parameters={radiusU:Math.abs(b.u-a.u),radiusV:Math.abs(b.v-a.v),center:[start.x,start.y,start.z]};
  const meta=createSketchDefinition(type,obj.userData.controlPoints||[],activePlane,parameters);
  if(type==='rect'){meta.constraints=[{id:'auto-h0',type:'horizontal',a:0,enabled:true},{id:'auto-v1',type:'vertical',a:1,enabled:true},{id:'auto-h2',type:'horizontal',a:2,enabled:true},{id:'auto-v3',type:'vertical',a:3,b:0,enabled:true}];}
+ meta.parametricModel=buildParametricSketchModel(meta,obj.userData.controlPoints||[]);
  obj.userData.sketch=meta;return obj;
 }
 function sketchConstraintSummary(obj){const m=sketchMetaForObject(obj);if(!m)return 'Sin definición paramétrica';const active=m.constraints.filter(c=>c&&c.enabled!==false).length;return active+' restricciones · '+m.dimensions.length+' cotas'+(m.fixed?' · Fijado':'');}
@@ -2186,7 +2209,7 @@ function updateContinuousLine(cursor,fromPoint){
   updateMeasureAt('Longitud: '+fmt(distance)+' cm','Ángulo: '+fmt(angle)+'° · Elevación: '+fmt(elevation)+'°',mid);
  }
 }
-function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);lineObject.userData.sketch=createSketchDefinition('polyline',linePoints,activePlane,{segmentCount:linePoints.length-1});drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
+function finishContinuousLine(){if(lineObject&&linePoints.length>1){updateFatStroke(lineObject,linePoints);const lineMeta=createSketchDefinition('polyline',linePoints,activePlane,{segmentCount:linePoints.length-1});lineMeta.parametricModel=buildParametricSketchModel(lineMeta,linePoints);lineObject.userData.sketch=lineMeta;drawnObjects.push(lineObject);refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';}else if(lineObject){scene.remove(lineObject);disposePreview(lineObject);}lineObject=null;linePoints=[];hideMeasure();saveViewportProject();commitDrawingHistory();}
 function addArcPoint(point){
  if(!point)return false;
  if(arcPoints.length<2){arcPoints.push(point.clone());const status=arcPoints.length===1?'Arco: punto inicial fijado':'Arco: punto de curva fijado · marca el final';document.getElementById('saveState').textContent=status;hideMeasure();saveViewportProject();recordDrawingHistory();return true;}
@@ -2194,7 +2217,7 @@ function addArcPoint(point){
  if(previewObject){scene.remove(previewObject);disposePreview(previewObject);previewObject=null;}
  const obj=makeArcShape(start,through,end,false);
  if(!obj){document.getElementById('saveState').textContent='Arco inválido · los tres puntos no pueden estar alineados';return false;}
- const pts=obj.userData.controlPoints||[];obj.userData.sketch=createSketchDefinition('arc',pts,activePlane,{start:[start.x,start.y,start.z],through:[through.x,through.y,through.z],end:[end.x,end.y,end.z]});
+ const pts=obj.userData.controlPoints||[];const arcMeta=createSketchDefinition('arc',pts,activePlane,{start:[start.x,start.y,start.z],through:[through.x,through.y,through.z],end:[end.x,end.y,end.z]});arcMeta.parametricModel=buildParametricSketchModel(arcMeta,pts);obj.userData.sketch=arcMeta;
  scene.add(obj);drawnObjects.push(obj);arcPoints=[];refreshWorkspacePanels();document.getElementById('saveState').textContent=drawnObjects.length+' elemento(s)';
  const a=planeCoords(start),b=planeCoords(through),c=planeCoords(end);updateMeasureAt('Arco de 3 puntos','Inicio · curva · final',planePoint((a.u+b.u+c.u)/3,(a.v+b.v+c.v)/3,.08));saveViewportProject();recordDrawingHistory();return true;
 }
