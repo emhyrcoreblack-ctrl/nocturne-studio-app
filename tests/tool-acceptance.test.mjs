@@ -297,3 +297,14 @@ test('Android dimension picking uses compensated finger aim and a touch-sized hi
   assert.match(app,/findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)/);
   assert.match(app,/event\.pointerType==='touch'\?22:6/);
 });
+
+test('Dimension controls live in the current CAD tools panel without obsolete pencil UI',()=>{
+ const panelStart=app.indexOf('<div id="drawToolsPanel"');
+ const panelEnd=app.indexOf('<aside id="featurePanel"');
+ assert.ok(panelStart>=0&&panelEnd>panelStart);
+ const panel=app.slice(panelStart,panelEnd);
+ for(const id of ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'])assert.match(panel,new RegExp('id="'+id+'"'));
+ assert.match(panel,/id="sketchConstraintHint"/);
+ assert.doesNotMatch(app,/id="drawMenuButton"/);
+ assert.doesNotMatch(app,/mountDimensionToolsInPalette/);
+});
