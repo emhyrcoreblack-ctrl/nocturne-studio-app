@@ -1912,7 +1912,7 @@ function beginSketch(event){
  }
  beginSketchNow(event);
 }function beginSketchNow(event){
- if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'){
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'||activeTool==='split'||activeTool==='offset'){
   if(event.button!==0)return;
   if(event.pointerType==='touch'&&activeTool!=='select')positionTouchCursor(event);
   selectionPointerDown={x:event.clientX,y:event.clientY,pointerId:event.pointerId};return;
