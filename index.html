@@ -2095,89 +2095,47 @@ function trimSegmentAtScreen(clientX,clientY){
  camera.updateMatrixWorld(true);
  const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),plane=workPlanes[activePlane],origin=new THREE.Vector3();
  let target=null,targetIndex=-1,targetT=0,bestPixels=12;
- const segmentDistance=(p,a,b)=>{
-  const dx=b.x-a.x,dy=b.y-a.y,lenSq=dx*dx+dy*dy,t=lenSq?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/lenSq,0,1):0;
-  return {distance:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};
- };
- // 1) Seleccionar el segmento visible más cercano al punto de mira.
+ const segmentDistance=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,lenSq=dx*dx+dy*dy,t=lenSq?THREE.MathUtils.clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/lenSq,0,1):0;return{distance:Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy),t};};
  for(const obj of drawnObjects){
-  const pts=obj.userData.controlPoints||[],closed=!!obj.userData.closed,count=closed?pts.length:pts.length-1;
-  if(pts.length<2)continue;
+  const pts=obj.userData.controlPoints||[],closed=!!obj.userData.closed,count=closed?pts.length:pts.length-1;if(pts.length<2)continue;
   obj.updateWorldMatrix(true,false);
   const screen=pts.map(p=>{projected.copy(p);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};});
-  for(let i=0;i<count;i++){
-   const a=screen[i],b=screen[(i+1)%screen.length];
-   if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;
-   const hit=segmentDistance({x:px,y:py},a,b);
-   if(hit.distance<bestPixels){bestPixels=hit.distance;target=obj;targetIndex=i;targetT=hit.t;}
-  }
+  for(let i=0;i<count;i++){const a=screen[i],b=screen[(i+1)%screen.length];if((a.z< -1&&b.z< -1)||(a.z>1&&b.z>1))continue;const hit=segmentDistance({x:px,y:py},a,b);if(hit.distance<bestPixels){bestPixels=hit.distance;target=obj;targetIndex=i;targetT=hit.t;}}
  }
  if(!target)return false;
- const points=target.userData.controlPoints||[],closed=!!target.userData.closed,n=points.length,edgeCount=closed?n:n-1;
- if(n<2)return false;
- // 2) Construir la longitud acumulada de la polilínea en el plano activo.
+ const meta=sketchMetaForObject(target);if(meta&&meta.plane&&meta.plane!==activePlane){document.getElementById('saveState').textContent='Recortar requiere activar el plano de la geometría';return false;}
+ target.updateWorldMatrix(true,false);
+ let points=(target.userData.controlPoints||[]).map(p=>target.localToWorld(p.clone()));
+ const closed=!!target.userData.closed;
+ if(closed&&points.length>2&&points[0].distanceTo(points[points.length-1])<.001)points=points.slice(0,-1);
+ const n=points.length,edgeCount=closed?n:n-1;if(n<2)return false;
+ if(points.some(p=>Math.abs(p.clone().sub(origin).dot(plane.normal))>.05)){document.getElementById('saveState').textContent='Recortar requiere geometría coplanar con el plano activo';return false;}
  const uv=points.map(p=>planeCoords(p)),cumulative=[0];
- for(let i=0;i<edgeCount;i++){
-  const a=uv[i],b=uv[(i+1)%n];
-  cumulative.push(cumulative[i]+Math.hypot(b.u-a.u,b.v-a.v));
- }
- const total=cumulative[cumulative.length-1],selectedA=uv[targetIndex],selectedB=uv[(targetIndex+1)%n];
- const selectedLength=Math.hypot(selectedB.u-selectedA.u,selectedB.v-selectedA.v);
- const targetS=cumulative[targetIndex]+targetT*selectedLength;
+ for(let i=0;i<edgeCount;i++){const a=uv[i],b=uv[(i+1)%n];cumulative.push(cumulative[i]+Math.hypot(b.u-a.u,b.v-a.v));}
+ const total=cumulative[cumulative.length-1],selectedA=uv[targetIndex],selectedB=uv[(targetIndex+1)%n],selectedLength=Math.hypot(selectedB.u-selectedA.u,selectedB.v-selectedA.v),targetS=cumulative[targetIndex]+targetT*selectedLength;
  if(!Number.isFinite(total)||total<1e-8)return false;
- // 3) Encontrar todas las intersecciones de la figura seleccionada con las demás geometrías.
  const hits=[];
  for(const otherObj of drawnObjects){
   if(otherObj===target)continue;
-  const other=otherObj.userData.controlPoints||[],otherClosed=!!otherObj.userData.closed,otherCount=otherClosed?other.length:other.length-1;
+  const otherMeta=sketchMetaForObject(otherObj);if(otherMeta&&otherMeta.plane&&otherMeta.plane!==activePlane)continue;
+  otherObj.updateWorldMatrix(true,false);
+  const other=(otherObj.userData.controlPoints||[]).map(p=>otherObj.localToWorld(p.clone())),otherClosed=!!otherObj.userData.closed,otherCount=otherClosed?other.length:other.length-1;
   for(let j=0;j<otherCount;j++){
-   const p3=other[j],q3=other[(j+1)%other.length];
-   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
+   const p3=other[j],q3=other[(j+1)%other.length];if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
    const p=planeCoords(p3),q=planeCoords(q3);
-   for(let i=0;i<edgeCount;i++){
-    const a3=points[i],b3=points[(i+1)%n];
-    if(Math.abs(a3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(b3.clone().sub(origin).dot(plane.normal))>.05)continue;
-    const a=uv[i],b=uv[(i+1)%n],intersection=intersectSegments2D(a,b,p,q);
-    if(intersection){
-     const edgeLength=Math.hypot(b.u-a.u,b.v-a.v),s=cumulative[i]+intersection.t*edgeLength;
-     hits.push({s,point:a3.clone().lerp(b3,intersection.t)});
-    }
-   }
+   for(let i=0;i<edgeCount;i++){const a=uv[i],b=uv[(i+1)%n],intersection=intersectSegments2D(a,b,p,q);if(intersection){const edgeLength=Math.hypot(b.u-a.u,b.v-a.v),s=cumulative[i]+intersection.t*edgeLength;hits.push({s,point:points[i].clone().lerp(points[(i+1)%n],intersection.t)});}}
   }
  }
- // 4) Identificar las dos intersecciones que delimitan el tramo bajo el cursor.
  const bounds=selectTrimBounds(hits,targetS,total,closed);
  if(!bounds){document.getElementById('saveState').textContent='Recortar: el cursor debe estar entre dos intersecciones';return false;}
- const {previous,next}=bounds;
- const replacements=[];
- if(closed){
-  // En un contorno cerrado se elimina el arco que contiene el cursor y se conserva el arco complementario.
-  const startHit=next,endHit={...previous,s:previous.s+(next.s<=previous.s?total:0)};
-  let endS=endHit.s;
-  if(endS<=startHit.s)endS+=total;
-  const kept=[startHit.point.clone()];
-  for(const index of closedPathVertexIndices(cumulative,startHit.s,endS,total))kept.push(points[index].clone());
-  kept.push(previous.point.clone());
-  if(kept.length>=2)replacements.push(kept);
- }else{
-  const left=points.filter((p,i)=>cumulative[i]<previous.s-1e-5).map(p=>p.clone());
-  left.push(previous.point.clone());
-  const right=[next.point.clone(),...points.filter((p,i)=>cumulative[i]>next.s+1e-5).map(p=>p.clone())];
-  if(left.length>=2)replacements.push(left);
-  if(right.length>=2)replacements.push(right);
- }
+ const {previous,next}=bounds,replacements=[];
+ if(closed){const startHit=next,endHit={...previous,s:previous.s+(next.s<=previous.s?total:0)};let endS=endHit.s;if(endS<=startHit.s)endS+=total;const kept=[startHit.point.clone()];for(const index of closedPathVertexIndices(cumulative,startHit.s,endS,total))kept.push(points[index].clone());kept.push(previous.point.clone());if(kept.length>=2)replacements.push(kept);}
+ else{const left=points.filter((p,i)=>cumulative[i]<previous.s-1e-5).map(p=>p.clone());left.push(previous.point.clone());const right=[next.point.clone(),...points.filter((p,i)=>cumulative[i]>next.s+1e-5).map(p=>p.clone())];if(left.length>=2)replacements.push(left);if(right.length>=2)replacements.push(right);}
  const color=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff);
- const objects=replacements.map(part=>{
-  const obj=makeFatStroke(part,color,1,false);
-  if(obj){obj.userData.sketch=createSketchDefinition('polyline',part,activePlane,{trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:sketchMetaForObject(target).type});obj.userData.sketch.sketchId=sketchMetaForObject(target).sketchId||activeSketchId||null;}
-  return obj;
- }).filter(Boolean);
+ const objects=replacements.map(part=>{const obj=makeFatStroke(part,color,1,false);if(obj){obj.userData.sketch=createSketchDefinition('polyline',part,meta.plane||activePlane,{...(meta.parameters||{}),trimmed:true,operation:closed?'closed-profile-trim':'intersection-trim',sourceType:meta.type,sourceId:meta.id||null});obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;}return obj;}).filter(Boolean);
  if(!objects.length)return false;
- scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);
- objects.forEach(obj=>{scene.add(obj);drawnObjects.push(obj);});
- setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
- document.getElementById('saveState').textContent=closed?'Perfil cerrado recortado':'Tramo entre intersecciones recortado';
- return true;
+ scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);objects.forEach(obj=>{scene.add(obj);drawnObjects.push(obj);});
+ setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent=closed?'Perfil cerrado recortado':'Tramo entre intersecciones recortado';return true;
 }
 function splitSelectedAtScreen(clientX,clientY){
   if(!camera)return false;
@@ -2281,43 +2239,19 @@ function extendEndpointAtScreen(clientX,clientY){
  const rect=renderer.domElement.getBoundingClientRect(),px=clientX-rect.left,py=clientY-rect.top,projected=new THREE.Vector3(),origin=new THREE.Vector3(),plane=workPlanes[activePlane];
  let target=null,atStart=false,best=14;
  const project=(point,obj)=>{projected.copy(point);obj.localToWorld(projected);projected.project(camera);return{x:(projected.x*.5+.5)*rect.width,y:(-.5*projected.y+.5)*rect.height,z:projected.z};};
- for(const obj of drawnObjects){
-  const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;
-  obj.updateWorldMatrix(true,false);
-  for(const [start,p] of [[true,pts[0]],[false,pts[pts.length-1]]]){
-   const q=project(p,obj),d=Math.hypot(px-q.x,py-q.y);
-   if(q.z>=-1&&q.z<=1&&d<best){best=d;target=obj;atStart=start;}
-  }
- }
+ for(const obj of drawnObjects){const pts=obj.userData.controlPoints||[];if(pts.length<2||obj.userData.closed)continue;const meta=sketchMetaForObject(obj);if(meta&&meta.plane&&meta.plane!==activePlane)continue;obj.updateWorldMatrix(true,false);for(const [start,p] of [[true,pts[0]],[false,pts[pts.length-1]]]){const q=project(p,obj),d=Math.hypot(px-q.x,py-q.y);if(q.z>=-1&&q.z<=1&&d<best){best=d;target=obj;atStart=start;}}}
  if(!target)return false;
- target.updateWorldMatrix(true,false);
- const localPts=target.userData.controlPoints||[],pts=localPts.map(p=>target.localToWorld(p.clone()));
+ const meta=sketchMetaForObject(target);target.updateWorldMatrix(true,false);const pts=(target.userData.controlPoints||[]).map(p=>target.localToWorld(p.clone()));
  const endpoint=atStart?pts[0]:pts[pts.length-1],neighbor=atStart?pts[1]:pts[pts.length-2];
- if(Math.abs(endpoint.clone().sub(origin).dot(plane.normal))>.05||Math.abs(neighbor.clone().sub(origin).dot(plane.normal))>.05){document.getElementById('saveState').textContent='Extender requiere el plano activo';return false;}
- const e=planeCoords(endpoint),n=planeCoords(neighbor),dx=e.u-n.u,dy=e.v-n.v,len=Math.hypot(dx,dy);
- if(len<1e-8)return false;
- const rx=dx/len,ry=dy/len,cross=(x,y,u,v)=>x*v-y*u;
- let nearest=Infinity,intersection=null;
- for(const obj of drawnObjects){
-  if(obj===target)continue;
-  obj.updateWorldMatrix(true,false);
-  const localOther=obj.userData.controlPoints||[],other=localOther.map(p=>obj.localToWorld(p.clone())),count=obj.userData.closed?other.length:other.length-1;
-  for(let j=0;j<count;j++){
-   const p3=other[j],q3=other[(j+1)%other.length];
-   if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;
-   const p=planeCoords(p3),q=planeCoords(q3),hit=intersectRaySegment2D(e,{u:rx,v:ry},p,q);
-   if(hit&&hit.t<nearest){nearest=hit.t;intersection=planePoint(e.u+rx*hit.t,e.v+ry*hit.t);}
-  }
- }
+ if(Math.abs(endpoint.clone().sub(origin).dot(plane.normal))>.05||Math.abs(neighbor.clone().sub(origin).dot(plane.normal))>.05)return false;
+ const e=planeCoords(endpoint),n=planeCoords(neighbor),dx=e.u-n.u,dy=e.v-n.v,len=Math.hypot(dx,dy);if(len<1e-8)return false;
+ const rx=dx/len,ry=dy/len;let nearest=Infinity,intersection=null;
+ for(const obj of drawnObjects){if(obj===target)continue;const otherMeta=sketchMetaForObject(obj);if(otherMeta&&otherMeta.plane&&otherMeta.plane!==activePlane)continue;obj.updateWorldMatrix(true,false);const other=(obj.userData.controlPoints||[]).map(p=>obj.localToWorld(p.clone())),count=obj.userData.closed?other.length:other.length-1;for(let j=0;j<count;j++){const p3=other[j],q3=other[(j+1)%other.length];if(Math.abs(p3.clone().sub(origin).dot(plane.normal))>.05||Math.abs(q3.clone().sub(origin).dot(plane.normal))>.05)continue;const p=planeCoords(p3),q=planeCoords(q3),hit=intersectRaySegment2D(e,{u:rx,v:ry},p,q);if(hit&&hit.t<nearest){nearest=hit.t;intersection=planePoint(e.u+rx*hit.t,e.v+ry*hit.t);}}}
  if(!intersection)return false;
- const updated=pts.map(p=>p.clone());
- if(atStart)updated.unshift(intersection);else updated.push(intersection);
- const obj=makeFatStroke(updated,0xe5efff,1,false);if(!obj)return false;
- const meta=sketchMetaForObject(target);
- obj.userData.sketch=createSketchDefinition('polyline',updated,activePlane,{...(meta&&meta.parameters||{}),extended:true,operation:'intersection-extend'});
- scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);scene.add(obj);drawnObjects.push(obj);
- setSelectedObject(null);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();
- document.getElementById('saveState').textContent='Extremo extendido hasta la intersección';return true;
+ const updated=pts.map(p=>p.clone());if(atStart)updated.unshift(intersection);else updated.push(intersection);
+ const color=target.userData.selectionOriginalColor!==undefined?target.userData.selectionOriginalColor:(target.material&&target.material.color?target.material.color.getHex():0xe5efff),obj=makeFatStroke(updated,color,1,false);if(!obj)return false;
+ obj.userData.sketch=createSketchDefinition('polyline',updated,meta.plane||activePlane,{...(meta.parameters||{}),extended:true,operation:'intersection-extend',sourceType:meta.type,sourceId:meta.id||null});obj.userData.sketch.sketchId=meta.sketchId||activeSketchId||null;
+ scene.remove(target);disposePreview(target);drawnObjects=drawnObjects.filter(o=>o!==target);scene.add(obj);drawnObjects.push(obj);setSelectedObject(obj);refreshWorkspacePanels();saveViewportProject();recordDrawingHistory();document.getElementById('saveState').textContent='Extremo extendido hasta la intersección';return true;
 }
 function findSelectableObject(clientX,clientY){
  if(!camera||!drawnObjects.length)return null;
