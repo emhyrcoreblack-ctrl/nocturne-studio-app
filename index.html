@@ -669,6 +669,8 @@
  border-radius:8px!important;
 }
 .tree-layer-header{display:flex;align-items:center;gap:3px}.tree-layer-header>.tree-row{flex:1;min-width:0}.tree-object-row{display:flex;align-items:center;gap:2px}.tree-object-row>.tree-row{flex:1;min-width:0}.tree-visibility{flex:0 0 28px;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:#9fb5ce;font-size:15px}.tree-visibility:hover{background:#263d56;color:#fff}.tree-visibility-object{font-size:13px}.tree-layer-header.active>.tree-row{background:#1c3b5b;color:#e5f1ff}#dockModeling:disabled{opacity:.32!important;cursor:not-allowed!important;filter:grayscale(1)}
+
+.dimension-calculator-backdrop{position:fixed;inset:0;z-index:1000;background:#080d16b8;display:grid;place-items:center;padding:16px}.dimension-calculator{width:min(310px,100%);padding:14px;border:1px solid #40536b;border-radius:13px;background:#172231;box-shadow:0 18px 55px #0009;color:#edf3fb}.dimension-calculator header,.dimension-calculator footer{display:flex;align-items:center;justify-content:space-between;gap:8px}.dimension-calculator header{margin-bottom:12px}.dimension-calculator header strong{font-size:14px}.dimension-calculator header button{font-size:21px;padding:2px 9px}.dimension-expression-label{display:block;color:#aab8ca;font-size:11px;margin-bottom:5px}.dimension-expression-input{width:100%;height:44px;border:1px solid #5a7595;border-radius:8px;background:#0d1622;color:#fff;padding:0 11px;font-size:20px;text-align:right}.dimension-expression-result{display:block;min-height:25px;padding:5px 2px;color:#91c6ff;text-align:right;font-size:12px}.dimension-expression-result[data-valid="false"]{color:#ff9c9c}.dimension-keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 12px}.dimension-keypad button{height:38px;padding:0;background:#26364a;border-color:#3b506a;font-size:16px}.dimension-calculator footer button{flex:1}.dimension-calculator .dimension-apply{background:#285d91;border-color:#4789c5}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -725,7 +727,7 @@
 <div id="sketchConstraintCard"><span id="sketchConstraintHint" hidden>Selecciona una geometría</span><div class="sketch-constraint-grid">
 <button title="Horizontal" aria-label="Horizontal" data-sketch-constraint="horizontal">↔</button><button title="Vertical" aria-label="Vertical" data-sketch-constraint="vertical">↕</button><button title="Paralela" aria-label="Paralela" data-sketch-constraint="parallel">∥</button><button title="Perpendicular" aria-label="Perpendicular" data-sketch-constraint="perpendicular">⊥</button><button title="Igual longitud" aria-label="Igual longitud" data-sketch-constraint="equal">=</button><button title="Coincidente" aria-label="Coincidente" data-sketch-constraint="coincident">◇</button><button title="Fijar" aria-label="Fijar" data-sketch-constraint="fixed">⌖</button><button title="Desbloquear" aria-label="Desbloquear" data-sketch-constraint="unlock">⌑</button><button title="Concéntrico" aria-label="Concéntrico" data-sketch-constraint="concentric">◎</button><button title="Tangencia · próximamente" aria-label="Tangencia" disabled>◔</button>
 </div></div><span class="tool-separator"></span>
-<button id="radiusDimensionTool" title="Cota de radio" aria-label="Cota de radio">R</button><button id="diameterDimensionTool" title="Cota de diámetro" aria-label="Cota de diámetro">Ø</button><button title="Cota lineal · próximamente" aria-label="Cota lineal" disabled>↔</button><button title="Ángulo · próximamente" aria-label="Ángulo" disabled>∠</button><span class="tool-separator"></span>
+<button id="radiusDimensionTool" title="Cota de radio" aria-label="Cota de radio">R</button><button id="diameterDimensionTool" title="Cota de diámetro" aria-label="Cota de diámetro">Ø</button><button id="linearDimensionTool" title="Cota lineal" aria-label="Cota lineal">↔</button><button title="Ángulo · próximamente" aria-label="Ángulo" disabled>∠</button><span class="tool-separator"></span>
 <button title="Extruir · próximamente" aria-label="Extruir" disabled>▱</button><button title="Revolución · próximamente" aria-label="Revolución" disabled>◉</button><button title="Barrido · próximamente" aria-label="Barrido" disabled>〰</button><button title="Loft · próximamente" aria-label="Loft" disabled>◇</button><button title="Redondeo · próximamente" aria-label="Redondeo" disabled>⌒</button><button title="Chaflán · próximamente" aria-label="Chaflán" disabled>／</button><span class="tool-separator"></span>
 <button id="fitButton" title="Restablecer vista" aria-label="Restablecer vista">⟳</button><button id="activeToolToggle" type="button" hidden aria-label="Herramienta activa"></button><button id="gridButton" type="button" hidden aria-label="Cuadrícula"></button><button id="axesButton" type="button" hidden aria-label="Ejes"></button><span class="save-state" id="saveState" aria-live="polite">Seleccionar</span>
 </nav>
@@ -811,6 +813,7 @@
 <script type="module">
 import { intersectSegments2D, intersectRaySegment2D, selectTrimBounds, closedPathVertexIndices, isWithinSnapTolerance, circleThroughThreePoints, rectangleFromCenter, createSlotPath, sampleBezier, splitPolylineAt, offsetPolyline, filletPolylineVertex, chamferPolylineVertex } from './cad-geometry.mjs';
 import { ParametricSketch } from './parametric-sketch.mjs';
+import { evaluateDimensionExpression } from './dimension-expression.mjs';
 let renderer,scene,camera,controls,observer,raf=0,started=false,THREE;
 const host=document.getElementById('viewport'),errorBox=document.getElementById('sceneError'),errorText=document.getElementById('sceneErrorText'),cube=document.getElementById('orientationCube');
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
@@ -920,7 +923,7 @@ function solveSketchConstraints(obj){
   updateFatStroke(obj,next);meta.parametricModel=model.toJSON();meta.solverStatus=result.status;meta.degreesOfFreedom=result.dof;
   return {ok:true,status:result.status,dof:result.dof};
  }
- if(meta.type==='polyline'||meta.type==='rect'){
+ if(meta.type==='polyline'||meta.type==='rect'||meta.type==='line'){
   let model;
   try{model=meta.parametricModel?ParametricSketch.fromJSON(meta.parametricModel):ParametricSketch.fromJSON(buildParametricSketchModel(meta,points));}
   catch(error){return {ok:false,reason:'No se pudo recuperar el modelo paramétrico: '+error.message};}
@@ -935,6 +938,12 @@ function solveSketchConstraints(obj){
    if(model.constraints.some(item=>item.id===constraintId))continue;
    try{model.addConstraint(c.type,refs,{id:constraintId});}
    catch(error){return {ok:false,reason:'Restricción incompatible con esta geometría: '+error.message};}
+  }
+  for(const dimension of (meta.dimensions||[]).filter(item=>item&&item.enabled!==false&&item.type==='distance'&&Number.isInteger(item.a)&&Number.isInteger(item.b)&&Number.isFinite(item.value)&&item.value>0)){
+   const constraintId='dimension-'+dimension.id;
+   if(model.constraints.some(item=>item.id===constraintId))continue;
+   try{model.addConstraint('distance',[meta.id+'-p'+dimension.a,meta.id+'-p'+dimension.b],{id:constraintId,value:dimension.value});}
+   catch(error){return {ok:false,reason:'Cota lineal incompatible: '+error.message};}
   }
   const result=solveParametricSketch(model);
   if(result.status==='conflict')return {ok:false,reason:'Las restricciones entran en conflicto. Revisa las relaciones del croquis.'};
@@ -1014,31 +1023,48 @@ function applySketchConstraint(type){
  const result=solveSketchConstraints(obj);if(!result.ok){meta.constraints.pop();setSketchConstraintHint(result.reason);return;}
  saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Restricción aplicada: '+({horizontal:'horizontal al primer segmento',vertical:'vertical al primer segmento',parallel:'paralela entre los dos primeros segmentos',perpendicular:'perpendicular entre los dos primeros segmentos',equal:'igual longitud entre los dos primeros segmentos',coincident:'coincidencia de extremos'}[type])+'.');
 }
-function applySketchDimension(type){
+function requestDimensionValue(title,initial){
+ return new Promise(resolve=>{
+  const overlay=document.createElement('div');overlay.className='dimension-calculator-backdrop';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label',title);
+  overlay.innerHTML='<section class="dimension-calculator"><header><strong>'+title+'</strong><button type="button" data-calc-close aria-label="Cerrar">×</button></header><label class="dimension-expression-label" for="dimensionExpressionInput">Medida · cm</label><input id="dimensionExpressionInput" class="dimension-expression-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><output class="dimension-expression-result" aria-live="polite"></output><div class="dimension-keypad"><button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" data-key="/">÷</button><button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" data-key="*">×</button><button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" data-key="-">−</button><button type="button" data-key="0">0</button><button type="button" data-key=".">.</button><button type="button" data-key="(">(</button><button type="button" data-key=")">)</button><button type="button" data-key="+">+</button><button type="button" data-key="back">⌫</button><button type="button" data-key="clear">C</button></div><footer><button type="button" data-calc-cancel>Cancelar</button><button type="button" class="dimension-apply" data-calc-apply>Aplicar</button></footer></section>';
+  document.body.appendChild(overlay);const input=overlay.querySelector('#dimensionExpressionInput'),output=overlay.querySelector('.dimension-expression-result');input.value=String(initial??'1');
+  const close=value=>{overlay.remove();resolve(value);};
+  const update=()=>{try{const value=evaluateDimensionExpression(input.value);output.textContent=Number.isFinite(value)?'= '+value.toLocaleString('es-PE',{maximumFractionDigits:6})+' cm':'Expresión inválida';output.dataset.valid=String(Number.isFinite(value)&&value>0);}catch(error){output.textContent=error.message;output.dataset.valid='false';}};
+  input.addEventListener('input',update);overlay.querySelector('[data-calc-close]').addEventListener('click',()=>close(null));overlay.querySelector('[data-calc-cancel]').addEventListener('click',()=>close(null));
+  overlay.querySelectorAll('[data-key]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.key;if(key==='clear')input.value='';else if(key==='back')input.value=input.value.slice(0,-1);else{const a=input.selectionStart??input.value.length,b=input.selectionEnd??a;input.setRangeText(key,a,b,'end');}input.focus();update();}));
+  overlay.querySelector('[data-calc-apply]').addEventListener('click',()=>{try{const value=evaluateDimensionExpression(input.value);if(!Number.isFinite(value)||value<=0)throw new Error('La medida debe ser mayor que cero.');close(value);}catch(error){output.textContent=error.message;output.dataset.valid='false';}});
+  overlay.addEventListener('click',event=>{if(event.target===overlay)close(null);});input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();overlay.querySelector('[data-calc-apply]').click();}if(event.key==='Escape')close(null);});
+  update();requestAnimationFrame(()=>{input.focus();input.select();});
+ });
+}
+async function applySketchDimension(type){
  const obj=selectedObject;if(!obj)return;
- const meta=sketchMetaForObject(obj);
- if(!['circle','arc'].includes(meta.type)){setSketchConstraintHint('Selecciona un círculo o arco para acotar su radio o diámetro.');return;}
+ const meta=sketchMetaForObject(obj),points=obj.userData.controlPoints||[];
  if(meta.fixed){setSketchConstraintHint('La geometría está fijada. Desbloquéala antes de modificarla.');return;}
- const current=meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1;
- const raw=window.prompt(type==='radius'?'Nuevo radio (cm):':'Nuevo diámetro (cm):',String(type==='radius'?current:current*2));
- if(raw===null)return;
- const value=Number(String(raw).trim().replace(',','.'));
- if(!Number.isFinite(value)||value<=0){setSketchConstraintHint('Introduce una medida numérica mayor que cero.');return;}
- const dimension={id:'d-'+(++sketchEntitySequence).toString(36),type,value,enabled:true};
+ const linear=type==='distance';
+ if(linear&&!['polyline','rect','line'].includes(meta.type)){setSketchConstraintHint('Selecciona una línea o un croquis con segmentos para aplicar una cota lineal.');return;}
+ if(linear&&points.length<2){setSketchConstraintHint('La geometría no contiene un segmento acotable.');return;}
+ if(!linear&&!['circle','arc'].includes(meta.type)){setSketchConstraintHint('Selecciona un círculo o arco para acotar su radio o diámetro.');return;}
+ const current=linear?points[0].distanceTo(points[1]):(meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1)*(type==='diameter'?2:1);
+ const title=linear?'Cota lineal':type==='radius'?'Cota de radio':'Cota de diámetro';
+ const value=await requestDimensionValue(title,current);
+ if(value===null)return;
+ const dimension={id:'d-'+(++sketchEntitySequence).toString(36),type:linear?'distance':type,value,enabled:true,...(linear?{a:0,b:1}:{})};
  meta.dimensions=Array.isArray(meta.dimensions)?meta.dimensions:[];
  meta.dimensions.push(dimension);
  const result=solveSketchConstraints(obj);
  if(!result.ok){meta.dimensions.pop();setSketchConstraintHint(result.reason);return;}
  saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
- setSketchConstraintHint((type==='radius'?'Radio':'Diámetro')+' aplicado: '+value+' cm · '+(result.dof===0?'Totalmente restringido':result.dof+' grados de libertad'));
+ setSketchConstraintHint((linear?'Cota lineal':type==='radius'?'Radio':'Diámetro')+' aplicada: '+value+' cm · '+(result.dof===0?'Totalmente restringido':result.dof+' grados de libertad'));
 }
 document.getElementById('radiusDimensionTool')?.addEventListener('click',()=>applySketchDimension('radius'));
 document.getElementById('diameterDimensionTool')?.addEventListener('click',()=>applySketchDimension('diameter'));
+document.getElementById('linearDimensionTool')?.addEventListener('click',()=>applySketchDimension('distance'));
 function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el)el.textContent=message;}
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
  const obj=selectedObject,meta=obj?sketchMetaForObject(obj):null,n=obj?(obj.userData.controlPoints||[]).length:0;
- ['radiusDimensionTool','diameterDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=!obj||!['circle','arc'].includes(meta.type)||meta.fixed;});
+ ['radiusDimensionTool','diameterDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=!obj||!['circle','arc'].includes(meta.type)||meta.fixed;});const linearButton=document.getElementById('linearDimensionTool');if(linearButton)linearButton.disabled=!obj||!['polyline','rect','line'].includes(meta.type)||(obj.userData.controlPoints||[]).length<2||meta.fixed;
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
   button.disabled=(type==='concentric'?(selectedObjects.length!==2||selectedObjects.filter(item=>item&&sketchMetaForObject(item).type==='circle').length!==2):!obj)||(meta&&meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
