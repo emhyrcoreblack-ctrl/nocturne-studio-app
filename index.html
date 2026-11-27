@@ -2095,7 +2095,7 @@ function finishSketch(event){
   if(!canceledSelectionTouch&&down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
    const aim=lineGuideEvent(event);
    if(pendingDimensionType){
-    const target=findSelectableObject(aim.clientX,aim.clientY);
+    const target=findSelectableObject(event.clientX,event.clientY);
     if(target){const requested=pendingDimensionType;pendingDimensionType=null;setSelectedObject(target);applySketchDimension(requested);}
     else setSketchConstraintHint('No se detectó geometría. Acércate a una línea, círculo o arco y vuelve a tocar.');
    }
