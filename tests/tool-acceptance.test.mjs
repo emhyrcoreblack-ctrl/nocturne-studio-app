@@ -269,7 +269,7 @@ test('dimension tools can start without a preselected entity and select geometry
   assert.match(app,/radiusDimensionTool[\s\S]*?startSketchDimension\('radius'\)/);
   assert.match(app,/diameterDimensionTool[\s\S]*?startSketchDimension\('diameter'\)/);
   assert.match(app,/linearDimensionTool[\s\S]*?startSketchDimension\('distance'\)/);
-  assert.match(app,/if\(pendingDimensionType\)\{[\s\S]*?findSelectableObject\(aim\.clientX,aim\.clientY\)[\s\S]*?setSelectedObject\(target\);applySketchDimension\(requested\)/);
+  assert.match(app,/if\(pendingDimensionType\)\{[\s\S]*?findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)[\s\S]*?setSelectedObject\(target\);applySketchDimension\(requested\)/);
   assert.match(app,/function setTool\(tool\)\{\s*pendingDimensionType=null;/);
 });
 
@@ -285,4 +285,12 @@ test('dimension picking switches drawing tools into the selection pointer lifecy
   assert.match(app,/function startSketchDimension\(type\)[\s\S]*?if\(activeTool!=='select'\)setTool\('select'\);[\s\S]*?setSelectedObject\(null\);[\s\S]*?pendingDimensionType=type;/);
   assert.match(app,/if\(activeTool==='select'\|\|activeTool==='trim'\|\|activeTool==='extend'\|\|activeTool==='split'\|\|activeTool==='offset'\)\{[\s\S]*?if\(pendingDimensionType\)\{/);
   assert.match(app,/function beginSketchNow\(event\)[\s\S]*?selectionPointerDown=\{x:event\.clientX,y:event\.clientY,pointerId:event\.pointerId\}/);
+});
+
+
+test('Android dimension picking uses compensated finger aim and a touch-sized hit target',()=>{
+  assert.match(app,/function findSelectableObject\(clientX,clientY,pointerType='mouse'\)/);
+  assert.match(app,/bestPixels=pointerType==='touch'\?34:14/);
+  assert.match(app,/findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)/);
+  assert.match(app,/event\.pointerType==='touch'\?22:6/);
 });
