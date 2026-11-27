@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'polygon', 'ellipse', 'arc', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -189,4 +189,16 @@ test('Centered rectangle is wired to the active-plane touch and pointer drawing 
   assert.match(app, /rectCenter:'Marca el centro y arrastra hasta una esquina'/);
   assert.match(app, /shapeTouchDragPointerId===event\.pointerId&&drawStart/);
   assert.match(app, /activeTool==='rectCenter'\?2:1/);
+});
+
+test('three-point slot tool is wired to touch preview, construction and persistence',()=>{
+  assert.match(app,/data-palette-tool="slot"/);
+  assert.match(app,/id="slotTool"/);
+  assert.match(app,/createSlotPath/);
+  assert.match(app,/function makeSlotShape\(start,end,widthPoint,preview\)/);
+  assert.match(app,/function addSlotPoint\(point\)/);
+  assert.match(app,/activeTool==='slot'\?makeSlotShape/);
+  assert.match(app,/activeTool==='slot'\)addSlotPoint\(p\)/);
+  const slot=matrix.tools.find(tool=>tool.id==='slot');
+  assert.ok(slot&&slot.status==='not_verified');
 });
