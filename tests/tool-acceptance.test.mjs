@@ -323,16 +323,19 @@ test('Android palette starts dimension mode on pointerdown and keeps keyboard ac
   assert.match(app,/button\[data-palette-dimension\][\s\S]*?event\.detail===0/);
 });
 
-\ntest('Cota automática resuelve el tipo correcto cuando ya hay una geometría seleccionada',()=>{
+
+test('Cota automática resuelve el tipo correcto cuando ya hay una geometría seleccionada',()=>{
  assert.match(app,/const resolved=type==='auto'&&meta\?\(\['polyline','rect','line'\]\.includes\(meta\.type\)\?'distance':meta\.type==='circle'\?'diameter':meta\.type==='arc'\?'radius':null\):type/);
  assert.match(app,/if\(supported\)\{pendingDimensionType=null;applySketchDimension\(resolved\);return;\}/);
 });
-\ntest('La calculadora de cotas no bloquea el lienzo con una ventana modal y el estado no usa avisos flotantes',()=>{
+
+test('La calculadora de cotas no bloquea el lienzo con una ventana modal y el estado no usa avisos flotantes',()=>{
  assert.match(app,/overlay\.setAttribute\('aria-modal','false'\)/);
  assert.match(app,/\.dimension-calculator-backdrop\{position:fixed;inset:auto 8px 86px[\s\S]*?pointer-events:none\}/);
  assert.match(app,/function setSketchConstraintHint\(message\)[\s\S]*?el\.hidden=true[\s\S]*?status\.textContent=message/);
 });
-\ntest('La paleta actual no conserva la barra ficticia ni la búsqueda antigua desactivada',()=>{
+
+test('La paleta actual no conserva la barra ficticia ni la búsqueda antigua desactivada',()=>{
  assert.doesNotMatch(app,/class="onshape-topbar"/);
  assert.doesNotMatch(app,/class="onshape-search"/);
 });
