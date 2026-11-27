@@ -223,6 +223,9 @@ test('split tool is wired to selected geometry and tactile point operation',()=>
   assert.match(app,/activeTool==='split'\)\{const changed=splitSelectedAtScreen/);
   assert.match(app,/if\(target\.userData\.closed\|\|points\.length<2\)/);
   assert.match(app,/operation:'split'/);
+  assert.match(app,/const picked=findSelectableObject\(clientX,clientY\)/);
+  assert.match(app,/Geometría seleccionada · toca el punto donde dividirla/);
+  assert.match(app,/const splitVector=points\[bestIndex\]\.clone\(\)\.lerp\(points\[bestIndex\+1\],bestT\)/);
   const split=matrix.tools.find(tool=>tool.id==='split');
   assert.ok(split&&split.status==='not_verified');
 });
