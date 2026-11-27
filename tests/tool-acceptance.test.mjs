@@ -37,13 +37,13 @@ test('Croquis starts and finishes independent sketch sessions on the selected pl
   assert.match(app, /const layer=createSketchLayerRecord\(planeName\)/);
   assert.match(app, /layer\.status='active';sketchLayers\.push\(layer\);activeSketchId=layer\.id/);
   assert.match(app, /finished\.status='completed'/);
-  assert.match(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
+  assert.match(app, /getElementById\('dockSketch'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-toggle-sketch-mode'\)\)\)/);\n  assert.match(app, /addEventListener\('nocturne-toggle-sketch-mode',\(\)=>setSketchMode\(!sketchMode\)\)/);\n  assert.doesNotMatch(app, /dockSketchButton\.addEventListener\('click',\(\)=>setSketchMode\(!sketchMode\)\)/);
 });
 
 test('Tools palette remains independent from the Croquis session button', () => {
   assert.match(app, /getElementById\('dockTools'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-open-sketch-tools'\)\)\)/);
   assert.match(app, /addEventListener\('nocturne-open-sketch-tools',toggleDrawPalette\)/);
-  assert.match(app, /function chooseTool\(tool\)\{setTool\(activeTool===tool\?'select':tool\)/);
+  assert.match(app, /function chooseTool\(tool\)\{if\(tool!=='select'&&!sketchMode\)setSketchMode\(true\);setTool\(activeTool===tool\?'select':tool\)/);
   assert.match(app, /activeToggle\.hidden=!lastDrawingTool/);
   assert.match(app, /activeToggle\.setAttribute\('aria-pressed',String\(!!lastDrawingTool&&activeTool===lastDrawingTool\)\)/);
 });
@@ -56,4 +56,11 @@ test('Each sketch is persisted as a feature-tree group with its geometry', () =>
   assert.match(app, /className='tree-row tree-sketch'/);
   assert.match(app, /members=drawnObjects\.filter\(obj=>sketchMetaForObject\(obj\)\.sketchId===layer\.id\)/);
   assert.match(app, /sketches:sketchLayers\.map\(layer=>\(\.\.\.layer\)\)/);
+});
+
+
+test('Dock options restore hover, focus and touch feedback with a green status dot', () => {
+  assert.match(app, /#onshapeDock button:hover:not\(:disabled\)::after/);
+  assert.match(app, /#onshapeDock button:active:not\(:disabled\)::after/);
+  assert.match(app, /background:#9fe0b0/);
 });
