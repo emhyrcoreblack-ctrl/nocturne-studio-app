@@ -1141,9 +1141,9 @@ function updateDimensionToolIndicator(){
  if(pendingDimensionType!==null||activeDimensionLabel||dimensionToolChosen){
   const label=activeDimensionLabel||(pendingDimensionType!==null?'Cota':'Cota');
   activeToggle.hidden=false;activeToggle.innerHTML='<span class="active-tool-glyph">↔</span><span class="active-tool-label">'+label+'</span>';
-  activeToggle.title=pendingDimensionType!==null?label+' activa · selecciona geometría · pulsa para cancelar':(activeDimensionLabel?label+' activa':'Cota · desactivada');
+  activeToggle.title=pendingDimensionType!==null?label+' activa · selecciona geometría · pulsa para cancelar':label+' desactivada · pulsa para activar';
   activeToggle.setAttribute('aria-label',activeToggle.title);
-  activeToggle.setAttribute('aria-pressed',String(pendingDimensionType!==null||!!activeDimensionLabel));
+  activeToggle.setAttribute('aria-pressed',String(pendingDimensionType!==null));
   return;
  }
  const shownTool=lastDrawingTool||'select';activeToggle.hidden=!lastDrawingTool;
@@ -1392,7 +1392,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   },true);
   drawToolsPanel.addEventListener('click',event=>{const dimensionButton=event.target.closest('button[data-palette-dimension]');if(dimensionButton&&!dimensionButton.disabled&&event.detail===0){event.preventDefault();event.stopPropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
-  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;dimensionToolChosen=true;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(dimensionToolChosen||activeDimensionLabel){activeDimensionLabel=null;dimensionToolChosen=true;activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
+  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;dimensionToolChosen=true;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(dimensionToolChosen||activeDimensionLabel){dimensionToolChosen=true;activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
   document.getElementById('rectTool').addEventListener('click',()=>chooseTool('rect'));
