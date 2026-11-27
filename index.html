@@ -1254,7 +1254,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
 }
 function setTool(tool){
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
- if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
+ if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();selectionTouchPointers.clear();selectionTouchMulti=false;pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
  if(drawStart){drawStart=null;if(previewObject){disposePreview(previewObject);previewObject=null;}}
  if(previewObject){disposePreview(previewObject);previewObject=null;}arcPoints=[];
  activeTool=tool;
