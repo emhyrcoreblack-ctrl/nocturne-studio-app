@@ -261,7 +261,7 @@ export function solveParametricSketch(model,options={}) {
     if(candidateError<error) {
       values=candidate; current=candidateResiduals; error=candidateError;
       damping=Math.max(1e-12,damping/3);
-      converged=error<=config.tolerance||norm(step)<=config.tolerance;
+      converged=error<=config.tolerance;
     } else {
       applyParameters(model,values,descriptors);
       damping=Math.min(1e12,damping*10);
