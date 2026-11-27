@@ -1141,9 +1141,9 @@ function updateDimensionToolIndicator(){
  if(pendingDimensionType!==null||activeDimensionLabel||dimensionToolChosen){
   const label=activeDimensionLabel||(pendingDimensionType!==null?'Cota':'Cota');
   activeToggle.hidden=false;activeToggle.innerHTML='<span class="active-tool-glyph">↔</span><span class="active-tool-label">'+label+'</span>';
-  activeToggle.title=pendingDimensionType!==null?label+' activa · selecciona geometría · pulsa para cancelar':(activeDimensionLabel?label+' activa':'Cota · desactivada');
+  activeToggle.title=pendingDimensionType!==null?label+' activa · selecciona geometría · pulsa para cancelar':label+' desactivada · pulsa para activar';
   activeToggle.setAttribute('aria-label',activeToggle.title);
-  activeToggle.setAttribute('aria-pressed',String(pendingDimensionType!==null||!!activeDimensionLabel));
+  activeToggle.setAttribute('aria-pressed',String(pendingDimensionType!==null));
   return;
  }
  const shownTool=lastDrawingTool||'select';activeToggle.hidden=!lastDrawingTool;
@@ -1178,7 +1178,8 @@ function bindDimensionActivation(id,type){
  button.addEventListener('pointerdown',event=>{
   if(event.button!==undefined&&event.button!==0)return;
   event.preventDefault();event.stopImmediatePropagation();
-  startSketchDimension(type);
+  if(pendingDimensionType===type){pendingDimensionType=null;activeDimensionLabel=type==='distance'?'Cota lineal':type==='radius'?'Cota de radio':'Cota de diámetro';activeTool='select';['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const item=document.getElementById(id);if(item){item.classList.remove('tool-active');item.setAttribute('aria-pressed','false');}});updateDimensionToolIndicator();refreshWorkspacePanels();setSketchConstraintHint('Cota desactivada');}
+  else startSketchDimension(type);
  },true);
  button.addEventListener('click',event=>{
   if(event.detail===0){event.preventDefault();startSketchDimension(type);}
@@ -1391,7 +1392,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   },true);
   drawToolsPanel.addEventListener('click',event=>{const dimensionButton=event.target.closest('button[data-palette-dimension]');if(dimensionButton&&!dimensionButton.disabled&&event.detail===0){event.preventDefault();event.stopPropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
-  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;activeDimensionLabel=null;dimensionToolChosen=true;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(dimensionToolChosen||activeDimensionLabel){activeDimensionLabel=null;dimensionToolChosen=true;activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
+  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;dimensionToolChosen=true;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(dimensionToolChosen||activeDimensionLabel){dimensionToolChosen=true;activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
   document.getElementById('rectTool').addEventListener('click',()=>chooseTool('rect'));
@@ -1421,7 +1422,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
  }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
 }
 function setTool(tool){
- pendingDimensionType=null;activeDimensionLabel=null;if(tool!=='select')dimensionToolChosen=false;
+ if(tool!=='select'){pendingDimensionType=null;activeDimensionLabel=null;dimensionToolChosen=false;}else if(pendingDimensionType!==null){pendingDimensionType=null;}
  ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}patternEditState=null;touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();selectionTouchPointers.clear();selectionTouchMulti=false;pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
@@ -2593,7 +2594,7 @@ function updateDimensionAnnotations(){
  const project=point=>{const p=point.clone();p.project(camera);return{x:(p.x*.5+.5)*width,y:(-.5*p.y+.5)*height,z:p.z};};
  const line=(a,b,cls,driven=false)=>{const el=document.createElementNS(ns,'line');el.setAttribute('x1',a.x);el.setAttribute('y1',a.y);el.setAttribute('x2',b.x);el.setAttribute('y2',b.y);el.setAttribute('class',cls||'dimension-line');if(driven)el.classList.add('dimension-driven');dimensionOverlay.appendChild(el);};
  const arrow=(tip,from,driven=false)=>{const angle=Math.atan2(tip.y-from.y,tip.x-from.x),len=12,spread=.48;const points=[[tip.x,tip.y],[tip.x-len*Math.cos(angle-spread),tip.y-len*Math.sin(angle-spread)],[tip.x-len*Math.cos(angle+spread),tip.y-len*Math.sin(angle+spread)]].map(p=>p[0]+','+p[1]).join(' ');const el=document.createElementNS(ns,'polygon');el.setAttribute('points',points);el.setAttribute('fill',driven?'#aab4c2':'#ffffff');el.setAttribute('stroke','#101a27');el.setAttribute('stroke-width','0.8');el.setAttribute('vector-effect','non-scaling-stroke');el.setAttribute('class','dimension-arrow');if(driven)el.classList.add('dimension-driven');dimensionOverlay.appendChild(el);};
- const label=(x,y,value,id,driven=false)=>{const g=document.createElementNS(ns,'g');g.dataset.dimensionId=id;g.setAttribute('class','dimension-label');g.setAttribute('transform','translate('+x+' '+y+')');g.style.pointerEvents='all';g.style.cursor=driven?'default':'grab';const textValue=fmt(value)+' cm',labelWidth=Math.max(58,textValue.length*8+18);const bg=document.createElementNS(ns,'rect');bg.setAttribute('x',String(-labelWidth/2));bg.setAttribute('y','-15');bg.setAttribute('width',String(labelWidth));bg.setAttribute('height','30');bg.setAttribute('rx','5');bg.setAttribute('fill',driven?'#263343':'#101a27');bg.setAttribute('fill-opacity','1');bg.setAttribute('stroke','#ffffff');bg.setAttribute('stroke-width','1');bg.setAttribute('vector-effect','non-scaling-stroke');bg.setAttribute('class','dimension-label-bg');g.appendChild(bg);const t=document.createElementNS(ns,'text');t.setAttribute('x','0');t.setAttribute('y','5');t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.setAttribute('fill','#ffffff');t.setAttribute('font-family','system-ui,sans-serif');t.setAttribute('font-size','14');t.setAttribute('font-weight','700');t.setAttribute('stroke','#101a27');t.setAttribute('stroke-width','2.5');t.setAttribute('paint-order','stroke');t.textContent=textValue;g.appendChild(t);dimensionOverlay.appendChild(g);};
+ const label=(x,y,value,id,driven=false)=>{const g=document.createElementNS(ns,'g');g.dataset.dimensionId=id;g.setAttribute('class','dimension-label');g.setAttribute('transform','translate('+x+' '+y+')');g.style.pointerEvents='all';g.style.cursor=driven?'default':'grab';const t=document.createElementNS(ns,'text');t.setAttribute('x','0');t.setAttribute('y','5');t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.setAttribute('fill',driven?'#cbd5e1':'#ffffff');t.setAttribute('font-family','system-ui,sans-serif');t.setAttribute('font-size','16');t.setAttribute('font-weight','700');t.setAttribute('stroke','#101a27');t.setAttribute('stroke-width','3');t.setAttribute('paint-order','stroke');t.textContent=fmt(value)+' cm';g.appendChild(t);dimensionOverlay.appendChild(g);};
  for(const obj of drawnObjects){
   if(!obj.visible)continue;
   const meta=sketchMetaForObject(obj);
@@ -2617,8 +2618,7 @@ function updateDimensionAnnotations(){
     const place=d.placement||{},ox=Number(place.x)||0,oy=Number(place.y)||0;
     const shift={x:nx*42+ox,y:ny*42+oy};
     const a={x:pa.x+shift.x,y:pa.y+shift.y},b={x:pb.x+shift.x,y:pb.y+shift.y};
-    const extA={x:a.x+nx*9,y:a.y+ny*9},extB={x:b.x+nx*9,y:b.y+ny*9};
-    line(pa,extA,'dimension-extension',driven);line(pb,extB,'dimension-extension',driven);
+    // Keep the annotation independent of the sketch: no extension geometry is added.
     // A continuous dimension line with inward-facing arrowheads; the value is
     // rendered over an opaque label rather than removing a large central span.
     line(a,b,'dimension-line',driven);
