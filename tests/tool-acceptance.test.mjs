@@ -41,7 +41,8 @@ test('Croquis starts and finishes independent sketch sessions on the selected pl
 });
 
 test('Tools palette remains independent from the Croquis session button', () => {
-  assert.match(app, /getElementById\('dockTools'\)\.addEventListener\('click',toggleDrawPalette\)/);
+  assert.match(app, /getElementById\('dockTools'\)\.addEventListener\('click',\(\)=>window\.dispatchEvent\(new Event\('nocturne-open-sketch-tools'\)\)\)/);
+  assert.match(app, /addEventListener\('nocturne-open-sketch-tools',toggleDrawPalette\)/);
   assert.match(app, /function chooseTool\(tool\)\{setTool\(activeTool===tool\?'select':tool\)/);
   assert.match(app, /activeToggle\.hidden=!lastDrawingTool/);
   assert.match(app, /activeToggle\.setAttribute\('aria-pressed',String\(!!lastDrawingTool&&activeTool===lastDrawingTool\)\)/);
