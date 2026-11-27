@@ -725,7 +725,7 @@
 <div id="sketchConstraintCard"><span id="sketchConstraintHint" hidden>Selecciona una geometría</span><div class="sketch-constraint-grid">
 <button title="Horizontal" aria-label="Horizontal" data-sketch-constraint="horizontal">↔</button><button title="Vertical" aria-label="Vertical" data-sketch-constraint="vertical">↕</button><button title="Paralela" aria-label="Paralela" data-sketch-constraint="parallel">∥</button><button title="Perpendicular" aria-label="Perpendicular" data-sketch-constraint="perpendicular">⊥</button><button title="Igual longitud" aria-label="Igual longitud" data-sketch-constraint="equal">=</button><button title="Coincidente" aria-label="Coincidente" data-sketch-constraint="coincident">◇</button><button title="Fijar" aria-label="Fijar" data-sketch-constraint="fixed">⌖</button><button title="Desbloquear" aria-label="Desbloquear" data-sketch-constraint="unlock">⌑</button><button title="Tangencia · próximamente" aria-label="Tangencia" disabled>◔</button>
 </div></div><span class="tool-separator"></span>
-<button title="Cota lineal · próximamente" aria-label="Cota lineal" disabled>↔</button><button title="Radio · próximamente" aria-label="Radio" disabled>R</button><button title="Diámetro · próximamente" aria-label="Diámetro" disabled>Ø</button><button title="Ángulo · próximamente" aria-label="Ángulo" disabled>∠</button><span class="tool-separator"></span>
+<button id="radiusDimensionTool" title="Cota de radio" aria-label="Cota de radio">R</button><button id="diameterDimensionTool" title="Cota de diámetro" aria-label="Cota de diámetro">Ø</button><button title="Cota lineal · próximamente" aria-label="Cota lineal" disabled>↔</button><button title="Ángulo · próximamente" aria-label="Ángulo" disabled>∠</button><span class="tool-separator"></span>
 <button title="Extruir · próximamente" aria-label="Extruir" disabled>▱</button><button title="Revolución · próximamente" aria-label="Revolución" disabled>◉</button><button title="Barrido · próximamente" aria-label="Barrido" disabled>〰</button><button title="Loft · próximamente" aria-label="Loft" disabled>◇</button><button title="Redondeo · próximamente" aria-label="Redondeo" disabled>⌒</button><button title="Chaflán · próximamente" aria-label="Chaflán" disabled>／</button><span class="tool-separator"></span>
 <button id="fitButton" title="Restablecer vista" aria-label="Restablecer vista">⟳</button><button id="activeToolToggle" type="button" hidden aria-label="Herramienta activa"></button><button id="gridButton" type="button" hidden aria-label="Cuadrícula"></button><button id="axesButton" type="button" hidden aria-label="Ejes"></button><span class="save-state" id="saveState" aria-live="polite">Seleccionar</span>
 </nav>
@@ -889,6 +889,36 @@ function solveSketchConstraints(obj){
  if(!obj||!obj.userData.controlPoints)return {ok:false,reason:'No hay geometría seleccionada'};
  const meta=sketchMetaForObject(obj),points=obj.userData.controlPoints,axes=sketchPlaneAxes(meta);
  if(meta.fixed)return {ok:false,reason:'La geometría está fijada'};
+ if(meta.type==='circle'||meta.type==='arc'){
+  let model;
+  try{model=meta.parametricModel?ParametricSketch.fromJSON(meta.parametricModel):ParametricSketch.fromJSON(buildParametricSketchModel(meta,points));}
+  catch(error){return {ok:false,reason:'No se pudo recuperar el modelo paramétrico: '+error.message};}
+  const entityId=meta.type==='circle'?meta.id+'-circle':meta.id+'-arc';
+  for(const dimension of (meta.dimensions||[]).filter(item=>item&&item.enabled!==false)){
+   if(!['radius','diameter'].includes(dimension.type)||!Number.isFinite(dimension.value)||dimension.value<=0)continue;
+   const constraintId='dimension-'+dimension.id;
+   if(model.constraints.some(item=>item.id===constraintId))continue;
+   try{model.addConstraint(dimension.type,[entityId],{id:constraintId,value:dimension.value});}
+   catch(error){return {ok:false,reason:'Cota incompatible: '+error.message};}
+  }
+  const result=solveParametricSketch(model);
+  if(result.status==='conflict')return {ok:false,reason:'Las cotas entran en conflicto. Revisa los valores del croquis.'};
+  const entity=model.entities[entityId],center=model.entities[entity.center];
+  const reference=meta.type==='circle'?new THREE.Vector3(...meta.parameters.center):points[0];
+  const centerWorld=sketchPointFromUV(reference,{u:center.u,v:center.v},axes);
+  const next=[];
+  if(meta.type==='circle'){
+   const count=Math.max(16,points.length-1);
+   for(let i=0;i<count;i++){const angle=i/count*Math.PI*2;next.push(sketchPointFromUV(centerWorld,{u:center.u+Math.cos(angle)*entity.radius,v:center.v+Math.sin(angle)*entity.radius},axes));}
+   meta.parameters.center=centerWorld.toArray();meta.parameters.radius=entity.radius;
+  }else{
+   const count=Math.max(16,points.length-1);
+   for(let i=0;i<=count;i++){const angle=entity.startAngle+entity.sweep*i/count;next.push(sketchPointFromUV(centerWorld,{u:center.u+Math.cos(angle)*entity.radius,v:center.v+Math.sin(angle)*entity.radius},axes));}
+   meta.parameters.startAngle=entity.startAngle;meta.parameters.sweep=entity.sweep;meta.parameters.radius=entity.radius;meta.parameters.center=centerWorld.toArray();
+  }
+  updateFatStroke(obj,next);meta.parametricModel=model.toJSON();meta.solverStatus=result.status;meta.degreesOfFreedom=result.dof;
+  return {ok:true,status:result.status,dof:result.dof};
+ }
  if(meta.type==='polyline'||meta.type==='rect'){
   let model;
   try{model=meta.parametricModel?ParametricSketch.fromJSON(meta.parametricModel):ParametricSketch.fromJSON(buildParametricSketchModel(meta,points));}
@@ -955,6 +985,26 @@ function applySketchConstraint(type){
  const result=solveSketchConstraints(obj);if(!result.ok){meta.constraints.pop();setSketchConstraintHint(result.reason);return;}
  saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();setSketchConstraintHint('Restricción aplicada: '+({horizontal:'horizontal al primer segmento',vertical:'vertical al primer segmento',parallel:'paralela entre los dos primeros segmentos',perpendicular:'perpendicular entre los dos primeros segmentos',equal:'igual longitud entre los dos primeros segmentos',coincident:'coincidencia de extremos'}[type])+'.');
 }
+function applySketchDimension(type){
+ const obj=selectedObject;if(!obj)return;
+ const meta=sketchMetaForObject(obj);
+ if(!['circle','arc'].includes(meta.type)){setSketchConstraintHint('Selecciona un círculo o arco para acotar su radio o diámetro.');return;}
+ if(meta.fixed){setSketchConstraintHint('La geometría está fijada. Desbloquéala antes de modificarla.');return;}
+ const current=meta.parameters&&Number.isFinite(meta.parameters.radius)?meta.parameters.radius:1;
+ const raw=window.prompt(type==='radius'?'Nuevo radio (cm):':'Nuevo diámetro (cm):',String(type==='radius'?current:current*2));
+ if(raw===null)return;
+ const value=Number(String(raw).trim().replace(',','.'));
+ if(!Number.isFinite(value)||value<=0){setSketchConstraintHint('Introduce una medida numérica mayor que cero.');return;}
+ const dimension={id:'d-'+(++sketchEntitySequence).toString(36),type,value,enabled:true};
+ meta.dimensions=Array.isArray(meta.dimensions)?meta.dimensions:[];
+ meta.dimensions.push(dimension);
+ const result=solveSketchConstraints(obj);
+ if(!result.ok){meta.dimensions.pop();setSketchConstraintHint(result.reason);return;}
+ saveViewportProject();recordDrawingHistory();refreshWorkspacePanels();
+ setSketchConstraintHint((type==='radius'?'Radio':'Diámetro')+' aplicado: '+value+' cm · '+(result.dof===0?'Totalmente restringido':result.dof+' grados de libertad'));
+}
+document.getElementById('radiusDimensionTool')?.addEventListener('click',()=>applySketchDimension('radius'));
+document.getElementById('diameterDimensionTool')?.addEventListener('click',()=>applySketchDimension('diameter'));
 function setSketchConstraintHint(message){const el=document.getElementById('sketchConstraintHint');if(el)el.textContent=message;}
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
