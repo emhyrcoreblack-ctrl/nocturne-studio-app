@@ -128,3 +128,17 @@ test('keeps a point on a line and supports tangent line-circle contact',()=>{
   const signedDistance=Math.abs((b.u-a.u)*(center.v-a.v)-(b.v-a.v)*(center.u-a.u))/Math.hypot(b.u-a.u,b.v-a.v);
   near(signedDistance,tangentSketch.entities[circle].radius);
 });
+
+
+test('stores arcs with center, radius, start angle and signed sweep',()=>{
+  const sketch=new ParametricSketch({plane:'YZ'});
+  const arc=sketch.addArc({u:2,v:3},4,Math.PI/4,-Math.PI/2);
+  const restored=ParametricSketch.fromJSON(sketch.toJSON());
+  const entity=restored.entities[arc];
+  assert.equal(entity.type,'arc');
+  near(entity.radius,4);
+  near(entity.startAngle,Math.PI/4);
+  near(entity.sweep,-Math.PI/2);
+  const result=solveParametricSketch(restored);
+  assert.equal(result.dof,5);
+});
