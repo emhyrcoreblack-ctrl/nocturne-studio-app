@@ -816,7 +816,7 @@ const host=document.getElementById('viewport'),errorBox=document.getElementById(
 let gridObject,axesObject,axisLabelEls=[],originMarkerEl=null,coordinatePanel=null,coordinateReadout=null,coordinateInputs=[],coordinateEntryPending=null,coordinatePlaneButtons=[],axisLockButtons=[],activeAxisLock=null,defaultCameraPosition,measureAnchor=null,measureValue='',measureHint='',activeProjectId=null;
 let activeTool='select',lastDrawingTool=null,sketchMode=false,sketchPlane='XZ',drawStart=null,previewObject=null,drawnObjects=[],raycaster,groundPlane,ndc,linePoints=[],lineObject=null,selectedObject=null,selectedObjects=[],selectionPointerDown=null,arcPoints=[];
 let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,levelHintEl=null,angleHintEl=null,lineGuideEl=null,snapKind=null,snapEdgeObject=null,snapVertexObject=null,inferenceGuideObjects=[],inferenceOverlay=null,inferenceOverlayLines=[];
-const activeTouchPointers=new Set();const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
+const activeTouchPointers=new Set();const selectionTouchPointers=new Set();let selectionTouchMulti=false;const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 // En tacto se compensa la oclusión del dedo: el punto CAD sigue el cursor elevado, no la yema.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
 let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null;
@@ -969,7 +969,7 @@ function solveSketchConstraints(obj){
 }
 function applyConcentricConstraint(){
  const pair=selectedObjects.filter(obj=>obj&&sketchMetaForObject(obj).type==='circle');
- if(selectedObjects.length!==2||pair.length!==2){setSketchConstraintHint('Selecciona exactamente dos círculos con Ctrl o ⌘ + clic.');return;}
+ if(selectedObjects.length!==2||pair.length!==2){setSketchConstraintHint('Toca dos círculos para seleccionarlos y aplicar Concéntrico.');return;}
  const [a,b]=pair,ma=sketchMetaForObject(a),mb=sketchMetaForObject(b);
  if(ma.plane!==mb.plane){setSketchConstraintHint('Los círculos deben pertenecer al mismo plano.');return;}
  if(ma.fixed||mb.fixed){setSketchConstraintHint('Desbloquea ambos círculos antes de aplicar Concéntrico.');return;}
@@ -1043,7 +1043,7 @@ function refreshSketchConstraintControls(){
   button.disabled=(type==='concentric'?(selectedObjects.length!==2||selectedObjects.filter(item=>item&&sketchMetaForObject(item).type==='circle').length!==2):!obj)||(meta&&meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
   button.classList.toggle('active',!!(meta&&type==='fixed'&&meta.fixed));
  });
- setSketchConstraintHint(selectedObjects.length===2?'Dos entidades seleccionadas · Concéntrico disponible si ambas son círculos.':!obj?'Selecciona una geometría para aplicar relaciones geométricas.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
+ setSketchConstraintHint(selectedObjects.length===2?'Dos entidades seleccionadas · Concéntrico disponible si ambas son círculos.':selectedObjects.length>2?'Hay varias entidades seleccionadas. Toca una para quitarla.':!obj?'Toca una geometría para seleccionarla. Toca otras para ampliar la selección.':meta.fixed?'Geometría fijada. Desbloquéala para cambiar restricciones.':sketchConstraintSummary(obj));
 }
 document.getElementById('sketchConstraintCard')?.addEventListener('click',event=>{const button=event.target.closest('[data-sketch-constraint]');if(button&&!button.disabled)applySketchConstraint(button.dataset.sketchConstraint);});
 async function startViewport(){
@@ -1843,7 +1843,13 @@ function resolveSnap(event,raw){
  snapKind=null;return raw;
 }
 function beginSketch(event){
- if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){beginSketchNow(event);return;}
+ if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
+  if(activeTool==='select'&&event.pointerType==='touch'){
+   selectionTouchPointers.add(event.pointerId);
+   if(selectionTouchPointers.size>1){selectionTouchMulti=true;selectionPointerDown=null;}
+  }
+  beginSketchNow(event);return;
+ }
  if(event.pointerType==='touch'){
   activeTouchPointers.add(event.pointerId);
   if(activeTouchPointers.size>=2){
@@ -1973,6 +1979,11 @@ function cancelLineGesture(){
 }
 function cancelSketch(event){
  hideSnapFeedback();hideLineGuide();
+ if(event.pointerType==='touch'&&activeTool==='select'){
+  selectionTouchPointers.delete(event.pointerId);
+  if(selectionTouchPointers.size===0)selectionTouchMulti=false;
+  selectionPointerDown=null;
+ }
  if(event.pointerType==='touch'){
   activeTouchPointers.delete(event.pointerId);shapeTouchDragPointerId=null;
   if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}
@@ -1995,6 +2006,11 @@ function finalizeShapeAtPoint(p){
  saveViewportProject();recordDrawingHistory();return true;
 }
 function finishSketch(event){
+ const canceledSelectionTouch=event.pointerType==='touch'&&activeTool==='select'&&selectionTouchMulti;
+ if(event.pointerType==='touch'&&activeTool==='select'){
+  selectionTouchPointers.delete(event.pointerId);
+  if(selectionTouchPointers.size===0)selectionTouchMulti=false;
+ }
  if(activeTool==='arc'){
   if(event.pointerType==='touch'){
    if(!pinchGesture){const p=pointForSketch(event,true);if(p)addArcPoint(p);}
@@ -2029,11 +2045,11 @@ function finishSketch(event){
  }
  if(activeTool==='select'||activeTool==='trim'||activeTool==='extend'){
   const down=selectionPointerDown;selectionPointerDown=null;
-  if(down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
+  if(!canceledSelectionTouch&&down&&down.pointerId===event.pointerId&&Math.hypot(event.clientX-down.x,event.clientY-down.y)<=6){
    const aim=lineGuideEvent(event);
    if(activeTool==='trim'){const changed=trimSegmentAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un tramo entre intersecciones';}
    else if(activeTool==='extend'){const changed=extendEndpointAtScreen(aim.clientX,aim.clientY);if(!changed)document.getElementById('saveState').textContent='No se encontró un extremo con intersección delante';}
-   else{const picked=findSelectableObject(event.clientX,event.clientY);setSelectedObject(picked,!!(event.shiftKey||event.ctrlKey||event.metaKey));}
+   else{const picked=findSelectableObject(event.clientX,event.clientY);const additive=picked&&(event.pointerType==='touch'||event.shiftKey||event.ctrlKey||event.metaKey);setSelectedObject(picked,!!additive);}
   }
   return;
  }
@@ -2272,7 +2288,7 @@ function refreshWorkspacePanels(){
   members.forEach(obj=>{
    objectIndex++;
    const row=document.createElement('div');row.className='tree-object-row';
-   const selectObject=document.createElement('button');selectObject.type='button';selectObject.className='tree-row'+(selectedObject===obj?' active':'');
+   const selectObject=document.createElement('button');selectObject.type='button';selectObject.className='tree-row'+(selectedObjects.includes(obj)?' active':'');
    const meta=sketchMetaForObject(obj),label=meta.type==='circle'?'Círculo':meta.type==='rect'?'Rectángulo':meta.type==='line'?'Línea':meta.type==='polygon'?'Polígono':meta.type==='ellipse'?'Elipse':meta.type==='arc'?'Arco':meta.type==='polyline'?'Polilínea':obj.userData.closed?'Perfil':'Trazo';
    const glyph=document.createElement('span');glyph.className='tree-icon';glyph.textContent=obj.userData.closed?'□':'／';
    const text=document.createElement('span');text.textContent=label+' '+objectIndex;selectObject.append(glyph,text);
