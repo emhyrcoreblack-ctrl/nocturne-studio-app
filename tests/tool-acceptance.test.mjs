@@ -6,7 +6,7 @@ const matrix = JSON.parse(await readFile(new URL('./tool-acceptance.json', impor
 const app = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 
 test('acceptance matrix covers every active CAD tool button', () => {
-  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'split', 'trim', 'extend'];
+  const expected = ['select', 'line', 'rect', 'rectCenter', 'circle', 'circle3', 'slot', 'bezier', 'polygon', 'ellipse', 'arc', 'split', 'offset', 'trim', 'extend'];
   assert.deepEqual(matrix.tools.map(tool => tool.id), expected);
   for (const tool of matrix.tools) {
     assert.match(app, new RegExp('id="' + tool.buttonId + '"'));
@@ -228,4 +228,16 @@ test('split tool is wired to selected geometry and tactile point operation',()=>
   assert.match(app,/const splitVector=points\[bestIndex\]\.clone\(\)\.lerp\(points\[bestIndex\+1\],bestT\)/);
   const split=matrix.tools.find(tool=>tool.id==='split');
   assert.ok(split&&split.status==='not_verified');
+});
+
+test('offset tool is wired to tactile geometry selection and signed offset construction',()=>{
+  assert.match(app,/data-palette-tool="offset"/);
+  assert.match(app,/id="offsetTool"/);
+  assert.match(app,/offsetPolyline/);
+  assert.match(app,/function offsetSelectedAtScreen\(clientX,clientY\)/);
+  assert.match(app,/window\.prompt\('Distancia de equidistancia en cm/);
+  assert.match(app,/operation:'offset'/);
+  assert.match(app,/activeTool==='offset'\)\{const changed=offsetSelectedAtScreen/);
+  const offset=matrix.tools.find(tool=>tool.id==='offset');
+  assert.ok(offset&&offset.status==='not_verified');
 });
