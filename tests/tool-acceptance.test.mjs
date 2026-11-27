@@ -64,7 +64,7 @@ test('Each sketch is persisted as a feature-tree group with its geometry', () =>
   assert.match(app, /sketchLayers=data&&Array\.isArray\(data\.sketches\)/);
   assert.match(app, /className='tree-row tree-sketch'/);
   assert.match(app, /members=drawnObjects\.filter\(obj=>sketchMetaForObject\(obj\)\.sketchId===layer\.id\)/);
-  assert.match(app, /sketches:sketchLayers\\.map\\(layer=>\\(\\{\\.\\.\\.layer\\}\\)\\)/);
+  assert.match(app, /sketches:sketchLayers\.map\(layer=>\(\{\.\.\.layer\}\)\)/);
 });
 
 
