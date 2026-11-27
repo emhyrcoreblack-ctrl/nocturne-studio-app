@@ -822,7 +822,7 @@ let workPlanes=null,activePlane='VIEW',snapMarkerEl=null,edgeHighlightEl=null,le
 const activeTouchPointers=new Set();const selectionTouchPointers=new Set();let selectionTouchMulti=false;const cameraRollPointers=new Map();let cameraRollLastAngle=null;let pinchGesture=false,touchStartTimer=null,touchPendingEvent=null,touchLineGuideActive=false,lineDragStart=null,lineDragPointerId=null,lineDragMoved=false,lineGestureCreatedAnchor=false,shapeTouchDragPointerId=null;
 // En tacto se compensa la oclusión del dedo: el punto CAD sigue el cursor elevado, no la yema.
 let drawingHistory=[],drawingHistoryIndex=-1,historyProjectId=null,restoringHistory=false;
-let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null,pendingDimensionType=null,activeDimensionLabel=null,dimensionOverlay=null;
+let sketchEntitySequence=0,sketchLayerSequence=0,sketchLayers=[],activeSketchId=null,pendingDimensionType=null,activeDimensionLabel=null,dimensionToolChosen=false,dimensionOverlay=null;
 const SKETCH_SCHEMA_VERSION=1;
 function createSketchDefinition(type,points,planeName=activePlane,parameters={}){
  const plane=workPlanes&&workPlanes[planeName]?planeName:(workPlanes&&workPlanes[activePlane]?activePlane:'XZ');
@@ -923,6 +923,29 @@ function solveSketchConstraints(obj){
   }
   updateFatStroke(obj,next);meta.parametricModel=model.toJSON();meta.solverStatus=result.status;meta.degreesOfFreedom=result.dof;
   return {ok:true,status:result.status,dof:result.dof};
+ }
+ if(meta.type==='rect'){
+  if(points.length!==4)return {ok:false,reason:'El rectángulo no contiene sus cuatro vértices.'};
+  const uv=points.map(point=>sketchPointUV(point,axes));
+  const active=(meta.dimensions||[]).filter(d=>d&&d.enabled!==false&&d.type==='distance'&&Number.isInteger(d.a)&&Number.isInteger(d.b)&&Number.isFinite(d.value)&&d.value>0);
+  let width=null,height=null;
+  for(const d of active){
+   const edge=d.a;
+   if(d.b!==((edge+1)%4))continue;
+   if(edge===0||edge===2)width=d.value;
+   if(edge===1||edge===3)height=d.value;
+  }
+  const signU=Math.sign(uv[1].u-uv[0].u)||1,signV=Math.sign(uv[3].v-uv[0].v)||-1;
+  if(width!==null){uv[1].u=uv[0].u+signU*width;uv[2].u=uv[3].u+signU*width;}
+  if(height!==null){uv[3].v=uv[0].v+signV*height;uv[2].v=uv[1].v+signV*height;}
+  const next=uv.map((point,index)=>sketchPointFromUV(points[index],point,axes));
+  updateFatStroke(obj,next);
+  meta.parameters=meta.parameters||{};
+  meta.parameters.width=Math.abs(uv[1].u-uv[0].u);
+  meta.parameters.height=Math.abs(uv[3].v-uv[0].v);
+  meta.parametricModel=buildParametricSketchModel(meta,next);
+  meta.solverStatus='solved';meta.degreesOfFreedom=2;
+  return {ok:true,status:'solved',dof:2};
  }
  if(meta.type==='polyline'||meta.type==='rect'||meta.type==='line'){
   let model;
@@ -1113,24 +1136,23 @@ async function applySketchDimension(type){
 }
 function updateDimensionToolIndicator(){
  const activeToggle=document.getElementById('activeToolToggle');if(!activeToggle)return;
- if(activeDimensionLabel){activeToggle.hidden=false;activeToggle.innerHTML='<span class="active-tool-glyph">↔</span><span class="active-tool-label">'+activeDimensionLabel+'</span>';activeToggle.title=activeDimensionLabel+' · Selecciona geometría o cancela';activeToggle.setAttribute('aria-label',activeToggle.title);activeToggle.setAttribute('aria-pressed','true');return;}
- if(pendingDimensionType!==null){
-  activeToggle.hidden=false;
-  activeToggle.innerHTML='<span class="active-tool-glyph">↔</span><span class="active-tool-label">Cota</span>';
-  activeToggle.title='Cota activa · toca una geometría para acotarla · pulsa para cancelar';
-  activeToggle.setAttribute('aria-label',activeToggle.title);
-  activeToggle.setAttribute('aria-pressed','true');
-  return;
- }
  const labels={select:'Seleccionar',line:'Línea',rect:'Rectángulo',rectCenter:'Rectángulo centro',circle:'Círculo',circle3:'Círculo 3 puntos',slot:'Ranura',bezier:'Bézier',polygon:'Polígono',ellipse:'Elipse',arc:'Arco',trim:'Recortar',extend:'Extender',split:'Partir',offset:'Equidistancia',fillet:'Redondeo',chamfer:'Chaflán',mirror:'Simetría',linearPattern:'Patrón lineal',circularPattern:'Patrón circular'};
  const glyphs={select:'⌖',line:'／',rect:'□',rectCenter:'▣',circle:'○',circle3:'◉',slot:'▱',bezier:'⌁',polygon:'⬡',ellipse:'⬭',arc:'⌒',trim:'✂',extend:'↗',split:'⑂',offset:'⇔',fillet:'⌒',chamfer:'／',mirror:'⇄',linearPattern:'▦',circularPattern:'⟳'};
- activeToggle.hidden=!lastDrawingTool;const shownTool=lastDrawingTool||'select';
- activeToggle.innerHTML='<span class="active-tool-glyph">'+glyphs[shownTool]+'</span><span class="active-tool-label">'+labels[shownTool]+'</span>';
- activeToggle.title='Herramienta '+labels[shownTool]+' · '+(activeTool===shownTool?'Desactivar':'Activar');
- activeToggle.setAttribute('aria-label',activeToggle.title);
- activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===lastDrawingTool));
+ if(pendingDimensionType!==null||activeDimensionLabel||dimensionToolChosen){
+  const label=activeDimensionLabel||(pendingDimensionType!==null?'Cota':'Cota');
+  activeToggle.hidden=false;activeToggle.innerHTML='<span class="active-tool-glyph">↔</span><span class="active-tool-label">'+label+'</span>';
+  activeToggle.title=pendingDimensionType!==null?label+' activa · selecciona geometría · pulsa para cancelar':(activeDimensionLabel?label+' activa':'Cota · desactivada');
+  activeToggle.setAttribute('aria-label',activeToggle.title);
+  activeToggle.setAttribute('aria-pressed',String(pendingDimensionType!==null||!!activeDimensionLabel));
+  return;
+ }
+ const shownTool=lastDrawingTool||'select';activeToggle.hidden=!lastDrawingTool;
+ activeToggle.innerHTML='<span class="active-tool-glyph">'+(glyphs[shownTool]||'⌖')+'</span><span class="active-tool-label">'+(labels[shownTool]||'Seleccionar')+'</span>';
+ activeToggle.title='Herramienta '+(labels[shownTool]||'Seleccionar')+' · '+(activeTool===shownTool?'Desactivar':'Activar');
+ activeToggle.setAttribute('aria-label',activeToggle.title);activeToggle.setAttribute('aria-pressed',String(!!lastDrawingTool&&activeTool===lastDrawingTool));
 }
 function startSketchDimension(type){
+ dimensionToolChosen=true;
  activeDimensionLabel=type==='distance'?'Cota lineal':type==='radius'?'Cota de radio':type==='diameter'?'Cota de diámetro':'Cota';
  const meta=selectedObject?sketchMetaForObject(selectedObject):null;
  const resolved=type==='auto'&&meta?(['polyline','rect','line'].includes(meta.type)?'distance':meta.type==='circle'?'diameter':meta.type==='arc'?'radius':null):type;
@@ -1369,7 +1391,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   },true);
   drawToolsPanel.addEventListener('click',event=>{const dimensionButton=event.target.closest('button[data-palette-dimension]');if(dimensionButton&&!dimensionButton.disabled&&event.detail===0){event.preventDefault();event.stopPropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
-  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});updateDimensionToolIndicator();document.getElementById('saveState').textContent='Cota cancelada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
+  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;activeDimensionLabel=null;dimensionToolChosen=true;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(dimensionToolChosen||activeDimensionLabel){activeDimensionLabel=null;dimensionToolChosen=true;activeTool='select';updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
   document.getElementById('rectTool').addEventListener('click',()=>chooseTool('rect'));
@@ -1399,7 +1421,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
  }catch(err){if(raf){cancelAnimationFrame(raf);raf=0;}if(observer){observer.disconnect();observer=null;}if(controls){controls.dispose();controls=null;}if(renderer){const failedCanvas=renderer.domElement;if(failedCanvas&&failedCanvas.parentNode)failedCanvas.parentNode.removeChild(failedCanvas);renderer.dispose();renderer=null;}scene=null;camera=null;gridObject=null;axesObject=null;lineObject=null;previewObject=null;drawnObjects=[];linePoints=[];drawStart=null;started=false;errorText.textContent='No se pudo cargar Three.js o WebGL. Comprueba Internet y que tu navegador permita aceleración gráfica. Detalle: '+(err&&err.message?err.message:'error desconocido');errorBox.classList.add('show');console.error(err);}
 }
 function setTool(tool){
- pendingDimensionType=null;activeDimensionLabel=null;
+ pendingDimensionType=null;activeDimensionLabel=null;if(tool!=='select')dimensionToolChosen=false;
  ['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});
  if(activeTool==='line'&&tool!=='line')finishContinuousLine();
  if(touchStartTimer){clearTimeout(touchStartTimer);touchStartTimer=null;}patternEditState=null;touchPendingEvent=null;touchLineGuideActive=false;activeTouchPointers.clear();selectionTouchPointers.clear();selectionTouchMulti=false;pinchGesture=false;shapeTouchDragPointerId=null;selectionPointerDown=null;if(tool!=='select')setSelectedObject(null);lineDragStart=null;lineDragPointerId=null;lineDragMoved=false;lineGestureCreatedAnchor=false;hideLineGuide();hideSnapFeedback();
