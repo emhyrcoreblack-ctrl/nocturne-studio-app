@@ -126,3 +126,19 @@ test('equal-length relation is exposed and connected for two-segment polylines',
 test('equal-length relation is available on rectangles but not other unsupported relation types',()=>{
   assert.match(app,/type==='equal'&&\(!\['polyline','rect'\]\.includes\(meta\.type\)\|\|n<3\)/);
 });
+
+test('Circle and arc dimensions are connected to the parametric solver and rendered curve',()=>{
+  assert.match(app,/function applySketchDimension\(type\)/);
+  assert.match(app,/meta\.dimensions\.push\(dimension\)/);
+  assert.match(app,/const entityId=meta\.type==='circle'\?meta\.id\+'-circle':meta\.id\+'-arc'/);
+  assert.match(app,/model\.addConstraint\(dimension\.type,\[entityId\],\{id:constraintId,value:dimension\.value\}\)/);
+  assert.match(app,/meta\.type==='circle'\|\|meta\.type==='arc'[\s\S]*?solveParametricSketch\(model\)[\s\S]*?updateFatStroke\(obj,next\)/);
+  assert.match(app,/radiusDimensionTool/);
+  assert.match(app,/diameterDimensionTool/);
+});
+
+test('Radius and diameter controls are disabled for unsupported or fixed selections',()=>{
+  assert.match(app,/!obj\|\|!\['circle','arc'\]\.includes\(meta\.type\)\|\|meta\.fixed/);
+  assert.match(app,/window\.prompt\(type==='radius'\?/);
+  assert.match(app,/saveViewportProject\(\);recordDrawingHistory\(\);refreshWorkspacePanels\(\)/);
+});
