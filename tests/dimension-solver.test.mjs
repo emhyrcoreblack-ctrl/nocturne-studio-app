@@ -10,6 +10,10 @@ test('la cota lineal modifica la distancia entre puntos del croquis',()=>{
  const result=solveParametricSketch(model);
  assert.notEqual(result.status,'conflict');
  assert.ok(Math.abs(Math.hypot(model.entities.b.u-model.entities.a.u,model.entities.b.v-model.entities.a.v)-5)<1e-4);
+ model.constraints.find(item=>item.id==='dimension-length').value=7;
+ const edited=solveParametricSketch(model);
+ assert.notEqual(edited.status,'conflict');
+ assert.ok(Math.abs(Math.hypot(model.entities.b.u-model.entities.a.u,model.entities.b.v-model.entities.a.v)-7)<1e-4);
 });
 
 test('la cota de diámetro resuelve el radio de un círculo',()=>{
@@ -19,4 +23,8 @@ test('la cota de diámetro resuelve el radio de un círculo',()=>{
  const result=solveParametricSketch(model);
  assert.notEqual(result.status,'conflict');
  assert.ok(Math.abs(model.entities.circle.radius-5)<1e-4);
+ model.constraints.find(item=>item.id==='dimension-diameter').value=14;
+ const edited=solveParametricSketch(model);
+ assert.notEqual(edited.status,'conflict');
+ assert.ok(Math.abs(model.entities.circle.radius-7)<1e-4);
 });
