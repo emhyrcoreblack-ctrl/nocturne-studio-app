@@ -297,3 +297,17 @@ test('Android dimension picking uses compensated finger aim and a touch-sized hi
   assert.match(app,/findSelectableObject\(aim\.clientX,aim\.clientY,event\.pointerType\)/);
   assert.match(app,/event\.pointerType==='touch'\?22:6/);
 });
+
+
+test('Visible Android sketch palette exposes and activates the dimension tool',()=>{
+  assert.match(app,/title="Cota" aria-label="Cota" data-palette-dimension="auto"/);
+  assert.doesNotMatch(app,/title="Cota" aria-label="Cota" disabled/);
+  assert.match(app,/button\[data-palette-dimension\]/);
+  assert.match(app,/startSketchDimension\(dimensionButton\.dataset\.paletteDimension\)/);
+  assert.match(app,/Cota activa · toca una línea, círculo o arco/);
+});
+
+test('Automatic dimension selection resolves line, circle and arc to supported dimension types',()=>{
+  assert.match(app,/requested==='auto'\?\(\['polyline','rect','line'\]\.includes\(pickedMeta\.type\)\?'distance':pickedMeta\.type==='circle'\?'diameter':pickedMeta\.type==='arc'\?'radius':null\)/);
+  assert.match(app,/if\(resolved\)applySketchDimension\(resolved\)/);
+});
