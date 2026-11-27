@@ -1009,6 +1009,7 @@ function setSketchConstraintHint(message){const el=document.getElementById('sket
 function refreshSketchConstraintControls(){
  const card=document.getElementById('sketchConstraintCard');if(!card)return;
  const obj=selectedObject,meta=obj?sketchMetaForObject(obj):null,n=obj?(obj.userData.controlPoints||[]).length:0;
+ ['radiusDimensionTool','diameterDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button)button.disabled=!obj||!['circle','arc'].includes(meta.type)||meta.fixed;});
  card.querySelectorAll('[data-sketch-constraint]').forEach(button=>{
   const type=button.dataset.sketchConstraint;
   button.disabled=!obj||(meta.fixed&&!['unlock'].includes(type))||((type==='horizontal'||type==='vertical')&&n<2)||((type==='parallel'||type==='perpendicular')&&(meta.type!=='polyline'||n<3))||(type==='equal'&&(!['polyline','rect'].includes(meta.type)||n<3))||(type==='coincident'&&(meta.type!=='polyline'||obj.userData.closed||n<3));
