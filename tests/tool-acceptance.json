@@ -241,6 +241,54 @@
       ]
     },
     {
+      "id": "mirror",
+      "buttonId": "mirrorTool",
+      "label": "Simetría",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Integración táctil de eje de simetría, copia geométrica y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar una geometría y definir dos puntos del eje de simetría.",
+        "Comprobar que la copia queda a igual distancia al otro lado del eje.",
+        "Probar eje horizontal, vertical y diagonal.",
+        "Comprobar que la original permanece intacta y undo/redo funciona.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
+      "id": "linearPattern",
+      "buttonId": "linearPatternTool",
+      "label": "Patrón lineal",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Generación de copias desplazadas mediante linearPattern y flujo táctil de dirección/separación; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar geometría y marcar dirección.",
+        "Introducir separación y número de instancias.",
+        "Comprobar distancias iguales entre copias y orientación.",
+        "Comprobar persistencia y undo/redo.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
+      "id": "circularPattern",
+      "buttonId": "circularPatternTool",
+      "label": "Patrón circular",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Generación de instancias alrededor de centro mediante circularPattern; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Seleccionar geometría y marcar centro de patrón.",
+        "Introducir cantidad de instancias.",
+        "Comprobar distribución angular uniforme y ausencia de copia duplicada sobre el original.",
+        "Comprobar persistencia y undo/redo.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
       "id": "trim",
       "buttonId": "trimTool",
       "label": "Recortar",
