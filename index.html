@@ -924,6 +924,28 @@ function solveSketchConstraints(obj){
   updateFatStroke(obj,next);meta.parametricModel=model.toJSON();meta.solverStatus=result.status;meta.degreesOfFreedom=result.dof;
   return {ok:true,status:result.status,dof:result.dof};
  }
+ if(meta.type==='rect'){
+  // Un rectángulo debe conservar sus cuatro ángulos rectos y lados opuestos
+  // paralelos. Resolver una cota como distancia aislada entre dos vértices
+  // permitía que el solver deformara el perfil completo.
+  const uv=points.map(point=>sketchPointUV(point,axes));
+  const dimensions=(meta.dimensions||[]).filter(d=>d&&d.enabled!==false&&d.type==='distance'&&Number.isInteger(d.a)&&Number.isInteger(d.b)&&Number.isFinite(d.value)&&d.value>0);
+  for(const d of dimensions){
+   const edge=(d.a===3&&d.b===0)?3:d.a;
+   if(d.b!==((edge+1)%4))continue;
+   if(edge===0){const sign=Math.sign(uv[1].u-uv[0].u)||1;uv[1].u=uv[0].u+sign*d.value;uv[2].u=uv[1].u;}
+   else if(edge===2){const sign=Math.sign(uv[3].u-uv[2].u)||-1;uv[3].u=uv[2].u+sign*d.value;uv[0].u=uv[3].u;}
+   else if(edge===1){const sign=Math.sign(uv[2].v-uv[1].v)||1;uv[2].v=uv[1].v+sign*d.value;uv[3].v=uv[2].v;}
+   else if(edge===3){const sign=Math.sign(uv[0].v-uv[3].v)||-1;uv[0].v=uv[3].v+sign*d.value;uv[1].v=uv[0].v;}
+  }
+  const next=uv.map((point,index)=>sketchPointFromUV(points[index],point,axes));
+  updateFatStroke(obj,next);
+  meta.parameters.width=Math.hypot(uv[1].u-uv[0].u,uv[1].v-uv[0].v);
+  meta.parameters.height=Math.hypot(uv[2].u-uv[1].u,uv[2].v-uv[1].v);
+  meta.parametricModel=buildParametricSketchModel(meta,next);
+  meta.solverStatus='solved';meta.degreesOfFreedom=2;
+  return {ok:true,status:'solved',dof:2};
+ }
  if(meta.type==='polyline'||meta.type==='rect'||meta.type==='line'){
   let model;
   try{model=meta.parametricModel?ParametricSketch.fromJSON(meta.parametricModel):ParametricSketch.fromJSON(buildParametricSketchModel(meta,points));}
@@ -1369,7 +1391,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
   },true);
   drawToolsPanel.addEventListener('click',event=>{const dimensionButton=event.target.closest('button[data-palette-dimension]');if(dimensionButton&&!dimensionButton.disabled&&event.detail===0){event.preventDefault();event.stopPropagation();startSketchDimension(dimensionButton.dataset.paletteDimension);closeDrawPalette();return;}const toolButton=event.target.closest('button[data-palette-tool]');if(toolButton&&!toolButton.disabled){event.preventDefault();event.stopPropagation();chooseTool(toolButton.dataset.paletteTool);return;}const constraint=event.target.closest('button[data-palette-constraint]');if(constraint){const target=document.querySelector('[data-sketch-constraint="'+constraint.dataset.paletteConstraint+'"]');if(target&&!target.disabled)target.click();return;}if(event.target.closest('[data-palette-close]'))closeDrawPalette();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&drawPaletteOpen)closeDrawPalette();});
-  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null){pendingDimensionType=null;['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});updateDimensionToolIndicator();document.getElementById('saveState').textContent='Cota cancelada';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
+  document.getElementById('activeToolToggle').addEventListener('click',()=>{if(pendingDimensionType!==null||activeDimensionLabel){pendingDimensionType=null;activeDimensionLabel=null;lastDrawingTool='select';activeTool='select';['radiusDimensionTool','diameterDimensionTool','linearDimensionTool'].forEach(id=>{const button=document.getElementById(id);if(button){button.classList.remove('tool-active');button.setAttribute('aria-pressed','false');}});updateDimensionToolIndicator();refreshWorkspacePanels();document.getElementById('saveState').textContent='Cota desactivada · modo Seleccionar';return;}if(!lastDrawingTool)return;setTool(activeTool===lastDrawingTool?'select':lastDrawingTool);});
   document.getElementById('selectTool').addEventListener('click',()=>chooseTool('select'));
   document.getElementById('lineTool').addEventListener('click',()=>chooseTool('line'));
   document.getElementById('rectTool').addEventListener('click',()=>chooseTool('rect'));
