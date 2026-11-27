@@ -69,6 +69,23 @@
       ]
     },
     {
+      "id": "circle3",
+      "buttonId": "circle3Tool",
+      "label": "Círculo por 3 puntos",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Construcción de circunferencia con tres puntos no colineales y rechazo de puntos colineales: suite cad-geometry.test.mjs.",
+        "Integración de previsualización, entrada táctil en tres pasos y persistencia parcial: inspección automatizada de fuentes; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Crear una circunferencia con tres puntos distintos sobre su perímetro.",
+        "Comprobar centro, radio y plano activo con referencias geométricas.",
+        "Comprobar que tres puntos colineales no crean geometría y permiten continuar.",
+        "Interrumpir tras el primer o segundo punto, reabrir el proyecto y continuar.",
+        "Repetir la creación con dedo y lápiz táctil."
+      ]
+    },
+    {
       "id": "polygon",
       "buttonId": "polygonTool",
       "label": "Polígono",
