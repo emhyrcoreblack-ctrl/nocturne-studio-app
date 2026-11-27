@@ -326,6 +326,13 @@ test('Android palette starts dimension mode on pointerdown and keeps keyboard ac
 });
 
 
+test('Cota edita dimensiones existentes sin acumular restricciones contradictorias',()=>{
+ assert.match(app,/const existing=meta\.dimensions\.find/);
+ assert.match(app,/if\(dimension\)\{dimension\.type=dimensionType;dimension\.value=value;dimension\.enabled=true;\}/);
+ assert.match(app,/existingConstraint\.type=dimension\.type;existingConstraint\.value=dimension\.value/);
+ assert.match(app,/if\(existingConstraint\)\{existingConstraint\.value=dimension\.value;continue;\}/);
+});
+
 test('Cota automática resuelve el tipo correcto cuando ya hay una geometría seleccionada',()=>{
  assert.match(app,/const resolved=type==='auto'&&meta\?\(\['polyline','rect','line'\]\.includes\(meta\.type\)\?'distance':meta\.type==='circle'\?'diameter':meta\.type==='arc'\?'radius':null\):type/);
  assert.match(app,/if\(supported\)\{pendingDimensionType=null;applySketchDimension\(resolved\);return;\}/);
