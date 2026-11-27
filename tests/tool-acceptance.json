@@ -207,6 +207,40 @@
       ]
     },
     {
+      "id": "fillet",
+      "buttonId": "filletTool",
+      "label": "Redondeo",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Tangencias y arco de radio exacto en vértices abiertos/cerrados: cad-geometry.test.mjs.",
+        "Integración táctil y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Aplicar radio a un vértice interior abierto.",
+        "Verificar tangencia y radio.",
+        "Probar perfil cerrado y radio excesivo.",
+        "Comprobar undo/redo y reapertura.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
+      "id": "chamfer",
+      "buttonId": "chamferTool",
+      "label": "Chaflán",
+      "status": "not_verified",
+      "automatedCoverage": [
+        "Dos puntos de recorte equidistantes: cad-geometry.test.mjs.",
+        "Integración táctil y persistencia; pendiente E2E Android."
+      ],
+      "manualScenarios": [
+        "Aplicar chaflán a un vértice.",
+        "Verificar distancias de recorte.",
+        "Probar perfiles cerrados, extremos y medidas excesivas.",
+        "Comprobar undo/redo y persistencia.",
+        "Repetir con dedo y stylus."
+      ]
+    },
+    {
       "id": "trim",
       "buttonId": "trimTool",
       "label": "Recortar",
