@@ -857,7 +857,7 @@ function buildParametricSketchModel(meta,points){
  for(let i=0;i<segmentCount;i++){
   const next=(i+1)%pointIds.length;
   const lineId=model.addLine(pointIds[i],pointIds[next],{id:meta.id+'-e'+i});
-  if(meta.type==='rect')model.addConstraint(i%2===0?'horizontal':'vertical',[lineId]);
+
  }
  return model.toJSON();
 }
@@ -889,6 +889,32 @@ function solveSketchConstraints(obj){
  if(!obj||!obj.userData.controlPoints)return {ok:false,reason:'No hay geometría seleccionada'};
  const meta=sketchMetaForObject(obj),points=obj.userData.controlPoints,axes=sketchPlaneAxes(meta);
  if(meta.fixed)return {ok:false,reason:'La geometría está fijada'};
+ if(meta.type==='polyline'||meta.type==='rect'){
+  let model;
+  try{model=meta.parametricModel?ParametricSketch.fromJSON(meta.parametricModel):ParametricSketch.fromJSON(buildParametricSketchModel(meta,points));}
+  catch(error){return {ok:false,reason:'No se pudo recuperar el modelo paramétrico: '+error.message};}
+  for(const c of meta.constraints.filter(x=>x&&x.enabled!==false)){
+   const a=Number.isInteger(c.a)?c.a:0,b=Number.isInteger(c.b)?c.b:1;
+   const pointId=index=>meta.id+'-p'+index,lineId=index=>meta.id+'-e'+index;
+   const refs=c.type==='coincident'?[pointId(a),pointId(b)]:
+    c.type==='horizontal'||c.type==='vertical'?[lineId(a)]:
+    c.type==='parallel'||c.type==='perpendicular'?[lineId(a),lineId(b)]:null;
+   if(!refs)continue;
+   const constraintId='legacy-'+c.id;
+   if(model.constraints.some(item=>item.id===constraintId))continue;
+   try{model.addConstraint(c.type,refs,{id:constraintId});}
+   catch(error){return {ok:false,reason:'Restricción incompatible con esta geometría: '+error.message};}
+  }
+  const result=solveParametricSketch(model);
+  if(result.status==='conflict')return {ok:false,reason:'Las restricciones entran en conflicto. Revisa las relaciones del croquis.'};
+  const next=points.map((original,index)=>{
+   const entity=model.entities[meta.id+'-p'+index];
+   return entity?sketchPointFromUV(original,{u:entity.u,v:entity.v},axes):original.clone();
+  });
+  updateFatStroke(obj,next);
+  meta.parametricModel=model.toJSON();meta.solverStatus=result.status;meta.degreesOfFreedom=result.dof;
+  return {ok:true,status:result.status,dof:result.dof};
+ }
  const uv=points.map(p=>sketchPointUV(p,axes));
  for(let pass=0;pass<8;pass++){
   for(const c of meta.constraints.filter(x=>x&&x.enabled!==false)){
