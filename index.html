@@ -954,7 +954,7 @@ axesObject=new THREE.AxesHelper(65);scene.add(axesObject);
     dockSketchButton.classList.add('sketch-active');
     dockSketchButton.setAttribute('aria-pressed','true');
     dockSketchButton.title='Terminar croquis · '+({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[sketchPlane]||sketchPlane);
-    dockSketchButton.querySelector('small').textContent='Croquis activo';
+    dockSketchButton.querySelector('small').textContent='Croquis';
     drawToolsPanel.classList.add('open');drawToolsPanel.setAttribute('aria-hidden','false');
     drawMenuButton.classList.add('menu-open');drawMenuButton.setAttribute('aria-expanded','true');
     document.getElementById('saveState').textContent='Croquis · '+({XZ:'Suelo XZ',XY:'Frente XY',YZ:'Lado YZ'}[sketchPlane]||sketchPlane);
