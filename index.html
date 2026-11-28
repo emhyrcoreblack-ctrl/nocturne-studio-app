@@ -932,8 +932,8 @@ function solveSketchConstraints(obj){
   for(const d of active){
    const edge=d.a;
    if(d.b!==((edge+1)%4))continue;
-   if(edge===0||edge===2)width=d.value;
-   if(edge===1||edge===3)height=d.value;
+   if(edge===0||edge===2){if(width!==null&&Math.abs(width-d.value)>1e-6)return {ok:false,reason:'Las cotas de los lados horizontales del rectángulo deben coincidir.'};width=d.value;}
+   if(edge===1||edge===3){if(height!==null&&Math.abs(height-d.value)>1e-6)return {ok:false,reason:'Las cotas de los lados verticales del rectángulo deben coincidir.'};height=d.value;}
   }
   const signU=Math.sign(uv[1].u-uv[0].u)||1,signV=Math.sign(uv[3].v-uv[0].v)||-1;
   if(width!==null){uv[1].u=uv[0].u+signU*width;uv[2].u=uv[3].u+signU*width;}
@@ -1106,7 +1106,7 @@ async function applySketchDimension(type){
  const meta=sketchMetaForObject(obj),points=obj.userData.controlPoints||[];
  if(meta.fixed){setSketchConstraintHint('La geometría está fijada. Desbloquéala antes de modificarla.');return;}
  const linear=type==='distance';
- if(linear&&!['polyline','rect','line'].includes(meta.type)){setSketchConstraintHint('Selecciona una línea o un croquis con segmentos para aplicar una cota lineal.');return;}
+ if(linear&&!['polyline','rect','line','polygon','slot','bezier'].includes(meta.type)){setSketchConstraintHint('Selecciona un segmento de línea, polilínea, polígono, ranura o Bézier para aplicar una cota lineal.');return;}
  if(linear&&points.length<2){setSketchConstraintHint('La geometría no contiene un segmento acotable.');return;}
  if(!linear&&!['circle','arc'].includes(meta.type)){setSketchConstraintHint('Selecciona un círculo o arco para acotar su radio o diámetro.');return;}
  const segmentIndex=linear?Math.max(0,Math.min(Number.isInteger(obj.userData.lastPickedSegmentIndex)?obj.userData.lastPickedSegmentIndex:0,meta.type==='rect'?points.length-1:points.length-2)):0;
@@ -1157,7 +1157,7 @@ function startSketchDimension(type){
  const meta=selectedObject?sketchMetaForObject(selectedObject):null;
  const resolved=type==='auto'&&meta?(['polyline','rect','line'].includes(meta.type)?'distance':meta.type==='circle'?'diameter':meta.type==='arc'?'radius':null):type;
  if(resolved)activeDimensionLabel=resolved==='distance'?'Cota lineal':resolved==='radius'?'Cota de radio':'Cota de diámetro';
- const supported=!!(selectedObject&&meta&&!meta.fixed&&resolved&&(resolved==='distance'?['polyline','rect','line'].includes(meta.type)&&(selectedObject.userData.controlPoints||[]).length>=2:['circle','arc'].includes(meta.type)));
+ const supported=!!(selectedObject&&meta&&!meta.fixed&&resolved&&(resolved==='distance'?['polyline','rect','line','polygon','slot','bezier'].includes(meta.type)&&(selectedObject.userData.controlPoints||[]).length>=2:['circle','arc'].includes(meta.type)));
  if(supported){activeDimensionType=resolved;pendingDimensionType=type==='auto'? 'auto':resolved;updateDimensionToolIndicator();applySketchDimension(resolved);return;}
  if(activeTool!=='select')setTool('select');
  activeDimensionLabel=type==='distance'?'Cota lineal':type==='radius'?'Cota de radio':type==='diameter'?'Cota de diámetro':'Cota';
